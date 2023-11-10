@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotNetUtilities.Maui.SourceGenerators": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\DotNetUtilities.Maui.TestApp\\DotNetUtilities.Maui.TestApp.csproj"
+    }
+  }
+}

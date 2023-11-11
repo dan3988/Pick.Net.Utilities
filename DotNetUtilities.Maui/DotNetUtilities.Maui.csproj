@@ -8,11 +8,12 @@
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <Compile Remove="Maui/**/*.cs" />
-    <None Include="Maui/**/*.cs" />
-  </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <ProjectReference Include="..\DotNetUtilities\DotNetUtilities.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <Compile Remove="**/*.cs" />
+    <None Include="**/*.cs" />
+    <None Remove="obj/**" />
   </ItemGroup>
 </Project>

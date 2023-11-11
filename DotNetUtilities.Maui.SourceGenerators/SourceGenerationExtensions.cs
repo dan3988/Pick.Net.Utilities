@@ -46,6 +46,9 @@ internal static class SourceGenerationExtensions
 	public static InvocationExpressionSyntax AddArgumentListTypeOfArgument(this InvocationExpressionSyntax syntax, TypeSyntax type)
 		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.TypeOfExpression(type)));
 
+	public static InvocationExpressionSyntax AddArgumentListNullArgument(this InvocationExpressionSyntax syntax)
+		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
+
 	public static InvocationExpressionSyntax AddArgumentListLiteralArgument(this InvocationExpressionSyntax syntax, string literal)
 		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(literal))));
 

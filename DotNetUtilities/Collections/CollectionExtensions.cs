@@ -4,7 +4,8 @@ public static class CollectionExtensions
 {
 	public static void Deconstruct<T, TKey, TValue>(this T pair, out TKey key, out TValue value)
 		where TKey : notnull
-		where T: IMapEntry<TKey, TValue>
+		where TValue : class
+		where T : IMapEntry<TKey, TValue>
 	{
 		key = pair.Key;
 		value = pair.Value;

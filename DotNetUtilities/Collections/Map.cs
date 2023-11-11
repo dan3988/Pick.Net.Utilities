@@ -52,7 +52,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 
 	#region Explicit Property Implementations
 
-	bool ICollection<IMapEntry>.IsReadOnly => false;
+	bool ICollection<IReadOnlyMapEntry>.IsReadOnly => false;
 
 	bool ICollection<IMapEntry<TKey, TValue>>.IsReadOnly => false;
 
@@ -112,7 +112,13 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 		dictionary = new(values.Select(ToMapEntry), comparer);
 	}
 
-	public void CopyTo(IMapEntry[] array, int arrayIndex)
+	public IMapEntry<TKey, TValue>? GetEntry(TKey key)
+	{
+		dictionary.TryGetValue(key, out var entry);
+		return entry;
+	}
+
+	public void CopyTo(IReadOnlyMapEntry[] array, int arrayIndex)
 		=> CopyTo((Array)array, arrayIndex);
 
 	public void CopyTo(IMapEntry<TKey, TValue>[] array, int arrayIndex)
@@ -153,7 +159,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 	IEnumerator IEnumerable.GetEnumerator()
 		=> GetEnumerator();
 
-	IEnumerator<IMapEntry> IEnumerable<IMapEntry>.GetEnumerator()
+	IEnumerator<IReadOnlyMapEntry> IEnumerable<IReadOnlyMapEntry>.GetEnumerator()
+		=> GetEnumerator();
+
+	IEnumerator<IReadOnlyMapEntry<TKey, TValue>> IEnumerable<IReadOnlyMapEntry<TKey, TValue>>.GetEnumerator()
 		=> GetEnumerator();
 
 	IEnumerator<IMapEntry<TKey, TValue>> IEnumerable<IMapEntry<TKey, TValue>>.GetEnumerator()
@@ -168,10 +177,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 			array.SetValue(entry, index++);
 	}
 
-	private bool Contains(TKey key, TValue value, IMapEntry entry)
+	private bool Contains(TKey key, TValue value, IReadOnlyMapEntry entry)
 		=> dictionary.TryGetValue(key, out var found) && (ReferenceEquals(entry, found) || EqualityComparer<TValue>.Default.Equals(found.Value, value));
 
-	private bool Remove(TKey key, TValue value, IMapEntry entry)
+	private bool Remove(TKey key, TValue value, IReadOnlyMapEntry entry)
 	{
 		if (Contains(key, value, entry))
 		{
@@ -187,7 +196,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 	void ICollection.CopyTo(Array array, int index)
 		=> CopyTo(array, index);
 
-	bool ICollection<IMapEntry>.Contains(IMapEntry item)
+	bool ICollection<IReadOnlyMapEntry>.Contains(IReadOnlyMapEntry item)
 		=> item.Key is TKey key && item.Value is TValue value && Contains(key, value, item);
 
 	bool ICollection<IMapEntry<TKey, TValue>>.Contains(IMapEntry<TKey, TValue> item)
@@ -199,10 +208,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 	bool ICollection<IMapEntry<TKey, TValue>>.Remove(IMapEntry<TKey, TValue> item)
 		=> Remove(item.Key, item.Value, item);
 
-	bool ICollection<IMapEntry>.Remove(IMapEntry item)
+	bool ICollection<IReadOnlyMapEntry>.Remove(IReadOnlyMapEntry item)
 		=> item.Key is TKey key && item.Value is TValue value && Contains(key, value, item);
 
-	void ICollection<IMapEntry>.Add(IMapEntry item)
+	void ICollection<IReadOnlyMapEntry>.Add(IReadOnlyMapEntry item)
 		=> ((IMap)this).Add(item.Key, item.Value);
 
 	void IMap.Add(object key, object? value)
@@ -215,6 +224,12 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 
 		dictionary.Add(k, new(k, v));
 	}
+
+	IReadOnlyMapEntry<TKey, TValue>? IReadOnlyMap<TKey, TValue>.GetEntry(TKey key)
+		=> GetEntry(key);
+
+	IReadOnlyMapEntry? IReadOnlyMap.GetEntry(object key)
+		=> key is TKey k ? GetEntry(k) : null;
 
 	#endregion
 }

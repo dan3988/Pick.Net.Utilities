@@ -27,6 +27,12 @@ public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMa
 
 	object? IReadOnlyMap.this[object key] => key is TKey k ? _map[k] : null;
 
+	IReadOnlyMapEntry? IReadOnlyMap.GetEntry(object key)
+		=> key is TKey k ? _map.GetEntry(k) : null;
+
+	public IReadOnlyMapEntry<TKey, TValue>? GetEntry(TKey key)
+		=> _map.GetEntry(key);
+
 	public bool ContainsKey(TKey key)
 		=> _map.ContainsKey(key);
 
@@ -39,9 +45,9 @@ public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMa
 	IEnumerator IEnumerable.GetEnumerator()
 		=> GetEnumerator();
 
-	IEnumerator<IMapEntry> IEnumerable<IMapEntry>.GetEnumerator()
+	IEnumerator<IReadOnlyMapEntry> IEnumerable<IReadOnlyMapEntry>.GetEnumerator()
 		=> GetEnumerator();
 
-	public IEnumerator<IMapEntry<TKey, TValue>> GetEnumerator()
+	public IEnumerator<IReadOnlyMapEntry<TKey, TValue>> GetEnumerator()
 		=> _map.GetEnumerator();
 }

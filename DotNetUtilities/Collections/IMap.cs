@@ -6,7 +6,7 @@ namespace DotNetUtilities.Collections;
 /// <summary>
 /// Mutable extension of <see cref="IReadOnlyMap"/>
 /// </summary>
-public interface IMap : ICollection<IMapEntry>, IReadOnlyMap
+public interface IMap : ICollection<IReadOnlyMapEntry>, IReadOnlyMap
 {
 	new object? this[object key] { get; set; }
 
@@ -23,6 +23,8 @@ public interface IMap<TKey, TValue> : ICollection<IMapEntry<TKey, TValue>>, IRea
 	where TValue : class
 {
 	new TValue? this[TKey key] { get; set; }
+
+	new IMapEntry<TKey, TValue>? GetEntry(TKey key);
 
 	void Add(TKey key, TValue value);
 

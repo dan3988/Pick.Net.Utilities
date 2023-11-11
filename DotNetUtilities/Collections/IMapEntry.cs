@@ -1,17 +1,8 @@
 ﻿namespace DotNetUtilities.Collections;
 
-public interface IMapEntry
-
-{
-	object Key { get; }
-
-	object? Value { get; }
-}
-
-public interface IMapEntry<out TKey, out TValue> : IMapEntry
+public interface IMapEntry<out TKey, TValue> : IReadOnlyMapEntry<TKey, TValue>
 	where TKey : notnull
+	where TValue : class
 {
-	new TKey Key { get; }
-
-	new TValue Value { get; }
+	new TValue Value { get; set; }
 }

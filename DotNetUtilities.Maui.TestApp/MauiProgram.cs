@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DotNetUtilities.Maui.TestApp.Controls;
+
+using Microsoft.Extensions.Logging;
 
 namespace DotNetUtilities.Maui.TestApp
 {
@@ -18,6 +20,13 @@ namespace DotNetUtilities.Maui.TestApp
 #if DEBUG
 			builder.Logging.AddDebug();
 #endif
+
+			var test = new TestControl
+			{
+				Text = "555",
+				MinLength = 1,
+				MaxLength = 5
+			};
 
 			return builder.Build();
 		}

@@ -1,4 +1,6 @@
-﻿namespace DotNetUtilities.Maui.Helpers;
+﻿using System;
+
+namespace DotNetUtilities.Maui.Helpers;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
 public sealed class BindablePropertyAttribute : Attribute

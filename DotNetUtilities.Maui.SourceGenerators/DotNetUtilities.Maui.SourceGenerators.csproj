@@ -26,4 +26,6 @@
     <Compile Remove="Compatibility/**/*.cs" />
     <None Include="Compatibility/**/*.cs" />
   </ItemGroup>
+
+  <Import Project="..\DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems" Label="Shared" />
 </Project>

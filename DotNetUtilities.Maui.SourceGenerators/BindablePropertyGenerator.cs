@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
+using DotNetUtilities.Maui.Helpers;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,7 +18,8 @@ namespace DotNetUtilities.Maui.SourceGenerators;
 [Generator]
 public class BindablePropertyGenerator : IIncrementalGenerator
 {
-	private const string attributeName = "DotNetUtilities.Maui.Helpers.BindablePropertyAttribute";
+	private static readonly Type attributeType = typeof(BindablePropertyAttribute);
+	private static readonly string attributeName = attributeType.FullName;
 
 	private static readonly IdentifierNameSyntax nameValue = IdentifierName("value");
 	private static readonly IdentifierNameSyntax nameGetValue = IdentifierName("GetValue");

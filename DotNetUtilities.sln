@@ -16,7 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetUtilities", "DotNetUtilities\DotNetUtilities.csproj", "{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{78CB99A5-6EB2-40E3-829A-12406CFC368A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{78CB99A5-6EB2-40E3-829A-12406CFC368A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DotNetUtilities.Maui.Shared", "DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.shproj", "{C181FD58-A49A-4E15-94D8-F88458DE253D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,5 +54,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F5B7D413-EFA2-4DDB-A7F5-F818F1E2F481}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems*{2bcbbab9-67e3-4076-8c31-c76b38d770d1}*SharedItemsImports = 5
+		DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems*{871760e7-67e0-48b4-b415-db6b8fb68448}*SharedItemsImports = 5
+		DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems*{c181fd58-a49a-4e15-94d8-f88458de253d}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

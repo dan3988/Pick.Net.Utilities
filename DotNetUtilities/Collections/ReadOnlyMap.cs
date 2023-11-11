@@ -1,18 +1,47 @@
-﻿namespace DotNetUtilities.Collections;
+﻿using System.Collections;
 
-public class ReadOnlyMap<TKey, TValue> : BaseMap<TKey, TValue>
+namespace DotNetUtilities.Collections;
+
+public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMap, ICollection
 	where TKey : notnull
 	where TValue : class
 {
-	public override bool IsReadOnly => true;
+	private readonly IReadOnlyMap<TKey, TValue> _map;
 
-	public ReadOnlyMap() : this(0, null) { }
+	public ReadOnlyMap(IReadOnlyMap<TKey, TValue> map)
+	{
+		_map = map;
+	}
 
-	public ReadOnlyMap(int capacity) : this(capacity, null) { }
+	public int Count => _map.Count;
 
-	public ReadOnlyMap(IEqualityComparer<TKey>? comparer) : this(0, comparer) { }
+	public TValue? this[TKey key] => _map[key];
 
-	public ReadOnlyMap(int capacity, IEqualityComparer<TKey>? comparer) : base(capacity, comparer) { }
+	public IReadOnlyCollection<TKey> Keys => _map.Keys;
 
-	public ReadOnlyMap(Dictionary<TKey, TValue> values) : base(new(values, values.Comparer)) { }
+	public IReadOnlyCollection<TValue> Values => _map.Values;
+
+	bool ICollection.IsSynchronized => false;
+
+	object ICollection.SyncRoot => this;
+
+	object? IReadOnlyMap.this[object key] => key is TKey k ? _map[k] : null;
+
+	public bool ContainsKey(TKey key)
+		=> _map.ContainsKey(key);
+
+	public void CopyTo(Array array, int index)
+	{
+		foreach (var item in _map)
+			array.SetValue(item, index++);
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+		=> GetEnumerator();
+
+	IEnumerator<IMapEntry> IEnumerable<IMapEntry>.GetEnumerator()
+		=> GetEnumerator();
+
+	public IEnumerator<IMapEntry<TKey, TValue>> GetEnumerator()
+		=> _map.GetEnumerator();
 }

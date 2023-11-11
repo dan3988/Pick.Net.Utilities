@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-
-namespace DotNetUtilities.Collections;
+﻿namespace DotNetUtilities.Collections;
 
 /// <summary>
 /// Non-generic implementation of <see cref="IReadOnlyMap{TKey, TValue}"/>.

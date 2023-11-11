@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 
 using DotNetUtilities.Maui.SourceGenerators;
@@ -23,6 +26,24 @@ namespace CodeGeneration.SourceGenerators
 		private static readonly IdentifierNameSyntax nameBindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 		private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
 
+		private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
+
+		private static readonly IReadOnlyDictionary<PropertyAccessLevel, SyntaxTokenList> accessLevelTokens = new Dictionary<PropertyAccessLevel, SyntaxTokenList>()
+		{
+			[PropertyAccessLevel.Public] = tokensPublic,
+			[PropertyAccessLevel.Protected] = CreateTokenList(SyntaxKind.ProtectedKeyword),
+			[PropertyAccessLevel.Internal] = CreateTokenList(SyntaxKind.InternalKeyword),
+			[PropertyAccessLevel.Private] = CreateTokenList(SyntaxKind.PrivateKeyword),
+			[PropertyAccessLevel.ProtectedInternal] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword),
+			[PropertyAccessLevel.ProtectedPrivate] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword),
+		};
+
+		private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
+			=> new(Token(kind));
+
+		private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
+			=> new(kinds.Select(Token));
+
 		private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(BindablePropertyEntry entry, TypeSyntax declaringType, out IdentifierNameSyntax propertyType, out IdentifierNameSyntax bindablePropertyField)
 		{
 			propertyType = IdentifierName(entry.PropertyType);
@@ -35,7 +56,8 @@ namespace CodeGeneration.SourceGenerators
 			var declarator = VariableDeclarator(bindablePropertyField.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
 
 			return FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
-				.AddModifiers(SyntaxKind.PublicKeyword, SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+				.WithModifiers(entry.GetModifiers)
+				.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
 		}
 
 		private static AccessorDeclarationSyntax GenerateGetter(TypeSyntax propertyType, TypeSyntax bindablePropertyField)
@@ -47,7 +69,7 @@ namespace CodeGeneration.SourceGenerators
 				.WithSemicolonToken();
 		}
 
-		private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField)
+		private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField, in SyntaxTokenList accessors)
 		{
 			var expression = InvocationExpression(nameSetValue)
 				.AddArgumentListArguments(
@@ -55,6 +77,7 @@ namespace CodeGeneration.SourceGenerators
 					Argument(nameValue));
 
 			return AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+				.WithModifiers(accessors)
 				.WithExpressionBody(ArrowExpressionClause(expression))
 				.WithSemicolonToken();
 		}
@@ -62,39 +85,63 @@ namespace CodeGeneration.SourceGenerators
 		private static PropertyDeclarationSyntax GenerateBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 		{
 			return PropertyDeclaration(propertyType, entry.PropertyName)
-				.AddModifier(SyntaxKind.PublicKeyword)
+				.WithModifiers(entry.GetModifiers)
 				.AddAccessorListAccessors(
 					GenerateGetter(propertyType, bindablePropertyField),
-					GenerateSetter(bindablePropertyField));
+					GenerateSetter(bindablePropertyField, entry.SetModifiers));
 		}
 
-		private static void RegisterEntry(SourceProductionContext context, ClassEntry item)
+		private static void RegisterEntry(SourceProductionContext context, (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) item)
 		{
-			var identifier = Identifier(item.TypeName);
-			var fullIdentifier = IdentifierName(item.FullName);
+			var (clazz, diagnostics) = item;
+			foreach (var diagnostic in diagnostics)
+				context.ReportDiagnostic(diagnostic);
+
+			var identifier = Identifier(clazz.TypeName);
+			var fullIdentifier = IdentifierName(clazz.FullName);
 			var type = TypeDeclaration(SyntaxKind.ClassDeclaration, identifier)
 				.AddModifier(SyntaxKind.PartialKeyword);
 
-			foreach (var entry in item.Properties)
+			foreach (var entry in clazz.Properties)
 			{
 				type = type.AddMembers(
 					GenerateBindablePropertyDeclaration(entry, fullIdentifier, out var propertyType, out var bindablePropertyField),
 					GenerateBindablePropertyAccessors(entry, propertyType, bindablePropertyField));
 			}
 
-			var ns = NamespaceDeclaration(IdentifierName(item.Namespace)).AddMembers(type);
+			var ns = NamespaceDeclaration(IdentifierName(clazz.Namespace)).AddMembers(type);
 			var unit = CompilationUnit().AddMembers(ns).NormalizeWhitespace();
 
-			context.AddSource(item.FileName, unit);
+			context.AddSource(clazz.FileName, unit);
 		}
 
-		private static ClassEntry MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
+		private static bool ToSyntaxTokens(SyntaxReference? reference, in TypedConstant value, out SyntaxTokenList tokens, [MaybeNullWhen(true)] out Diagnostic diagnostic)
+		{
+			var level = (PropertyAccessLevel)Convert.ToInt32(value.Value);
+
+			if (accessLevelTokens.TryGetValue(level, out tokens))
+			{
+				diagnostic = null;
+				return true;
+			}
+			else
+			{
+				var location = reference == null ? null : Location.Create(reference.SyntaxTree, reference.Span);
+				diagnostic = Diagnostic.Create(DiagnosticDescriptors.BindablePropertyInvalidAccessor, location, level);
+				return false;
+			}
+		}
+
+		private static (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 		{
 			var type = (ITypeSymbol)context.TargetSymbol;
 			var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
 			var typeReference = type.GetFullTypeName();
 			var attributes = context.Attributes;
 			var entries = new BindablePropertyEntry[attributes.Length];
+			var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+
+			Diagnostic? diagnostic;
 
 			for (var i = 0; i < entries.Length; i++)
 			{
@@ -102,11 +149,32 @@ namespace CodeGeneration.SourceGenerators
 				var arguments = attribute.ConstructorArguments;
 				var name = (string?)arguments[0].Value ?? "";
 				var propType = (ITypeSymbol)arguments[1].Value!;
-				entries[i] = new(name, propType.GetFullTypeName());
+
+				SyntaxTokenList getterAccessors = tokensPublic;
+				SyntaxTokenList setterAccessors = default;
+
+				foreach (var (key, value) in attribute.NamedArguments)
+				{
+					switch (key)
+					{
+						case "AccessLevel":
+							if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out getterAccessors, out diagnostic))
+								diagnostics.Add(diagnostic);
+
+							break;
+						case "WriteAccessLevel":
+							if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out setterAccessors, out diagnostic))
+								diagnostics.Add(diagnostic);
+
+							break;
+					}
+				}
+
+				entries[i] = new(name, propType.GetFullTypeName(), getterAccessors, setterAccessors);
 			}
 
-			return new(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", ImmutableArray.Create(entries));
-
+			var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", ImmutableArray.Create(entries));
+			return (classEntry, diagnostics.ToImmutable());
 		}
 
 		private static bool MetadataPredictate(SyntaxNode node, CancellationToken token)
@@ -115,7 +183,6 @@ namespace CodeGeneration.SourceGenerators
 		public void Initialize(IncrementalGeneratorInitializationContext context)
 		{
 			var info = context.SyntaxProvider.ForAttributeWithMetadataName(attributeName, MetadataPredictate, MetadataTransform);
-
 			context.RegisterSourceOutput(info, RegisterEntry);
 		}
 	}

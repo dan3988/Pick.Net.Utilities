@@ -1,3 +1,5 @@
-﻿namespace CodeGeneration.SourceGenerators;
+﻿using Microsoft.CodeAnalysis;
 
-internal record BindablePropertyEntry(string PropertyName, string PropertyType);
+namespace CodeGeneration.SourceGenerators;
+
+internal record BindablePropertyEntry(string PropertyName, string PropertyType, SyntaxTokenList GetModifiers, SyntaxTokenList SetModifiers);

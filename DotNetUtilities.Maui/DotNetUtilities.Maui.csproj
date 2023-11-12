@@ -16,5 +16,5 @@
     <None Include="**/*.cs" />
     <None Remove="obj/**" />
   </ItemGroup>
-  <Import Project="..\DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems" Label="Shared" />
+  <Import Condition="'$(TargetFramework)' == 'net7.0'" Project="..\DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems" Label="Shared" />
 </Project>

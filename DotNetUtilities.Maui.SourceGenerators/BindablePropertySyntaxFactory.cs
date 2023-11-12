@@ -1,0 +1,120 @@
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
+namespace DotNetUtilities.Maui.SourceGenerators;
+
+internal static class BindablePropertySyntaxFactory
+{
+	private static readonly IdentifierNameSyntax nameValue = IdentifierName("value");
+	private static readonly IdentifierNameSyntax nameGetValue = IdentifierName("GetValue");
+	private static readonly IdentifierNameSyntax nameSetValue = IdentifierName("SetValue");
+	private static readonly IdentifierNameSyntax nameBindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
+	private static readonly IdentifierNameSyntax nameBindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
+	private static readonly IdentifierNameSyntax nameBindablePropertyKeyProperty = IdentifierName("BindableProperty");
+	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
+	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
+
+	private static FieldDeclarationSyntax GenerateReadOnlyBindablePropertyKeyDeclaration(BindablePropertyEntry entry, TypeSyntax declaringType, IdentifierNameSyntax propertyType, out IdentifierNameSyntax bindablePropertyKeyField)
+	{
+		bindablePropertyKeyField = IdentifierName(entry.PropertyName + "PropertyKey");
+		var propertyInitializer = InvocationExpression(nameCreateReadOnly)
+			.AddArgumentListLiteralArgument(entry.PropertyName)
+			.AddArgumentListTypeOfArgument(declaringType)
+			.AddArgumentListTypeOfArgument(propertyType)
+			.AddArgumentListNullArgument();
+
+		var declarator = VariableDeclarator(bindablePropertyKeyField.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
+
+		return FieldDeclaration(VariableDeclaration(nameBindablePropertyKey).AddVariables(declarator))
+			.WithModifiers(entry.SetModifiers)
+			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+	}
+
+	private static FieldDeclarationSyntax GenerateReadOnlyBindablePropertyDeclaration(BindablePropertyEntry entry, IdentifierNameSyntax bindablePropertyKeyField, out IdentifierNameSyntax bindablePropertyField)
+	{
+		bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
+		var propertyInitializer = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, nameBindablePropertyKeyProperty);
+		var declarator = VariableDeclarator(bindablePropertyField.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
+
+		return FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
+			.WithModifiers(entry.GetModifiers)
+			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+	}
+
+	private static PropertyDeclarationSyntax GenerateReadOnlyBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax propertyType, TypeSyntax bindablePropertyKeyField, TypeSyntax bindablePropertyField)
+	{
+		return PropertyDeclaration(propertyType, entry.PropertyName)
+			.WithModifiers(entry.GetModifiers)
+			.AddAccessorListAccessors(
+				GenerateGetter(propertyType, bindablePropertyField),
+				GenerateSetter(bindablePropertyKeyField, entry.SetModifiers));
+	}
+
+	private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(BindablePropertyEntry entry, TypeSyntax declaringType, IdentifierNameSyntax propertyType, out IdentifierNameSyntax bindablePropertyField)
+	{
+		bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
+		var propertyInitializer = InvocationExpression(nameCreate)
+			.AddArgumentListLiteralArgument(entry.PropertyName)
+			.AddArgumentListTypeOfArgument(declaringType)
+			.AddArgumentListTypeOfArgument(propertyType);
+
+		var declarator = VariableDeclarator(bindablePropertyField.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
+
+		return FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
+			.WithModifiers(entry.GetModifiers)
+			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+	}
+
+	private static AccessorDeclarationSyntax GenerateGetter(TypeSyntax propertyType, TypeSyntax bindablePropertyField)
+	{
+		var expression = CastExpression(propertyType, InvocationExpression(nameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
+
+		return AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+			.WithExpressionBody(ArrowExpressionClause(expression))
+			.WithSemicolonToken();
+	}
+
+	private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField, in SyntaxTokenList accessors)
+	{
+		var expression = InvocationExpression(nameSetValue)
+			.AddArgumentListArguments(
+				Argument(bindablePropertyField),
+				Argument(nameValue));
+
+		return AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+			.WithModifiers(accessors)
+			.WithExpressionBody(ArrowExpressionClause(expression))
+			.WithSemicolonToken();
+	}
+
+	private static PropertyDeclarationSyntax GenerateBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
+	{
+		return PropertyDeclaration(propertyType, entry.PropertyName)
+			.WithModifiers(entry.GetModifiers)
+			.AddAccessorListAccessors(
+				GenerateGetter(propertyType, bindablePropertyField),
+				GenerateSetter(bindablePropertyField, entry.SetModifiers));
+	}
+
+	public static void GenerateBindablePropertyMembers(ref TypeDeclarationSyntax type, TypeSyntax declaringType, BindablePropertyEntry entry)
+	{
+		var propertyType = IdentifierName(entry.PropertyType);
+		if (entry.SetModifiers.Count == 0)
+		{
+			type = type.AddMembers(
+				GenerateBindablePropertyDeclaration(entry, declaringType, propertyType, out var bindablePropertyField),
+				GenerateBindablePropertyAccessors(entry, propertyType, bindablePropertyField));
+		}
+		else
+		{
+			type = type.AddMembers(
+				GenerateReadOnlyBindablePropertyKeyDeclaration(entry, declaringType, propertyType, out var bindablePropertyKeyField),
+				GenerateReadOnlyBindablePropertyDeclaration(entry, bindablePropertyKeyField, out var bindablePropertyField),
+				GenerateReadOnlyBindablePropertyAccessors(entry, propertyType, bindablePropertyKeyField, bindablePropertyField));
+		}
+
+	}
+}

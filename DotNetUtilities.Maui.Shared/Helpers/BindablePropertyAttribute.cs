@@ -11,6 +11,8 @@ public sealed class BindablePropertyAttribute : Attribute
 
 	public BindingMode DefaultMode { get; init; }
 
+	public Type? AttachedType { get; init; }
+
 	public PropertyAccessLevel AccessLevel { get; init; }
 
 	private PropertyAccessLevel? _writeAccessLevel;

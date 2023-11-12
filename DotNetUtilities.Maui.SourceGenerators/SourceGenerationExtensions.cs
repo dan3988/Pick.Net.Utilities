@@ -43,6 +43,9 @@ internal static class SourceGenerationExtensions
 	public static AccessorDeclarationSyntax WithSemicolonToken(this AccessorDeclarationSyntax syntax)
 		=> syntax.WithSemicolonToken(semicolon);
 
+	public static MethodDeclarationSyntax WithSemicolonToken(this MethodDeclarationSyntax syntax)
+		=> syntax.WithSemicolonToken(semicolon);
+
 	public static InvocationExpressionSyntax AddArgumentListTypeOfArgument(this InvocationExpressionSyntax syntax, TypeSyntax type)
 		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.TypeOfExpression(type)));
 

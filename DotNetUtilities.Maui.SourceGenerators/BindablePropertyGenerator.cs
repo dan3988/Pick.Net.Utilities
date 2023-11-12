@@ -95,6 +95,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 			var getterAccessors = tokensPublic;
 			var setterAccessors = default(SyntaxTokenList);
+			var attachedType = default(string);
 
 			foreach (var (key, value) in attribute.NamedArguments)
 			{
@@ -110,10 +111,13 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 							diagnostics.Add(diagnostic);
 
 						break;
+					case "AttachedType":
+						attachedType = ((ITypeSymbol?)value.Value)?.GetFullTypeName();
+						break;
 				}
 			}
 
-			entries[i] = new(name, propType.GetFullTypeName(), getterAccessors, setterAccessors);
+			entries[i] = new(name, propType.GetFullTypeName(), getterAccessors, setterAccessors, attachedType);
 		}
 
 		var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", ImmutableArray.Create(entries));

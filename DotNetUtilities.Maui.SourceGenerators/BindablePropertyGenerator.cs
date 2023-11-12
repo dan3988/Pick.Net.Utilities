@@ -53,9 +53,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			BindablePropertySyntaxFactory.GenerateBindablePropertyMembers(ref type, fullIdentifier, entry);
 
 		var ns = NamespaceDeclaration(IdentifierName(clazz.Namespace)).AddMembers(type);
-		var unit = CompilationUnit().AddMembers(ns).NormalizeWhitespace();
+		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
 
 		context.AddSource(clazz.FileName, unit);
+#if DEBUG
+		var text = unit.ToFullString();
+		Console.WriteLine(clazz.FileName);
+		Console.WriteLine(text);
+#endif
 	}
 
 	private static bool ToSyntaxTokens(SyntaxReference? reference, in TypedConstant value, out SyntaxTokenList tokens, [MaybeNullWhen(true)] out Diagnostic diagnostic)

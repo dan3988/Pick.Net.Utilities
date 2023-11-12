@@ -19,15 +19,19 @@ internal static class SourceGenerationExtensions
 		value = pair.Value;
 	}
 
+	public static T AddFormatting<T>(this T syntax) where T : CSharpSyntaxNode
+	{
+		syntax = syntax.NormalizeWhitespace("\t");
+		var visitor = new WhitespaceSyntaxRewriter();
+		return (T)syntax.Accept(visitor)!;
+	}
+
 	public static void AddSource(this SourceProductionContext context, string hintName, CompilationUnitSyntax unit)
 		=> AddSource(context, hintName, unit, Encoding.UTF8);
 
 	public static void AddSource(this SourceProductionContext context, string hintName, CompilationUnitSyntax unit, Encoding encoding)
 	{
 		var text = unit.GetText(encoding);
-#if DEBUG
-		var test = unit.ToFullString();
-#endif
 		context.AddSource(hintName, text);
 	}
 
@@ -45,6 +49,63 @@ internal static class SourceGenerationExtensions
 
 	public static MethodDeclarationSyntax WithSemicolonToken(this MethodDeclarationSyntax syntax)
 		=> syntax.WithSemicolonToken(semicolon);
+
+	private static SyntaxTrivia[] CreateIndentTriviaList(int indentCount, SyntaxTriviaList keepTrivia = default)
+	{
+		var array = new SyntaxTrivia[keepTrivia.Count + indentCount + 1];
+		var i = 0;
+		for (; i < keepTrivia.Count; i++)
+			array[i] = keepTrivia[i];
+
+		array[i] = SyntaxFactory.CarriageReturnLineFeed;
+
+		while (++i < array.Length)
+			array[i] = SyntaxFactory.Tab;
+
+		return array;
+	}
+
+	public static T WithLeadingLineBreak<T>(this T syntax) where T : SyntaxNode
+		=> syntax.WithLeadingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+
+	public static T WithLeadingLineBreak<T>(this T syntax, int indentCount) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(indentCount);
+		return syntax.WithLeadingTrivia(list);
+	}
+
+	public static T AddLeadingLineBreak<T>(this T syntax) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(0, syntax.GetLeadingTrivia());
+		return syntax.WithLeadingTrivia(list);
+	}
+
+	public static T AddLeadingLineBreak<T>(this T syntax, int indentCount) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(indentCount, syntax.GetLeadingTrivia());
+		return syntax.WithLeadingTrivia(list);
+	}
+
+	public static T WithTrailingLineBreak<T>(this T syntax) where T : SyntaxNode
+		=> syntax.WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed);
+
+	public static T WithTrailingLineBreak<T>(this T syntax, int indentCount) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(indentCount);
+		return syntax.WithTrailingTrivia(list);
+	}
+
+	public static T AddTrailingLineBreak<T>(this T syntax) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(0, syntax.GetTrailingTrivia());
+		return syntax.WithTrailingTrivia(list);
+	}
+
+	public static T AddTrailingLineBreak<T>(this T syntax, int indentCount) where T : SyntaxNode
+	{
+		var list = CreateIndentTriviaList(indentCount, syntax.GetTrailingTrivia());
+		return syntax.WithTrailingTrivia(list);
+	}
 
 	public static InvocationExpressionSyntax AddArgumentListTypeOfArgument(this InvocationExpressionSyntax syntax, TypeSyntax type)
 		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.TypeOfExpression(type)));

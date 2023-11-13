@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 
 using DotNetUtilities.Maui.Helpers;
+using DotNetUtilities.Maui.SourceGenerators.Syntax;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -51,12 +52,11 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			context.ReportDiagnostic(diagnostic);
 
 		var identifier = Identifier(clazz.TypeName);
-		var fullIdentifier = IdentifierName(clazz.FullName);
 		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, identifier)
 			.AddModifier(SyntaxKind.PartialKeyword);
 
-		foreach (var entry in clazz.Properties)
-			BindablePropertySyntaxFactory.GenerateBindablePropertyMembers(ref type, fullIdentifier, entry);
+		foreach (var property in clazz.Properties)
+			type = property.Generate(type);
 
 		var ns = NamespaceDeclaration(IdentifierName(clazz.Namespace)).AddMembers(type);
 		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
@@ -138,9 +138,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		var type = (ITypeSymbol)context.TargetSymbol;
 		var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
-		var typeReference = type.GetFullTypeName();
+		var declaringTypeSyntax = IdentifierName(type.GetFullTypeName());
 		var attributes = context.Attributes;
-		var entries = ImmutableArray.CreateBuilder<BindablePropertyEntry>(attributes.Length);
+		var properties = ImmutableArray.CreateBuilder<BindablePropertySyntaxGenerator>(attributes.Length);
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
 		Diagnostic? diagnostic;
@@ -179,10 +179,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				}
 			}
 
-			entries.Add(new(name, propType, defaultModeSyntax, getterAccessors, setterAccessors, attachedType));
+			BindablePropertySyntaxGenerator generator = attachedType == null
+				? InstanceBindablePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
+				: AttachedBindablePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
+
+			properties.Add(generator);
 		}
 
-		var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", entries.ToImmutable());
+		var classEntry = new ClassEntry(ns, type.Name, $"{ns}.{type.MetadataName}.g.cs", properties.ToImmutable());
 		return (classEntry, diagnostics.ToImmutable());
 	}
 

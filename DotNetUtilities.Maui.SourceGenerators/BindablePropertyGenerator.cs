@@ -9,14 +9,20 @@ using DotNetUtilities.Maui.Helpers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetUtilities.Maui.SourceGenerators;
 
+using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
+
 [Generator]
 public class BindablePropertyGenerator : IIncrementalGenerator
 {
+	private static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
+	private static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
+
 	private static readonly Type attributeType = typeof(BindablePropertyAttribute);
 	private static readonly string attributeName = attributeType.FullName;
 
@@ -80,52 +86,84 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
+	private static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name, [MaybeNullWhen(false)] out IdentifierNameSyntax type)
+	{
+		var arguments = attribute.ConstructorArguments;
+		if (arguments.Length < 2)
+		{
+			name = null;
+			type = null;
+			return false;
+		}
+
+		var canConstruct = true;
+
+		name = (string?)arguments[0].Value ?? "";
+
+		if (string.IsNullOrEmpty(name))
+		{
+			builder.Add(DiagnosticDescriptors.BindablePropertyEmptyPropertyName, attribute.ApplicationSyntaxReference);
+			canConstruct = false;
+		}
+
+		var symbol = (ITypeSymbol?)arguments[1].Value;
+		if (symbol == null)
+		{
+			builder.Add(DiagnosticDescriptors.BindablePropertyNullPropertyType, attribute.ApplicationSyntaxReference);
+			type = IdentifierName("object");
+		}
+		else
+		{
+			type = IdentifierName(symbol.GetFullTypeName());
+		}
+
+		return canConstruct;
+	}
+
 	private static (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		var type = (ITypeSymbol)context.TargetSymbol;
 		var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
 		var typeReference = type.GetFullTypeName();
 		var attributes = context.Attributes;
-		var entries = new BindablePropertyEntry[attributes.Length];
+		var entries = ImmutableArray.CreateBuilder<BindablePropertyEntry>(attributes.Length);
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
 		Diagnostic? diagnostic;
 
-		for (var i = 0; i < entries.Length; i++)
+		for (var i = 0; i < attributes.Length; i++)
 		{
 			var attribute = attributes[i];
-			var arguments = attribute.ConstructorArguments;
-			var name = (string?)arguments[0].Value ?? "";
-			var propType = (ITypeSymbol)arguments[1].Value!;
+			if (!TryParseAttributePositionalArgs(attribute, diagnostics, out var name, out var propType))
+				continue;
 
 			var getterAccessors = tokensPublic;
 			var setterAccessors = default(SyntaxTokenList);
 			var attachedType = default(string);
-
 			foreach (var (key, value) in attribute.NamedArguments)
 			{
 				switch (key)
 				{
-					case "AccessLevel":
+					case nameof(BindablePropertyAttribute.AccessLevel):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out getterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 
 						break;
-					case "WriteAccessLevel":
+					case nameof(BindablePropertyAttribute.WriteAccessLevel):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out setterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 
 						break;
-					case "AttachedType":
+					case nameof(BindablePropertyAttribute.AttachedType):
 						attachedType = ((ITypeSymbol?)value.Value)?.GetFullTypeName();
 						break;
 				}
 			}
 
-			entries[i] = new(name, propType.GetFullTypeName(), getterAccessors, setterAccessors, attachedType);
+			entries.Add(new(name, propType, getterAccessors, setterAccessors, attachedType));
 		}
 
-		var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", ImmutableArray.Create(entries));
+		var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", entries.ToImmutable());
 		return (classEntry, diagnostics.ToImmutable());
 	}
 

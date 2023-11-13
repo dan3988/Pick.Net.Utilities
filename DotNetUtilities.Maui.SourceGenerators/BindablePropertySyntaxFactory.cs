@@ -19,7 +19,7 @@ internal static class BindablePropertySyntaxFactory
 	private static readonly IdentifierNameSyntax nameCreateAttached = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateAttachedReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
-	private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(string propertyName, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, TypeSyntax declaringType, IdentifierNameSyntax propertyType)
+	private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(string propertyName, TypeSyntax propertyType, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, TypeSyntax declaringType)
 	{
 		var propertyInitializer = InvocationExpression(createMethod)
 			.AddArgumentListLiteralArgument(propertyName)
@@ -44,12 +44,12 @@ internal static class BindablePropertySyntaxFactory
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
 	}
 
-	private static PropertyDeclarationSyntax GenerateReadOnlyBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax propertyType, TypeSyntax bindablePropertyKeyField, TypeSyntax bindablePropertyField)
+	private static PropertyDeclarationSyntax GenerateReadOnlyBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax bindablePropertyKeyField, TypeSyntax bindablePropertyField)
 	{
-		return PropertyDeclaration(propertyType, entry.PropertyName)
+		return PropertyDeclaration(entry.PropertyType, entry.PropertyName)
 			.WithModifiers(entry.GetModifiers)
 			.AddAccessorListAccessors(
-				GenerateGetter(propertyType, bindablePropertyField),
+				GenerateGetter(entry.PropertyType, bindablePropertyField),
 				GenerateSetter(bindablePropertyKeyField, entry.SetModifiers));
 	}
 
@@ -75,12 +75,12 @@ internal static class BindablePropertySyntaxFactory
 			.WithSemicolonToken();
 	}
 
-	private static PropertyDeclarationSyntax GenerateBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
+	private static PropertyDeclarationSyntax GenerateBindablePropertyAccessors(BindablePropertyEntry entry, TypeSyntax bindablePropertyField)
 	{
-		return PropertyDeclaration(propertyType, entry.PropertyName)
+		return PropertyDeclaration(entry.PropertyType, entry.PropertyName)
 			.WithModifiers(entry.GetModifiers)
 			.AddAccessorListAccessors(
-				GenerateGetter(propertyType, bindablePropertyField),
+				GenerateGetter(entry.PropertyType, bindablePropertyField),
 				GenerateSetter(bindablePropertyField, entry.SetModifiers));
 	}
 
@@ -122,25 +122,23 @@ internal static class BindablePropertySyntaxFactory
 
 	public static TypeDeclarationSyntax GenerateBindablePropertyMembers(TypeDeclarationSyntax type, TypeSyntax declaringType, BindablePropertyEntry entry)
 	{
-		var propertyType = IdentifierName(entry.PropertyType);
-
 		if (entry.AttachedType == null)
 		{
 			if (entry.SetModifiers.Count == 0)
 			{
 				var	bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreate, declaringType, propertyType),
-					GenerateBindablePropertyAccessors(entry, propertyType, bindablePropertyField));
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreate, declaringType),
+					GenerateBindablePropertyAccessors(entry, bindablePropertyField));
 			}
 			else
 			{
 				var bindablePropertyKeyField = IdentifierName(entry.PropertyName + "PropertyKey");
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, declaringType, propertyType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, declaringType),
 					GenerateReadOnlyBindablePropertyDeclaration(entry, bindablePropertyField, bindablePropertyKeyField),
-					GenerateReadOnlyBindablePropertyAccessors(entry, propertyType, bindablePropertyKeyField, bindablePropertyField));
+					GenerateReadOnlyBindablePropertyAccessors(entry, bindablePropertyKeyField, bindablePropertyField));
 			}
 		}
 		else
@@ -151,19 +149,19 @@ internal static class BindablePropertySyntaxFactory
 			{
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreateAttached, declaringType, propertyType),
-					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, propertyType, attachedType, bindablePropertyField),
-					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.GetModifiers, propertyType, attachedType, bindablePropertyField));
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreateAttached, declaringType),
+					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField),
+					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField));
 			}
 			else
 			{
 				var bindablePropertyKeyField = IdentifierName(entry.PropertyName + "PropertyKey");
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateAttachedReadOnly, declaringType, propertyType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateAttachedReadOnly, declaringType),
 					GenerateReadOnlyBindablePropertyDeclaration(entry, bindablePropertyField, bindablePropertyKeyField),
-					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, propertyType, attachedType, bindablePropertyField),
-					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.SetModifiers, propertyType, attachedType, bindablePropertyKeyField));
+					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField),
+					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.SetModifiers, entry.PropertyType, attachedType, bindablePropertyKeyField));
 			}
 		}
 	}

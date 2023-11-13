@@ -9,7 +9,7 @@ public sealed class BindablePropertyAttribute : Attribute
 
 	public Type Type { get; }
 
-	public BindingMode DefaultMode { get; init; }
+	public BindingMode DefaultMode { get; init; } = BindingMode.OneWay;
 
 	public Type? AttachedType { get; init; }
 

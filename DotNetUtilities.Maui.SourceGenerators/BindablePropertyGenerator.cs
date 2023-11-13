@@ -120,6 +120,20 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return canConstruct;
 	}
 
+	private static ExpressionSyntax ParseDefaultBindingMode(AttributeData attribute, TypedConstant value, DiagnosticsBuilder diagnostics)
+	{
+		var enumValue = Enum.ToObject(typeof(BindingMode), value.Value);
+		if (!Enum.IsDefined(typeof(BindingMode), enumValue))
+		{
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, attribute.ApplicationSyntaxReference, enumValue);
+			return CastExpression(nameBindingMode, LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((int)enumValue)));
+		}
+		else
+		{
+			return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, IdentifierName(enumValue.ToString()));
+		}
+	}
+
 	private static (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		var type = (ITypeSymbol)context.TargetSymbol;
@@ -140,10 +154,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			var getterAccessors = tokensPublic;
 			var setterAccessors = default(SyntaxTokenList);
 			var attachedType = default(string);
+			var defaultModeSyntax = (ExpressionSyntax)MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
+
 			foreach (var (key, value) in attribute.NamedArguments)
 			{
 				switch (key)
 				{
+					case nameof(BindablePropertyAttribute.DefaultMode):
+						defaultModeSyntax = ParseDefaultBindingMode(attribute, value, diagnostics);
+						break;
 					case nameof(BindablePropertyAttribute.AccessLevel):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out getterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
@@ -160,7 +179,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				}
 			}
 
-			entries.Add(new(name, propType, getterAccessors, setterAccessors, attachedType));
+			entries.Add(new(name, propType, defaultModeSyntax, getterAccessors, setterAccessors, attachedType));
 		}
 
 		var classEntry = new ClassEntry(ns, type.Name, typeReference, $"{ns}.{type.MetadataName}.g.cs", entries.ToImmutable());

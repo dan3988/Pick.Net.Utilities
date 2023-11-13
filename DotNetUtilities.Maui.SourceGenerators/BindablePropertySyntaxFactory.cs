@@ -19,13 +19,14 @@ internal static class BindablePropertySyntaxFactory
 	private static readonly IdentifierNameSyntax nameCreateAttached = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateAttachedReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
-	private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(string propertyName, TypeSyntax propertyType, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, TypeSyntax declaringType)
+	private static FieldDeclarationSyntax GenerateBindablePropertyDeclaration(string propertyName, TypeSyntax propertyType, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, TypeSyntax declaringType, ExpressionSyntax defaultBindingModeExpression)
 	{
 		var propertyInitializer = InvocationExpression(createMethod)
 			.AddArgumentListLiteralArgument(propertyName)
 			.AddArgumentListTypeOfArgument(declaringType)
 			.AddArgumentListTypeOfArgument(propertyType)
-			.AddArgumentListNullArgument();
+			.AddArgumentListNullArgument()
+			.AddArgumentListArguments(Argument(defaultBindingModeExpression));
 
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
 
@@ -128,7 +129,7 @@ internal static class BindablePropertySyntaxFactory
 			{
 				var	bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreate, declaringType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreate, declaringType, entry.DefaultModeExpression),
 					GenerateBindablePropertyAccessors(entry, bindablePropertyField));
 			}
 			else
@@ -136,7 +137,7 @@ internal static class BindablePropertySyntaxFactory
 				var bindablePropertyKeyField = IdentifierName(entry.PropertyName + "PropertyKey");
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, declaringType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, declaringType, entry.DefaultModeExpression),
 					GenerateReadOnlyBindablePropertyDeclaration(entry, bindablePropertyField, bindablePropertyKeyField),
 					GenerateReadOnlyBindablePropertyAccessors(entry, bindablePropertyKeyField, bindablePropertyField));
 			}
@@ -149,7 +150,7 @@ internal static class BindablePropertySyntaxFactory
 			{
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreateAttached, declaringType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.GetModifiers, bindablePropertyField, nameBindableProperty, nameCreateAttached, declaringType, entry.DefaultModeExpression),
 					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField),
 					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField));
 			}
@@ -158,7 +159,7 @@ internal static class BindablePropertySyntaxFactory
 				var bindablePropertyKeyField = IdentifierName(entry.PropertyName + "PropertyKey");
 				var bindablePropertyField = IdentifierName(entry.PropertyName + "Property");
 				return type.AddMembers(
-					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateAttachedReadOnly, declaringType),
+					GenerateBindablePropertyDeclaration(entry.PropertyName, entry.PropertyType, entry.SetModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateAttachedReadOnly, declaringType, entry.DefaultModeExpression),
 					GenerateReadOnlyBindablePropertyDeclaration(entry, bindablePropertyField, bindablePropertyKeyField),
 					GenerateAttachedBindablePropertyGetMethod(entry.PropertyName, entry.GetModifiers, entry.PropertyType, attachedType, bindablePropertyField),
 					GenerateAttachedBindablePropertySetMethod(entry.PropertyName, entry.SetModifiers, entry.PropertyType, attachedType, bindablePropertyKeyField));

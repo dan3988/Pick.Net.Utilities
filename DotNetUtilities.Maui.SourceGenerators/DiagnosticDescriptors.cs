@@ -24,8 +24,17 @@ internal static class DiagnosticDescriptors
 		true,
 		"PropertyType cannot be null.");
 
-	public static DiagnosticDescriptor BindablePropertyInvalidAccessor = new(
+	public static DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
 		"DNU0003",
+		"Invalid BindingMode value for [BindableProperty]",
+		"Invalid BindingMode value: {0}",
+		typeof(BindablePropertyGenerator).FullName,
+		DiagnosticSeverity.Error,
+		true,
+		"Invalid BindingMode value.");
+
+	public static DiagnosticDescriptor BindablePropertyInvalidAccessor = new(
+		"DNU0004",
 		"Invalid access level for [BindableProperty]",
 		"Invalid PropertyAccessLevel: {0}",
 		typeof(BindablePropertyGenerator).FullName,

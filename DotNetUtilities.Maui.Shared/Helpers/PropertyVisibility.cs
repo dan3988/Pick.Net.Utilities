@@ -1,6 +1,6 @@
 ﻿namespace DotNetUtilities.Maui.Helpers;
 
-public enum PropertyAccessLevel
+public enum PropertyVisibility
 {
 	Public = 0,
 	Protected = 1,

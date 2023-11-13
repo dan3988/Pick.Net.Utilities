@@ -13,14 +13,14 @@ public sealed class BindablePropertyAttribute : Attribute
 
 	public Type? AttachedType { get; init; }
 
-	public PropertyAccessLevel AccessLevel { get; init; }
+	public PropertyVisibility Visibility { get; init; }
 
-	private PropertyAccessLevel? _writeAccessLevel;
+	private PropertyVisibility? _writeVisibility;
 
-	public PropertyAccessLevel WriteAccessLevel
+	public PropertyVisibility WriteVisibility
 	{
-		get => _writeAccessLevel ?? AccessLevel;
-		set => _writeAccessLevel = value;
+		get => _writeVisibility ?? Visibility;
+		set => _writeVisibility = value;
 	}
 
 	public BindablePropertyAttribute(string name, Type type)
@@ -29,9 +29,9 @@ public sealed class BindablePropertyAttribute : Attribute
 		Type = type;
 	}
 
-	public bool IsReadOnly(out PropertyAccessLevel writeLevel)
+	public bool IsReadOnly(out PropertyVisibility writeLevel)
 	{
-		writeLevel = _writeAccessLevel.GetValueOrDefault();
-		return _writeAccessLevel.HasValue;
+		writeLevel = _writeVisibility.GetValueOrDefault();
+		return _writeVisibility.HasValue;
 	}
 }

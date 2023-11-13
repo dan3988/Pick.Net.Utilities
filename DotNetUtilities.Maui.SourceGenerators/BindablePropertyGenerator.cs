@@ -28,14 +28,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
 
-	private static readonly IReadOnlyDictionary<PropertyAccessLevel, SyntaxTokenList> accessLevelTokens = new Dictionary<PropertyAccessLevel, SyntaxTokenList>()
+	private static readonly IReadOnlyDictionary<PropertyVisibility, SyntaxTokenList> visibilityTokens = new Dictionary<PropertyVisibility, SyntaxTokenList>()
 	{
-		[PropertyAccessLevel.Public] = tokensPublic,
-		[PropertyAccessLevel.Protected] = CreateTokenList(SyntaxKind.ProtectedKeyword),
-		[PropertyAccessLevel.Internal] = CreateTokenList(SyntaxKind.InternalKeyword),
-		[PropertyAccessLevel.Private] = CreateTokenList(SyntaxKind.PrivateKeyword),
-		[PropertyAccessLevel.ProtectedInternal] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword),
-		[PropertyAccessLevel.ProtectedPrivate] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword),
+		[PropertyVisibility.Public] = tokensPublic,
+		[PropertyVisibility.Protected] = CreateTokenList(SyntaxKind.ProtectedKeyword),
+		[PropertyVisibility.Internal] = CreateTokenList(SyntaxKind.InternalKeyword),
+		[PropertyVisibility.Private] = CreateTokenList(SyntaxKind.PrivateKeyword),
+		[PropertyVisibility.ProtectedInternal] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword),
+		[PropertyVisibility.ProtectedPrivate] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword),
 	};
 
 	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
@@ -71,9 +71,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static bool ToSyntaxTokens(SyntaxReference? reference, in TypedConstant value, out SyntaxTokenList tokens, [MaybeNullWhen(true)] out Diagnostic diagnostic)
 	{
-		var level = (PropertyAccessLevel)Convert.ToInt32(value.Value);
+		var level = (PropertyVisibility)Convert.ToInt32(value.Value);
 
-		if (accessLevelTokens.TryGetValue(level, out tokens))
+		if (visibilityTokens.TryGetValue(level, out tokens))
 		{
 			diagnostic = null;
 			return true;
@@ -81,7 +81,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		else
 		{
 			var location = reference == null ? null : Location.Create(reference.SyntaxTree, reference.Span);
-			diagnostic = Diagnostic.Create(DiagnosticDescriptors.BindablePropertyInvalidAccessor, location, level);
+			diagnostic = Diagnostic.Create(DiagnosticDescriptors.BindablePropertyInvalidVisibility, location, level);
 			return false;
 		}
 	}
@@ -163,12 +163,12 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					case nameof(BindablePropertyAttribute.DefaultMode):
 						defaultModeSyntax = ParseDefaultBindingMode(attribute, value, diagnostics);
 						break;
-					case nameof(BindablePropertyAttribute.AccessLevel):
+					case nameof(BindablePropertyAttribute.Visibility):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out getterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 
 						break;
-					case nameof(BindablePropertyAttribute.WriteAccessLevel):
+					case nameof(BindablePropertyAttribute.WriteVisibility):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out setterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 

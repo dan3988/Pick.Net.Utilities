@@ -33,14 +33,14 @@ internal static class DiagnosticDescriptors
 		true,
 		"Invalid BindingMode value.");
 
-	public static DiagnosticDescriptor BindablePropertyInvalidAccessor = new(
+	public static DiagnosticDescriptor BindablePropertyInvalidVisibility = new(
 		"DNU0004",
-		"Invalid access level for [BindableProperty]",
-		"Invalid PropertyAccessLevel: {0}",
+		"Invalid PropertyVisibility value for [BindableProperty]",
+		"Invalid PropertyVisibility value: {0}",
 		typeof(BindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
-		"Invalid PropertyAccessLevel.");
+		"Invalid PropertyVisibility value.");
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{

@@ -50,7 +50,7 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 				Argument(bindablePropertyField),
 				Argument(nameValue));
 
-		return MethodDeclaration(SourceGenerationExtensions.VoidType, "Set" + propertyName)
+		return MethodDeclaration(SyntaxHelper.VoidType, "Set" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))
 			.WithModifiers(modifiers)
 			.AddModifier(SyntaxKind.StaticKeyword)
@@ -64,7 +64,7 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 		var paramOldValue = Parameter(Identifier("oldValue"));
 		var paramNewValue = Parameter(Identifier("newValue"));
 
-		method = MethodDeclaration(SourceGenerationExtensions.VoidType, name)
+		method = MethodDeclaration(SyntaxHelper.VoidType, name)
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
 			.AddParameterListParameters(
 				paramBindable.WithType(attachedType),

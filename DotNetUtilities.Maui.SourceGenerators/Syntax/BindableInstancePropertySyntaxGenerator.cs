@@ -59,7 +59,7 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 		var paramOldValue = Parameter(Identifier("oldValue"));
 		var paramNewValue = Parameter(Identifier("newValue"));
 
-		method = MethodDeclaration(SourceGenerationExtensions.VoidType, name)
+		method = MethodDeclaration(SyntaxHelper.VoidType, name)
 			.AddModifier(SyntaxKind.PartialKeyword)
 			.AddParameterListParameters(
 				paramOldValue.WithType(propertyType),

@@ -48,13 +48,13 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected FieldDeclarationSyntax GenerateBindablePropertyDeclaration(SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, out MethodDeclarationSyntax onChanging, out MethodDeclarationSyntax onChanged)
 	{
-		var propertyInitializer = InvocationExpression(createMethod, SourceGenerationExtensions.ArgumentList(
-			Argument(SourceGenerationExtensions.Literal(propertyName)),
-			Argument(SourceGenerationExtensions.TypeOf(propertyType)),
-			Argument(SourceGenerationExtensions.TypeOf(declaringType)),
-			Argument(SourceGenerationExtensions.Null),
+		var propertyInitializer = InvocationExpression(createMethod, SyntaxHelper.ArgumentList(
+			Argument(SyntaxHelper.Literal(propertyName)),
+			Argument(SyntaxHelper.TypeOf(propertyType)),
+			Argument(SyntaxHelper.TypeOf(declaringType)),
+			Argument(SyntaxHelper.Null),
 			Argument(defaultModeExpression),
-			Argument(SourceGenerationExtensions.Null),
+			Argument(SyntaxHelper.Null),
 			Argument(CreateChangeHandler($"On{propertyName}Changing", out onChanging)),
 			Argument(CreateChangeHandler($"On{propertyName}Changed", out onChanged))));
 

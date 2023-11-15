@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotNetUtilities.Maui.SourceGenerators;
 
-internal static class SourceGenerationExtensions
+internal static class SyntaxHelper
 {
 	public static readonly PredefinedTypeSyntax VoidType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
 	public static readonly LiteralExpressionSyntax Null = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);

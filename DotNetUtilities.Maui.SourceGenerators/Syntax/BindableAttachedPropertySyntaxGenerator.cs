@@ -8,58 +8,6 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 internal abstract class BindableAttachedPropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private sealed class WritableGenerator : BindableAttachedPropertySyntaxGenerator
-	{
-		private readonly SyntaxTokenList modifiers;
-
-		internal WritableGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList modifiers)
-			: base(propertyName, propertyType, declaringType, defaultModeExpression, attachedType)
-		{
-			this.modifiers = modifiers;
-		}
-
-		protected override MemberDeclarationSyntax[] GenerateMembers()
-		{
-			var bindablePropertyField = IdentifierName(propertyName + "Property");
-			return new MemberDeclarationSyntax[]
-			{
-				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate, out var onChanging, out var onChanged),
-				GenerateAttachedBindablePropertyGetMethod(modifiers, bindablePropertyField),
-				GenerateAttachedBindablePropertySetMethod(modifiers, bindablePropertyField),
-				onChanging,
-				onChanged
-			};
-		}
-	}
-
-	private sealed class ReadOnlyGenerator : BindableAttachedPropertySyntaxGenerator
-	{
-		private readonly SyntaxTokenList getModifiers;
-		private readonly SyntaxTokenList setModifiers;
-
-		internal ReadOnlyGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
-			: base(propertyName, propertyType, declaringType, defaultModeExpression, attachedType)
-		{
-			this.getModifiers = getModifiers;
-			this.setModifiers = setModifiers;
-		}
-
-		protected override MemberDeclarationSyntax[] GenerateMembers()
-		{
-			var bindablePropertyKeyField = IdentifierName(propertyName + "PropertyKey");
-			var bindablePropertyField = IdentifierName(propertyName + "Property");
-			return new MemberDeclarationSyntax[]
-			{
-				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, out var onChanging, out var onChanged),
-				GenerateReadOnlyBindablePropertyDeclaration(getModifiers, bindablePropertyField, bindablePropertyKeyField),
-				GenerateAttachedBindablePropertyGetMethod(getModifiers, bindablePropertyField),
-				GenerateAttachedBindablePropertySetMethod(setModifiers, bindablePropertyKeyField),
-				onChanging,
-				onChanged
-			};
-		}
-	}
-
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
@@ -132,5 +80,57 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 				Argument(CastExpression(propertyType, IdentifierName(paramNewValue.Identifier))));
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
+	}
+
+	private sealed class WritableGenerator : BindableAttachedPropertySyntaxGenerator
+	{
+		private readonly SyntaxTokenList modifiers;
+
+		internal WritableGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList modifiers)
+			: base(propertyName, propertyType, declaringType, defaultModeExpression, attachedType)
+		{
+			this.modifiers = modifiers;
+		}
+
+		protected override MemberDeclarationSyntax[] GenerateMembers()
+		{
+			var bindablePropertyField = IdentifierName(propertyName + "Property");
+			return new MemberDeclarationSyntax[]
+			{
+				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate, out var onChanging, out var onChanged),
+				GenerateAttachedBindablePropertyGetMethod(modifiers, bindablePropertyField),
+				GenerateAttachedBindablePropertySetMethod(modifiers, bindablePropertyField),
+				onChanging,
+				onChanged
+			};
+		}
+	}
+
+	private sealed class ReadOnlyGenerator : BindableAttachedPropertySyntaxGenerator
+	{
+		private readonly SyntaxTokenList getModifiers;
+		private readonly SyntaxTokenList setModifiers;
+
+		internal ReadOnlyGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+			: base(propertyName, propertyType, declaringType, defaultModeExpression, attachedType)
+		{
+			this.getModifiers = getModifiers;
+			this.setModifiers = setModifiers;
+		}
+
+		protected override MemberDeclarationSyntax[] GenerateMembers()
+		{
+			var bindablePropertyKeyField = IdentifierName(propertyName + "PropertyKey");
+			var bindablePropertyField = IdentifierName(propertyName + "Property");
+			return new MemberDeclarationSyntax[]
+			{
+				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, out var onChanging, out var onChanged),
+				GenerateReadOnlyBindablePropertyDeclaration(getModifiers, bindablePropertyField, bindablePropertyKeyField),
+				GenerateAttachedBindablePropertyGetMethod(getModifiers, bindablePropertyField),
+				GenerateAttachedBindablePropertySetMethod(setModifiers, bindablePropertyKeyField),
+				onChanging,
+				onChanged
+			};
+		}
 	}
 }

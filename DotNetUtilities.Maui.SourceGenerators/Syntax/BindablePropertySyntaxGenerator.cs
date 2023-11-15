@@ -44,14 +44,19 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected abstract MemberDeclarationSyntax[] GenerateMembers();
 
-	protected FieldDeclarationSyntax GenerateBindablePropertyDeclaration(SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
+	protected abstract LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method);
+
+	protected FieldDeclarationSyntax GenerateBindablePropertyDeclaration(SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, out MethodDeclarationSyntax onChanging, out MethodDeclarationSyntax onChanged)
 	{
-		var propertyInitializer = InvocationExpression(createMethod)
-			.AddArgumentListLiteralArgument(propertyName)
-			.AddArgumentListTypeOfArgument(propertyType)
-			.AddArgumentListTypeOfArgument(declaringType)
-			.AddArgumentListNullArgument()
-			.AddArgumentListArguments(Argument(defaultModeExpression));
+		var propertyInitializer = InvocationExpression(createMethod, SourceGenerationExtensions.ArgumentList(
+			Argument(SourceGenerationExtensions.Literal(propertyName)),
+			Argument(SourceGenerationExtensions.TypeOf(propertyType)),
+			Argument(SourceGenerationExtensions.TypeOf(declaringType)),
+			Argument(SourceGenerationExtensions.Null),
+			Argument(defaultModeExpression),
+			Argument(SourceGenerationExtensions.Null),
+			Argument(CreateChangeHandler($"On{propertyName}Changing", out onChanging)),
+			Argument(CreateChangeHandler($"On{propertyName}Changed", out onChanged))));
 
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
 

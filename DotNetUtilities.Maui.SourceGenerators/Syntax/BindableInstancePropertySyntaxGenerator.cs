@@ -53,6 +53,29 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 				GenerateSetter(writablePropertyField, setModifiers));
 	}
 
+	protected override LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method)
+	{
+		var paramBindable = Parameter(Identifier("bindable"));
+		var paramOldValue = Parameter(Identifier("oldValue"));
+		var paramNewValue = Parameter(Identifier("newValue"));
+
+		method = MethodDeclaration(SourceGenerationExtensions.VoidType, name)
+			.AddModifier(SyntaxKind.PartialKeyword)
+			.AddParameterListParameters(
+				paramOldValue.WithType(propertyType),
+				paramNewValue.WithType(propertyType))
+			.WithSemicolonToken();
+
+		var parameters = ParameterList(SeparatedList(new ParameterSyntax[] { paramBindable, paramOldValue, paramNewValue }));
+		var body = InvocationExpression(
+				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)))
+			.AddArgumentListArguments(
+				Argument(CastExpression(propertyType, IdentifierName(paramOldValue.Identifier))),
+				Argument(CastExpression(propertyType, IdentifierName(paramNewValue.Identifier))));
+
+		return ParenthesizedLambdaExpression(parameters, null, body);
+	}
+
 	private sealed class WritableGenerator : BindableInstancePropertySyntaxGenerator
 	{
 		private readonly SyntaxTokenList modifiers;
@@ -68,8 +91,10 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 			var bindablePropertyField = IdentifierName(propertyName + "Property");
 			return new MemberDeclarationSyntax[]
 			{
-				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate),
-				GenerateBindablePropertyAccessors(modifiers, default, bindablePropertyField, bindablePropertyField)
+				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate, out var onChanging, out var onChanged),
+				GenerateBindablePropertyAccessors(modifiers, default, bindablePropertyField, bindablePropertyField),
+				onChanging,
+				onChanged,
 			};
 		}
 	}
@@ -92,9 +117,11 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 			var bindablePropertyField = IdentifierName(propertyName + "Property");
 			return new MemberDeclarationSyntax[]
 			{
-				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly),
+				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, out var onChanging, out var onChanged),
 				GenerateReadOnlyBindablePropertyDeclaration(getModifiers, bindablePropertyField, bindablePropertyKeyField),
-				GenerateBindablePropertyAccessors(getModifiers, setModifiers, bindablePropertyField, bindablePropertyKeyField)
+				GenerateBindablePropertyAccessors(getModifiers, setModifiers, bindablePropertyField, bindablePropertyKeyField),
+				onChanging,
+				onChanged
 			};
 		}
 	}

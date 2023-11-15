@@ -10,6 +10,12 @@ namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class SourceGenerationExtensions
 {
+	public static readonly PredefinedTypeSyntax VoidType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+	public static readonly LiteralExpressionSyntax Null = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+	public static readonly LiteralExpressionSyntax Default = SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression);
+	public static readonly LiteralExpressionSyntax True = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
+	public static readonly LiteralExpressionSyntax False = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
+
 	private static readonly SymbolDisplayFormat fullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 	private static readonly SyntaxToken semicolon = SyntaxFactory.Token(SyntaxKind.SemicolonToken);
 
@@ -107,15 +113,21 @@ internal static class SourceGenerationExtensions
 		return syntax.WithTrailingTrivia(list);
 	}
 
-	public static InvocationExpressionSyntax AddArgumentListTypeOfArgument(this InvocationExpressionSyntax syntax, TypeSyntax type)
-		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.TypeOfExpression(type)));
+	public static ParenthesizedExpressionSyntax WithSurroundingParenthesis(this ExpressionSyntax syntax)
+		=> SyntaxFactory.ParenthesizedExpression(syntax);
 
-	public static InvocationExpressionSyntax AddArgumentListNullArgument(this InvocationExpressionSyntax syntax)
-		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)));
+	public static TypeOfExpressionSyntax TypeOf(TypeSyntax type)
+		=> SyntaxFactory.TypeOfExpression(type);
 
-	public static InvocationExpressionSyntax AddArgumentListLiteralArgument(this InvocationExpressionSyntax syntax, string literal)
-		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(literal))));
+	public static LiteralExpressionSyntax Literal(string literal)
+		=> SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(literal));
 
-	public static InvocationExpressionSyntax AddArgumentListLiteralArgument(this InvocationExpressionSyntax syntax, int literal)
-		=> syntax.AddArgumentListArguments(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literal))));
+	public static LiteralExpressionSyntax Literal(int literal)
+		=> SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literal));
+
+	public static ArgumentListSyntax ArgumentList(params ArgumentSyntax[] arguments)
+	{
+		var list = SyntaxFactory.SeparatedList(arguments);
+		return SyntaxFactory.ArgumentList(list);
+	}
 }

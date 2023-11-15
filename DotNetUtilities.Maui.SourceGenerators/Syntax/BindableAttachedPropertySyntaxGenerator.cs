@@ -23,9 +23,11 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 			var bindablePropertyField = IdentifierName(propertyName + "Property");
 			return new MemberDeclarationSyntax[]
 			{
-				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate),
+				GenerateBindablePropertyDeclaration(modifiers, bindablePropertyField, nameBindableProperty, nameCreate, out var onChanging, out var onChanged),
 				GenerateAttachedBindablePropertyGetMethod(modifiers, bindablePropertyField),
-				GenerateAttachedBindablePropertySetMethod(modifiers, bindablePropertyField)
+				GenerateAttachedBindablePropertySetMethod(modifiers, bindablePropertyField),
+				onChanging,
+				onChanged
 			};
 		}
 	}
@@ -48,10 +50,12 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 			var bindablePropertyField = IdentifierName(propertyName + "Property");
 			return new MemberDeclarationSyntax[]
 			{
-				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly),
+				GenerateBindablePropertyDeclaration(setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly, out var onChanging, out var onChanged),
 				GenerateReadOnlyBindablePropertyDeclaration(getModifiers, bindablePropertyField, bindablePropertyKeyField),
 				GenerateAttachedBindablePropertyGetMethod(getModifiers, bindablePropertyField),
-				GenerateAttachedBindablePropertySetMethod(setModifiers, bindablePropertyKeyField)
+				GenerateAttachedBindablePropertySetMethod(setModifiers, bindablePropertyKeyField),
+				onChanging,
+				onChanged
 			};
 		}
 	}
@@ -98,11 +102,35 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 				Argument(bindablePropertyField),
 				Argument(nameValue));
 
-		return MethodDeclaration(IdentifierName("void"), "Set" + propertyName)
+		return MethodDeclaration(SourceGenerationExtensions.VoidType, "Set" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))
 			.WithModifiers(modifiers)
 			.AddModifier(SyntaxKind.StaticKeyword)
 			.WithExpressionBody(ArrowExpressionClause(expression))
 			.WithSemicolonToken();
+	}
+
+	protected override LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method)
+	{
+		var paramBindable = Parameter(Identifier("bindable"));
+		var paramOldValue = Parameter(Identifier("oldValue"));
+		var paramNewValue = Parameter(Identifier("newValue"));
+
+		method = MethodDeclaration(SourceGenerationExtensions.VoidType, name)
+			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
+			.AddParameterListParameters(
+				paramBindable.WithType(attachedType),
+				paramOldValue.WithType(propertyType),
+				paramNewValue.WithType(propertyType))
+			.WithSemicolonToken();
+
+		var parameters = ParameterList(SeparatedList(new ParameterSyntax[] { paramBindable, paramOldValue, paramNewValue }));
+		var body = InvocationExpression(IdentifierName(method.Identifier))
+			.AddArgumentListArguments(
+				Argument(CastExpression(attachedType, IdentifierName(paramBindable.Identifier))),
+				Argument(CastExpression(propertyType, IdentifierName(paramOldValue.Identifier))),
+				Argument(CastExpression(propertyType, IdentifierName(paramNewValue.Identifier))));
+
+		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 }

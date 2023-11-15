@@ -146,8 +146,10 @@ internal class WhitespaceSyntaxRewriter : CSharpSyntaxRewriter
 		{
 			var depth = GetDeclarationDepth(node);
 			var body = node.ExpressionBody.AddLeadingLineBreak(depth + 1);
-			node = node.WithExpressionBody(body).AddTrailingLineBreak();
+			node = node.WithExpressionBody(body);
 		}
+
+		node = node.AddTrailingLineBreak();
 
 		return base.VisitMethodDeclaration(node);
 	}

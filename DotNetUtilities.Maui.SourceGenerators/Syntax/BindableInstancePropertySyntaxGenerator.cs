@@ -6,9 +6,9 @@ namespace DotNetUtilities.Maui.SourceGenerators.Syntax;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-internal abstract class InstanceBindablePropertySyntaxGenerator : BindablePropertySyntaxGenerator
+internal abstract class BindableInstancePropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	public static InstanceBindablePropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+	public static BindableInstancePropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
 		return setModifiers.Count == 0
 			? new WritableGenerator(propertyName, propertyType, declaringType, defaultModeExpression, getModifiers)
@@ -40,7 +40,7 @@ internal abstract class InstanceBindablePropertySyntaxGenerator : BindableProper
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
 
-	private InstanceBindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression) : base(propertyName, propertyType, declaringType, defaultModeExpression)
+	private BindableInstancePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression) : base(propertyName, propertyType, declaringType, defaultModeExpression)
 	{
 	}
 
@@ -53,7 +53,7 @@ internal abstract class InstanceBindablePropertySyntaxGenerator : BindableProper
 				GenerateSetter(writablePropertyField, setModifiers));
 	}
 
-	private sealed class WritableGenerator : InstanceBindablePropertySyntaxGenerator
+	private sealed class WritableGenerator : BindableInstancePropertySyntaxGenerator
 	{
 		private readonly SyntaxTokenList modifiers;
 
@@ -74,7 +74,7 @@ internal abstract class InstanceBindablePropertySyntaxGenerator : BindableProper
 		}
 	}
 
-	private sealed class ReadOnlyGenerator : InstanceBindablePropertySyntaxGenerator
+	private sealed class ReadOnlyGenerator : BindableInstancePropertySyntaxGenerator
 	{
 		private readonly SyntaxTokenList getModifiers;
 		private readonly SyntaxTokenList setModifiers;

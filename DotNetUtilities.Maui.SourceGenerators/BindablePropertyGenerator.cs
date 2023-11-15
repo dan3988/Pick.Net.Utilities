@@ -180,8 +180,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			}
 
 			BindablePropertySyntaxGenerator generator = attachedType == null
-				? InstanceBindablePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
-				: AttachedBindablePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
+				? BindableInstancePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
+				: BindableAttachedPropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
 
 			properties.Add(generator);
 		}

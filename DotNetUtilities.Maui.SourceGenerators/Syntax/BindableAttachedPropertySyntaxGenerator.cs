@@ -6,9 +6,9 @@ namespace DotNetUtilities.Maui.SourceGenerators.Syntax;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-internal abstract class AttachedBindablePropertySyntaxGenerator : BindablePropertySyntaxGenerator
+internal abstract class BindableAttachedPropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private sealed class WritableGenerator : AttachedBindablePropertySyntaxGenerator
+	private sealed class WritableGenerator : BindableAttachedPropertySyntaxGenerator
 	{
 		private readonly SyntaxTokenList modifiers;
 
@@ -30,7 +30,7 @@ internal abstract class AttachedBindablePropertySyntaxGenerator : BindableProper
 		}
 	}
 
-	private sealed class ReadOnlyGenerator : AttachedBindablePropertySyntaxGenerator
+	private sealed class ReadOnlyGenerator : BindableAttachedPropertySyntaxGenerator
 	{
 		private readonly SyntaxTokenList getModifiers;
 		private readonly SyntaxTokenList setModifiers;
@@ -59,7 +59,7 @@ internal abstract class AttachedBindablePropertySyntaxGenerator : BindableProper
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
-	public static AttachedBindablePropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+	public static BindableAttachedPropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
 		return setModifiers.Count == 0
 			? new WritableGenerator(propertyName, propertyType, declaringType, defaultModeExpression, attachedType, getModifiers)
@@ -68,7 +68,7 @@ internal abstract class AttachedBindablePropertySyntaxGenerator : BindableProper
 
 	private readonly TypeSyntax attachedType;
 
-	private AttachedBindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType) : base(propertyName, propertyType, declaringType, defaultModeExpression)
+	private BindableAttachedPropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType) : base(propertyName, propertyType, declaringType, defaultModeExpression)
 	{
 		this.attachedType = attachedType;
 	}

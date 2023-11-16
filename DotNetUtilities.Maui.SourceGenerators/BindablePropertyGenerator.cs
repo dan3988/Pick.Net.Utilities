@@ -47,24 +47,27 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static void RegisterEntry(SourceProductionContext context, (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) item)
 	{
-		var (clazz, diagnostics) = item;
+		var (entry, diagnostics) = item;
 		foreach (var diagnostic in diagnostics)
 			context.ReportDiagnostic(diagnostic);
 
-		var identifier = Identifier(clazz.TypeName);
-		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, identifier)
-			.AddModifier(SyntaxKind.PartialKeyword);
+		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, entry.TypeName).AddModifier(SyntaxKind.PartialKeyword);
 
-		foreach (var property in clazz.Properties)
+		foreach (var property in entry.Properties)
 			type = property.Generate(type);
 
-		var ns = NamespaceDeclaration(IdentifierName(clazz.Namespace)).AddMembers(type);
-		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
+		var types = entry.ParentTypes;
+		for (var i = 0; i < types.Length; i++)
+			type = TypeDeclaration(SyntaxKind.ClassDeclaration, types[i]).AddModifier(SyntaxKind.PartialKeyword).AddMembers(type);
 
-		context.AddSource(clazz.FileName, unit);
+		var ns = NamespaceDeclaration(IdentifierName(entry.Namespace)).AddMembers(type);
+		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
+		var fileName = entry.GetFileName();
+
+		context.AddSource(fileName, unit);
 #if DEBUG
 		var text = unit.ToFullString();
-		Console.WriteLine(clazz.FileName);
+		Console.WriteLine(fileName);
 		Console.WriteLine(text);
 #endif
 	}
@@ -134,9 +137,32 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
+	private static ImmutableArray<string> GetContainingTypes(INamedTypeSymbol type)
+	{
+		var parent = type.ContainingType;
+		if (parent == null)
+		{
+			return ImmutableArray<string>.Empty;
+		}
+		else
+		{
+			var builder = ImmutableArray.CreateBuilder<string>();
+
+			do
+			{
+				builder.Add(parent.MetadataName);
+				parent = parent.ContainingType;
+			}
+			while (parent != null);
+
+			return builder.ToImmutable();
+		}
+	}
+
 	private static (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
-		var type = (ITypeSymbol)context.TargetSymbol;
+		var type = (INamedTypeSymbol)context.TargetSymbol;
+		var parentTypes = GetContainingTypes(type);
 		var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
 		var declaringTypeSyntax = IdentifierName(type.GetFullTypeName());
 		var attributes = context.Attributes;
@@ -186,7 +212,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			properties.Add(generator);
 		}
 
-		var classEntry = new ClassEntry(ns, type.Name, $"{ns}.{type.MetadataName}.g.cs", properties.ToImmutable());
+		var classEntry = new ClassEntry(ns, type.Name, parentTypes, properties.ToImmutable());
 		return (classEntry, diagnostics.ToImmutable());
 	}
 

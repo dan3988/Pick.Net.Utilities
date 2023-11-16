@@ -15,9 +15,13 @@ internal static class SyntaxHelper
 	public static readonly LiteralExpressionSyntax Default = SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 	public static readonly LiteralExpressionSyntax True = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
 	public static readonly LiteralExpressionSyntax False = SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression);
+	public static readonly SyntaxTriviaList EmptyTriviaList = SyntaxFactory.TriviaList();
 
 	private static readonly SymbolDisplayFormat fullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+	
 	private static readonly SyntaxToken semicolon = SyntaxFactory.Token(SyntaxKind.SemicolonToken);
+	private static readonly SyntaxToken nameof = SyntaxFactory.Identifier(EmptyTriviaList, SyntaxKind.NameOfKeyword, "nameof", "nameof", EmptyTriviaList);
+	private static readonly IdentifierNameSyntax nameofSyntax = SyntaxFactory.IdentifierName(nameof);
 
 	public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue value)
 	{
@@ -116,6 +120,9 @@ internal static class SyntaxHelper
 	public static ParenthesizedExpressionSyntax WithSurroundingParenthesis(this ExpressionSyntax syntax)
 		=> SyntaxFactory.ParenthesizedExpression(syntax);
 
+	public static InvocationExpressionSyntax NameOf(ExpressionSyntax expression)
+		=> SyntaxFactory.InvocationExpression(nameofSyntax, ArgumentList(expression));
+
 	public static TypeOfExpressionSyntax TypeOf(TypeSyntax type)
 		=> SyntaxFactory.TypeOfExpression(type);
 
@@ -124,6 +131,12 @@ internal static class SyntaxHelper
 
 	public static LiteralExpressionSyntax Literal(int literal)
 		=> SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literal));
+
+	public static ArgumentListSyntax ArgumentList(params ExpressionSyntax[] arguments)
+	{
+		var list = SyntaxFactory.SeparatedList(arguments.Select(SyntaxFactory.Argument));
+		return SyntaxFactory.ArgumentList(list);
+	}
 
 	public static ArgumentListSyntax ArgumentList(params ArgumentSyntax[] arguments)
 	{

@@ -12,4 +12,12 @@ namespace DotNetUtilities.Maui.TestApp.Controls;
 [BindableProperty("InternalReadOnlyAttached", typeof(bool), AttachedType = typeof(Entry), Visibility = PropertyVisibility.Internal, WriteVisibility = PropertyVisibility.Private)]
 public partial class TestControl : BindableObject
 {
+	[BindableProperty("Value", typeof(int), DefaultMode = BindingMode.TwoWay)]
+	public partial class NestedControl : BindableObject
+	{
+		[BindableProperty("Value", typeof(int), DefaultMode = BindingMode.TwoWay)]
+		public partial class DeepNestedControl : BindableObject
+		{
+		}
+	}
 }

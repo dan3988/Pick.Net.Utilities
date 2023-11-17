@@ -24,7 +24,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
 	private static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
 
-	private static readonly Type attributeType = typeof(BindablePropertyAttribute);
+	private static readonly Type attributeType = typeof(BindablePropertyAttribute<>);
 	private static readonly string attributeName = attributeType.FullName;
 
 	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
@@ -154,18 +154,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				return false;
 			}
 
-			if (valueType == null || !_specialTypesMap.TryGetValue(valueType.SpecialType, out var source))
-			{
-				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueInvalid, attribute.ApplicationSyntaxReference, valueType);
-				return false;
-			}
-
-			if (!CanConvertTo(source, target))
-			{
-				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueCantConvert, attribute.ApplicationSyntaxReference, valueType, realPropertyType);
-				return false;
-			}
-
 			syntax = SyntaxHelper.Literal(value, target);
 			return true;
 		}
@@ -195,39 +183,47 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name, [MaybeNullWhen(false)] out IdentifierNameSyntax type, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
+	private static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name)
 	{
 		var arguments = attribute.ConstructorArguments;
-		if (arguments.Length < 2)
+		if (arguments.Length < 1)
 		{
 			name = null;
-			type = null;
-			typeSymbol = null;
 			return false;
 		}
 
-		var canConstruct = true;
-
-		name = (string?)arguments[0].Value ?? "";
+		name = (string?)arguments[0].Value;
 
 		if (string.IsNullOrEmpty(name))
 		{
 			builder.Add(DiagnosticDescriptors.BindablePropertyEmptyPropertyName, attribute.ApplicationSyntaxReference);
-			canConstruct = false;
+			return false;
 		}
 
-		typeSymbol = (INamedTypeSymbol?)arguments[1].Value;
-		if (typeSymbol == null)
+#pragma warning disable CS8762 // Parameter must have a non-null value when exiting in some condition.
+		return true;
+#pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.
+	}
+
+	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out IdentifierNameSyntax type, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
+	{
+		var attrType = attribute.AttributeClass;
+		if (attrType != null && attrType.IsGenericType)
 		{
-			builder.Add(DiagnosticDescriptors.BindablePropertyNullPropertyType, attribute.ApplicationSyntaxReference);
-			type = IdentifierName("object");
-		}
-		else
-		{
-			type = IdentifierName(typeSymbol.GetFullTypeName());
+			var args = attrType.TypeArguments;
+			if (args.Length >= 1)
+			{
+				var arg = args[0];
+				var name = arg.GetFullTypeName();
+				type = IdentifierName(name);
+				typeSymbol = (INamedTypeSymbol)arg;
+				return true;
+			}
 		}
 
-		return canConstruct;
+		type = null;
+		typeSymbol = null;
+		return false;
 	}
 
 	private static ExpressionSyntax ParseDefaultBindingMode(AttributeData attribute, TypedConstant value, DiagnosticsBuilder diagnostics)
@@ -281,7 +277,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		for (var i = 0; i < attributes.Length; i++)
 		{
 			var attribute = attributes[i];
-			if (!TryParseAttributePositionalArgs(attribute, diagnostics, out var name, out var propType, out var propTypeSymbol))
+			if (!TryParseAttributeGenericArgs(attribute, out var propType, out var propTypeSymbol) || !TryParseAttributePositionalArgs(attribute, diagnostics, out var name))
 				continue;
 
 			var getterAccessors = tokensPublic;

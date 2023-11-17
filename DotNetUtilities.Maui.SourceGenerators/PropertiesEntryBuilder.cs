@@ -14,14 +14,10 @@ namespace DotNetUtilities.Maui.SourceGenerators;
 
 using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
-[Generator]
-public class BindablePropertyGenerator : IIncrementalGenerator
+internal abstract class PropertiesEntryBuilder
 {
-	private static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
-	private static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
-
-	private static readonly string attributeInstanceName = typeof(BindablePropertyAttribute<>).FullName;
-	private static readonly string attributeAttachedName = typeof(AttachedBindablePropertyAttribute<,>).FullName;
+	protected static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
+	protected static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
 
 	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
 
@@ -60,22 +56,22 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static readonly Dictionary<SpecialType, TypeCode> _specialTypesMap = new()
 	{
-		[SpecialType.System_Object]		= TypeCode.Object,
-		[SpecialType.System_Boolean]	= TypeCode.Boolean,
-		[SpecialType.System_Char]		= TypeCode.Char,
-		[SpecialType.System_SByte]		= TypeCode.SByte,
-		[SpecialType.System_Byte]		= TypeCode.Byte,
-		[SpecialType.System_Int16]		= TypeCode.Int16,
-		[SpecialType.System_UInt16]		= TypeCode.UInt16,
-		[SpecialType.System_Int32]		= TypeCode.Int32,
-		[SpecialType.System_UInt32]		= TypeCode.UInt32,
-		[SpecialType.System_Int64]		= TypeCode.Int64,
-		[SpecialType.System_UInt64]		= TypeCode.UInt64,
-		[SpecialType.System_Single]		= TypeCode.Single,
-		[SpecialType.System_Double]		= TypeCode.Double,
-		[SpecialType.System_Decimal]	= TypeCode.Decimal,
-		[SpecialType.System_String]		= TypeCode.String,
-		[SpecialType.System_DateTime]	= TypeCode.DateTime
+		[SpecialType.System_Object] = TypeCode.Object,
+		[SpecialType.System_Boolean] = TypeCode.Boolean,
+		[SpecialType.System_Char] = TypeCode.Char,
+		[SpecialType.System_SByte] = TypeCode.SByte,
+		[SpecialType.System_Byte] = TypeCode.Byte,
+		[SpecialType.System_Int16] = TypeCode.Int16,
+		[SpecialType.System_UInt16] = TypeCode.UInt16,
+		[SpecialType.System_Int32] = TypeCode.Int32,
+		[SpecialType.System_UInt32] = TypeCode.UInt32,
+		[SpecialType.System_Int64] = TypeCode.Int64,
+		[SpecialType.System_UInt64] = TypeCode.UInt64,
+		[SpecialType.System_Single] = TypeCode.Single,
+		[SpecialType.System_Double] = TypeCode.Double,
+		[SpecialType.System_Decimal] = TypeCode.Decimal,
+		[SpecialType.System_String] = TypeCode.String,
+		[SpecialType.System_DateTime] = TypeCode.DateTime
 	};
 
 	private static bool CanConvertTo(TypeCode from, TypeCode to)
@@ -95,32 +91,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
 		=> new(kinds.Select(Token));
-
-	private static void GenerateProperties(SourceProductionContext context, ClassEntry entry, string? suffix)
-	{
-		foreach (var diagnostic in entry.Diagnostics)
-			context.ReportDiagnostic(diagnostic);
-
-		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, entry.TypeName).AddModifier(SyntaxKind.PartialKeyword);
-
-		foreach (var property in entry.Properties)
-			type = property.Generate(type);
-
-		var types = entry.ParentTypes;
-		for (var i = 0; i < types.Length; i++)
-			type = TypeDeclaration(SyntaxKind.ClassDeclaration, types[i]).AddModifier(SyntaxKind.PartialKeyword).AddMembers(type);
-
-		var ns = NamespaceDeclaration(IdentifierName(entry.Namespace)).AddMembers(type);
-		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
-		var fileName = entry.GetFileName(suffix);
-
-		context.AddSource(fileName, unit);
-#if DEBUG
-		var text = unit.ToFullString();
-		Console.WriteLine(fileName);
-		Console.WriteLine(text);
-#endif
-	}
 
 	private static bool ToSyntaxTokens(SyntaxReference? reference, in TypedConstant value, out SyntaxTokenList tokens, [MaybeNullWhen(true)] out Diagnostic diagnostic)
 	{
@@ -259,17 +229,13 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static ClassEntry MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
+	public ClassEntry Generate(INamedTypeSymbol type, ImmutableArray<AttributeData> attributes)
 	{
-		var type = (INamedTypeSymbol)context.TargetSymbol;
 		var parentTypes = GetContainingTypes(type);
 		var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
 		var declaringTypeSyntax = IdentifierName(type.GetFullTypeName());
-		var attributes = context.Attributes;
 		var properties = ImmutableArray.CreateBuilder<BindablePropertySyntaxGenerator>(attributes.Length);
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-
-		Diagnostic? diagnostic;
 
 		for (var i = 0; i < attributes.Length; i++)
 		{
@@ -282,6 +248,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 			ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
 			ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
+
+			Diagnostic? diagnostic;
 
 			foreach (var (key, value) in attribute.NamedArguments)
 			{
@@ -313,17 +281,16 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			properties.Add(generator);
 		}
 
-		return new(ns, type.Name, parentTypes, properties.ToImmutable(), diagnostics.ToImmutable());
+		return new ClassEntry(ns, type.Name, parentTypes, properties.ToImmutable(), diagnostics.ToImmutable());
 	}
+}
 
-	private static bool MetadataPredictate(SyntaxNode node, CancellationToken token)
-		=> node.IsKind(SyntaxKind.ClassDeclaration);
+internal abstract class PropertiesEntryBuilder<T> : PropertiesEntryBuilder
+	where T : BindablePropertySyntaxGenerator
+{
+}
 
-	public void Initialize(IncrementalGeneratorInitializationContext context)
-	{
-		var instanceProps = context.SyntaxProvider.ForAttributeWithMetadataName(attributeInstanceName, MetadataPredictate, MetadataTransform);
-		var attachedProps = context.SyntaxProvider.ForAttributeWithMetadataName(attributeAttachedName, MetadataPredictate, MetadataTransform);
-		context.RegisterSourceOutput(instanceProps, static (context, entry) => GenerateProperties(context, entry, null));
-		context.RegisterSourceOutput(attachedProps, static (context, entry) => GenerateProperties(context, entry, "Attached"));
-	}
+internal sealed class InstancePropertiesEntry : PropertiesEntryBuilder<BindableInstancePropertySyntaxGenerator>
+{
+
 }

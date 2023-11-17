@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DotNetUtilities.Maui.SourceGenerators;
+﻿namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class TypeExtensions
 {

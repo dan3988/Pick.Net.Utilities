@@ -1,7 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-
-namespace DotNetUtilities.Maui.SourceGenerators;
+﻿namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class SyntaxListExtensions
 {

@@ -1,8 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace DotNetUtilities.Maui.SourceGenerators.Syntax;
+﻿namespace DotNetUtilities.Maui.SourceGenerators.Syntax;
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 

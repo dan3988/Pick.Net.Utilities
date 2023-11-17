@@ -1,8 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace DotNetUtilities.Maui.SourceGenerators;
+﻿namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal class WhitespaceSyntaxRewriter : CSharpSyntaxRewriter
 {

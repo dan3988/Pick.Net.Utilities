@@ -28,5 +28,11 @@
     <None Include="Compatibility/**/*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+  </ItemGroup>
+
   <Import Project="..\DotNetUtilities.Maui.Shared\DotNetUtilities.Maui.Shared.projitems" Label="Shared" />
 </Project>

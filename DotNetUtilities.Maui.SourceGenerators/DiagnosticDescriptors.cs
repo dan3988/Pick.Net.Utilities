@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using Microsoft.CodeAnalysis;
-
 namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors

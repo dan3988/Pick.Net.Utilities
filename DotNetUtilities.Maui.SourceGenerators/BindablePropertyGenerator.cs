@@ -4,10 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using DotNetUtilities.Maui.Helpers;
 using DotNetUtilities.Maui.SourceGenerators.Syntax;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetUtilities.Maui.SourceGenerators;

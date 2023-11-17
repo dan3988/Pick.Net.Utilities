@@ -3,8 +3,6 @@ using System.Text;
 
 using DotNetUtilities.Maui.SourceGenerators.Syntax;
 
-using Microsoft.CodeAnalysis;
-
 namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal sealed record ClassEntry(string Namespace, string TypeName, ImmutableArray<string> ParentTypes, ImmutableArray<BindablePropertySyntaxGenerator> Properties, ImmutableArray<Diagnostic> Diagnostics)

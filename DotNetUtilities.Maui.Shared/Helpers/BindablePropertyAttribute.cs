@@ -13,6 +13,8 @@ public sealed class BindablePropertyAttribute : Attribute
 
 	public Type? AttachedType { get; init; }
 
+	public object? DefaultValue { get; init; }
+	
 	public PropertyVisibility Visibility { get; init; }
 
 	private PropertyVisibility? _writeVisibility;

@@ -29,7 +29,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
 
-	private static readonly IReadOnlyDictionary<PropertyVisibility, SyntaxTokenList> visibilityTokens = new Dictionary<PropertyVisibility, SyntaxTokenList>()
+	private static readonly Dictionary<PropertyVisibility, SyntaxTokenList> visibilityTokens = new()
 	{
 		[PropertyVisibility.Public] = tokensPublic,
 		[PropertyVisibility.Protected] = CreateTokenList(SyntaxKind.ProtectedKeyword),
@@ -38,6 +38,61 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		[PropertyVisibility.ProtectedInternal] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword),
 		[PropertyVisibility.ProtectedPrivate] = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword),
 	};
+
+	private static readonly HashSet<TypeCode>?[] _implicitConversionTypes =
+	{
+		/* TypeCode.Empty = 0		*/ null,
+		/* TypeCode.Object = 1		*/ null,
+		/* TypeCode.DBNull = 2		*/ null,
+		/* TypeCode.Boolean = 3		*/ null,
+		/* TypeCode.Char = 4		*/ null,
+		/* TypeCode.SByte = 5		*/ null,
+		/* TypeCode.Byte = 6		*/ null,
+		/* TypeCode.Int16 = 7		*/ Set(TypeCode.SByte, TypeCode.Byte),
+		/* TypeCode.UInt16 = 8		*/ Set(TypeCode.Byte),
+		/* TypeCode.Int32 = 9		*/ Set(TypeCode.SByte, TypeCode.Byte, TypeCode.Int16, TypeCode.UInt16),
+		/* TypeCode.UInt32 = 10		*/ Set(TypeCode.Byte, TypeCode.UInt16),
+		/* TypeCode.Int64 = 9		*/ Set(TypeCode.SByte, TypeCode.Byte, TypeCode.Int16, TypeCode.UInt16, TypeCode.Int32, TypeCode.UInt32),
+		/* TypeCode.UInt64 = 10		*/ Set(TypeCode.Byte, TypeCode.UInt16, TypeCode.UInt16, TypeCode.UInt32),
+		/* TypeCode.Single = 13		*/ Set(TypeCode.SByte, TypeCode.Byte, TypeCode.Int16, TypeCode.UInt16, TypeCode.Int32, TypeCode.UInt32, TypeCode.Int64, TypeCode.UInt64),
+		/* TypeCode.Double = 14		*/ Set(TypeCode.SByte, TypeCode.Byte, TypeCode.Int16, TypeCode.UInt16, TypeCode.Int32, TypeCode.UInt32, TypeCode.Int64, TypeCode.UInt64, TypeCode.Single),
+		/* TypeCode.Decimal = 15	*/ Set(TypeCode.SByte, TypeCode.Byte, TypeCode.Int16, TypeCode.UInt16, TypeCode.Int32, TypeCode.UInt32, TypeCode.Int64, TypeCode.UInt64, TypeCode.Single, TypeCode.Double),
+		/* TypeCode.DateTime = 16	*/ null,
+		/* gap						*/ null,
+		/* TypeCode.String = 18		*/ null,
+	};
+
+	private static readonly Dictionary<SpecialType, TypeCode> _specialTypesMap = new()
+	{
+		[SpecialType.System_Object]		= TypeCode.Object,
+		[SpecialType.System_Boolean]	= TypeCode.Boolean,
+		[SpecialType.System_Char]		= TypeCode.Char,
+		[SpecialType.System_SByte]		= TypeCode.SByte,
+		[SpecialType.System_Byte]		= TypeCode.Byte,
+		[SpecialType.System_Int16]		= TypeCode.Int16,
+		[SpecialType.System_UInt16]		= TypeCode.UInt16,
+		[SpecialType.System_Int32]		= TypeCode.Int32,
+		[SpecialType.System_UInt32]		= TypeCode.UInt32,
+		[SpecialType.System_Int64]		= TypeCode.Int64,
+		[SpecialType.System_UInt64]		= TypeCode.UInt64,
+		[SpecialType.System_Single]		= TypeCode.Single,
+		[SpecialType.System_Double]		= TypeCode.Double,
+		[SpecialType.System_Decimal]	= TypeCode.Decimal,
+		[SpecialType.System_String]		= TypeCode.String,
+		[SpecialType.System_DateTime]	= TypeCode.DateTime
+	};
+
+	private static bool CanConvertTo(TypeCode from, TypeCode to)
+	{
+		if (from == to || to == TypeCode.Object)
+			return true;
+
+		var convertible = _implicitConversionTypes[(int)to];
+		return convertible != null && convertible.Contains(from);
+	}
+
+	private static HashSet<T> Set<T>(params T[] values)
+		=> new(values);
 
 	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
 		=> new(Token(kind));
@@ -89,13 +144,65 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name, [MaybeNullWhen(false)] out IdentifierNameSyntax type)
+	private static bool TryParseDefaultValue(AttributeData attribute, DiagnosticsBuilder diagnostics, TypedConstant value, INamedTypeSymbol propertyType, ref ExpressionSyntax syntax)
+	{
+		static bool TryParseCore(AttributeData attribute, DiagnosticsBuilder diagnostics, INamedTypeSymbol propertyType, INamedTypeSymbol realPropertyType, ITypeSymbol? valueType, object? value, ref ExpressionSyntax syntax)
+		{
+			if (!_specialTypesMap.TryGetValue(propertyType.SpecialType, out var target))
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNotSupported, attribute.ApplicationSyntaxReference, realPropertyType);
+				return false;
+			}
+
+			if (valueType == null || !_specialTypesMap.TryGetValue(valueType.SpecialType, out var source))
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueInvalid, attribute.ApplicationSyntaxReference, valueType);
+				return false;
+			}
+
+			if (!CanConvertTo(source, target))
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueCantConvert, attribute.ApplicationSyntaxReference, valueType, realPropertyType);
+				return false;
+			}
+
+			syntax = SyntaxHelper.Literal(value, target);
+			return true;
+		}
+
+		if (propertyType.TypeKind == TypeKind.Enum)
+		{
+			var typeName = propertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+			var member = propertyType.GetMembers().OfType<IFieldSymbol>().FirstOrDefault(v => Equals(v.ConstantValue, value.Value));
+			if (member != null)
+			{
+				syntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(typeName), IdentifierName(member.Name));
+				return true;
+			}
+
+			var underlyingType = propertyType.EnumUnderlyingType!;
+			if (TryParseCore(attribute, diagnostics, underlyingType, propertyType, value.Type, value.Value, ref syntax))
+			{
+				syntax = CastExpression(IdentifierName(typeName), syntax);
+				return true;
+			}
+
+			return false;
+		}
+		else
+		{
+			return TryParseCore(attribute, diagnostics, propertyType, propertyType, value.Type, value.Value, ref syntax);
+		}
+	}
+
+	private static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name, [MaybeNullWhen(false)] out IdentifierNameSyntax type, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
 	{
 		var arguments = attribute.ConstructorArguments;
 		if (arguments.Length < 2)
 		{
 			name = null;
 			type = null;
+			typeSymbol = null;
 			return false;
 		}
 
@@ -109,15 +216,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			canConstruct = false;
 		}
 
-		var symbol = (ITypeSymbol?)arguments[1].Value;
-		if (symbol == null)
+		typeSymbol = (INamedTypeSymbol?)arguments[1].Value;
+		if (typeSymbol == null)
 		{
 			builder.Add(DiagnosticDescriptors.BindablePropertyNullPropertyType, attribute.ApplicationSyntaxReference);
 			type = IdentifierName("object");
 		}
 		else
 		{
-			type = IdentifierName(symbol.GetFullTypeName());
+			type = IdentifierName(typeSymbol.GetFullTypeName());
 		}
 
 		return canConstruct;
@@ -174,13 +281,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		for (var i = 0; i < attributes.Length; i++)
 		{
 			var attribute = attributes[i];
-			if (!TryParseAttributePositionalArgs(attribute, diagnostics, out var name, out var propType))
+			if (!TryParseAttributePositionalArgs(attribute, diagnostics, out var name, out var propType, out var propTypeSymbol))
 				continue;
 
 			var getterAccessors = tokensPublic;
 			var setterAccessors = default(SyntaxTokenList);
 			var attachedType = default(string);
-			var defaultModeSyntax = (ExpressionSyntax)MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
+
+			ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
+			ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
 
 			foreach (var (key, value) in attribute.NamedArguments)
 			{
@@ -202,12 +311,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					case nameof(BindablePropertyAttribute.AttachedType):
 						attachedType = ((ITypeSymbol?)value.Value)?.GetFullTypeName();
 						break;
+					case nameof(BindablePropertyAttribute.DefaultValue):
+						TryParseDefaultValue(attribute, diagnostics, value, propTypeSymbol, ref defaultValueSyntax);
+						break;
 				}
 			}
 
 			BindablePropertySyntaxGenerator generator = attachedType == null
-				? BindableInstancePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
-				: BindableAttachedPropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
+				? BindableInstancePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultValueSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
+				: BindableAttachedPropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultValueSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
 
 			properties.Add(generator);
 		}

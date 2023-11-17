@@ -42,6 +42,33 @@ internal static class DiagnosticDescriptors
 		true,
 		"Invalid PropertyVisibility value.");
 
+	public static DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
+		"DNU0005",
+		"DevaultValue not supported for given property type on [BindableProperty]",
+		"DevaultValue not supported for property type {0}",
+		typeof(BindablePropertyGenerator).FullName,
+		DiagnosticSeverity.Error,
+		true,
+		"DevaultValue not supported for the given property type.");
+
+	public static DiagnosticDescriptor BindablePropertyDefaultValueInvalid = new(
+		"DNU0006",
+		"Invalid DevaultValue value for [BindableProperty]",
+		"Invalid DevaultValue value: {0}",
+		typeof(BindablePropertyGenerator).FullName,
+		DiagnosticSeverity.Error,
+		true,
+		"Invalid DevaultValue value.");
+
+	public static DiagnosticDescriptor BindablePropertyDefaultValueCantConvert = new(
+		"DNU0007",
+		"Can't convert given DefaultValue of [BindableProperty]",
+		"Can't convert DefaultValue from {0} to {1}",
+		typeof(BindablePropertyGenerator).FullName,
+		DiagnosticSeverity.Error,
+		true,
+		"Can't convert given DefaultValue.");
+
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);

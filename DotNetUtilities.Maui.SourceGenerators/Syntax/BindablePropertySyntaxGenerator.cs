@@ -29,13 +29,15 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected readonly string propertyName;
 	protected readonly TypeSyntax propertyType;
 	protected readonly TypeSyntax declaringType;
+	protected readonly ExpressionSyntax defaultValueExpression;
 	protected readonly ExpressionSyntax defaultModeExpression;
 
-	protected BindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultModeExpression)
+	protected BindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression)
 	{
 		this.propertyName = propertyName;
 		this.propertyType = propertyType;
 		this.declaringType = declaringType;
+		this.defaultValueExpression = defaultValueExpression;
 		this.defaultModeExpression = defaultModeExpression;
 	}
 
@@ -52,7 +54,7 @@ internal abstract class BindablePropertySyntaxGenerator
 			Argument(SyntaxHelper.Literal(propertyName)),
 			Argument(SyntaxHelper.TypeOf(propertyType)),
 			Argument(SyntaxHelper.TypeOf(declaringType)),
-			Argument(SyntaxHelper.Null),
+			Argument(defaultValueExpression),
 			Argument(defaultModeExpression),
 			Argument(SyntaxHelper.Null),
 			Argument(CreateChangeHandler($"On{propertyName}Changing", out onChanging)),

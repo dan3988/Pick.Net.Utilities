@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +11,23 @@ namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class SyntaxHelper
 {
-	public static readonly PredefinedTypeSyntax VoidType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+	public static readonly PredefinedTypeSyntax TypeVoid = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+	public static readonly PredefinedTypeSyntax TypeObject = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ObjectKeyword));
+	public static readonly PredefinedTypeSyntax TypeString = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword));
+	public static readonly PredefinedTypeSyntax TypeBoolean = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword));
+	public static readonly PredefinedTypeSyntax TypeChar = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.CharKeyword));
+	public static readonly PredefinedTypeSyntax TypeByte = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ByteKeyword));
+	public static readonly PredefinedTypeSyntax TypeSByte = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.SByteKeyword));
+	public static readonly PredefinedTypeSyntax TypeInt16 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ShortKeyword));
+	public static readonly PredefinedTypeSyntax TypeUInt16 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.UShortKeyword));
+	public static readonly PredefinedTypeSyntax TypeInt32 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword));
+	public static readonly PredefinedTypeSyntax TypeUInt32 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.UIntKeyword));
+	public static readonly PredefinedTypeSyntax TypeInt64 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
+	public static readonly PredefinedTypeSyntax TypeUInt64 = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ULongKeyword));
+	public static readonly PredefinedTypeSyntax TypeSingle = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.FloatKeyword));
+	public static readonly PredefinedTypeSyntax TypeDouble = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DoubleKeyword));
+	public static readonly PredefinedTypeSyntax TypeDecimal = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DecimalKeyword));
+
 	public static readonly LiteralExpressionSyntax Null = SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
 	public static readonly LiteralExpressionSyntax Default = SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression);
 	public static readonly LiteralExpressionSyntax True = SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression);
@@ -126,11 +143,45 @@ internal static class SyntaxHelper
 	public static TypeOfExpressionSyntax TypeOf(TypeSyntax type)
 		=> SyntaxFactory.TypeOfExpression(type);
 
-	public static LiteralExpressionSyntax Literal(string literal)
-		=> SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(literal));
+	public static SyntaxToken LiteralToken(bool value)
+		=> Literal(value).Token;
 
-	public static LiteralExpressionSyntax Literal(int literal)
-		=> SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literal));
+	public static LiteralExpressionSyntax Literal(bool value)
+		=> value ? True : False;
+
+	public static LiteralExpressionSyntax Literal(string value)
+		=> SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
+
+	public static LiteralExpressionSyntax Literal(int value)
+		=> SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+
+	public static ExpressionSyntax Literal(object? value)
+	{
+		if (value == null)
+			return Null;
+
+		var typeCode = Convert.GetTypeCode(value);
+		var typeInfo = PrimitiveTypeInfo.ForTypeCode(typeCode);
+		return typeInfo.CreateSyntax(value);
+	}
+
+	public static ExpressionSyntax Literal(object? value, TypeCode typeCode)
+	{
+		if (value == null)
+			return Null;
+
+		if (typeCode == TypeCode.Object)
+		{
+			typeCode = Convert.GetTypeCode(value);
+		}
+		else
+		{
+			value = Convert.ChangeType(value, typeCode);
+		}
+
+		var typeInfo = PrimitiveTypeInfo.ForTypeCode(typeCode);
+		return typeInfo.CreateSyntax(value);
+	}
 
 	public static ArgumentListSyntax ArgumentList(params ExpressionSyntax[] arguments)
 	{

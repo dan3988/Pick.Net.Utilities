@@ -3,18 +3,25 @@ using System.Text;
 
 using DotNetUtilities.Maui.SourceGenerators.Syntax;
 
+using Microsoft.CodeAnalysis;
+
 namespace DotNetUtilities.Maui.SourceGenerators;
 
-internal record ClassEntry(string Namespace, string TypeName, ImmutableArray<string> ParentTypes, ImmutableArray<BindablePropertySyntaxGenerator> Properties)
+internal sealed record ClassEntry(string Namespace, string TypeName, ImmutableArray<string> ParentTypes, ImmutableArray<BindablePropertySyntaxGenerator> Properties, ImmutableArray<Diagnostic> Diagnostics)
 {
-	public string GetFileName()
+	public string GetFileName(string? suffix = null)
 	{
-		var sb = new StringBuilder(Namespace);
+		var sb = new StringBuilder(Namespace).Append('.');
 
 		var types = ParentTypes;
 		for (var i = types.Length; --i >= 0;)
 			sb.Append(types[i]).Append('+');
 
-		return sb.Append(TypeName).Append(".g.cs").ToString();
+		sb.Append(TypeName);
+
+		if (suffix != null)
+			sb.Append('.').Append(suffix);
+
+		return sb.Append(".g.cs").ToString();
 	}
 }

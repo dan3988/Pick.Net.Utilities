@@ -2,7 +2,7 @@
 
 namespace DotNetUtilities.Maui.TestApp.Controls;
 
-[BindableProperty<string>("Test", AttachedType = typeof(BindableObject))]
+[AttachedBindableProperty<string, Label>("Test")]
 public static partial class StaticClass
 {
 }

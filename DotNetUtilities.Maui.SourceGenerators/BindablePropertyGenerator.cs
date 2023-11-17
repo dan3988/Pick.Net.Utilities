@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 using DotNetUtilities.Maui.Helpers;
@@ -24,8 +25,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
 	private static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
 
-	private static readonly Type attributeType = typeof(BindablePropertyAttribute<>);
-	private static readonly string attributeName = attributeType.FullName;
+	private static readonly string attributeInstanceName = typeof(BindablePropertyAttribute<>).FullName;
+	private static readonly string attributeAttachedName = typeof(AttachedBindablePropertyAttribute<,>).FullName;
 
 	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
 
@@ -100,10 +101,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
 		=> new(kinds.Select(Token));
 
-	private static void RegisterEntry(SourceProductionContext context, (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) item)
+	private static void GenerateProperties(SourceProductionContext context, ClassEntry entry, string? suffix)
 	{
-		var (entry, diagnostics) = item;
-		foreach (var diagnostic in diagnostics)
+		foreach (var diagnostic in entry.Diagnostics)
 			context.ReportDiagnostic(diagnostic);
 
 		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, entry.TypeName).AddModifier(SyntaxKind.PartialKeyword);
@@ -117,7 +117,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		var ns = NamespaceDeclaration(IdentifierName(entry.Namespace)).AddMembers(type);
 		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
-		var fileName = entry.GetFileName();
+		var fileName = entry.GetFileName(suffix);
 
 		context.AddSource(fileName, unit);
 #if DEBUG
@@ -205,7 +205,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 #pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.
 	}
 
-	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out IdentifierNameSyntax type, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
+	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out IdentifierNameSyntax type, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol, out IdentifierNameSyntax? attachedType)
 	{
 		var attrType = attribute.AttributeClass;
 		if (attrType != null && attrType.IsGenericType)
@@ -217,12 +217,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				var name = arg.GetFullTypeName();
 				type = IdentifierName(name);
 				typeSymbol = (INamedTypeSymbol)arg;
+				attachedType = args.Length == 1 ? null : IdentifierName(args[1].GetFullTypeName());
 				return true;
 			}
 		}
 
 		type = null;
 		typeSymbol = null;
+		attachedType = null;
 		return false;
 	}
 
@@ -262,7 +264,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static (ClassEntry Class, ImmutableArray<Diagnostic> Diagnostics) MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
+	private static ClassEntry MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		var type = (INamedTypeSymbol)context.TargetSymbol;
 		var parentTypes = GetContainingTypes(type);
@@ -277,12 +279,11 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		for (var i = 0; i < attributes.Length; i++)
 		{
 			var attribute = attributes[i];
-			if (!TryParseAttributeGenericArgs(attribute, out var propType, out var propTypeSymbol) || !TryParseAttributePositionalArgs(attribute, diagnostics, out var name))
+			if (!TryParseAttributeGenericArgs(attribute, out var propType, out var propTypeSymbol, out var attachedType) || !TryParseAttributePositionalArgs(attribute, diagnostics, out var name))
 				continue;
 
 			var getterAccessors = tokensPublic;
 			var setterAccessors = default(SyntaxTokenList);
-			var attachedType = default(string);
 
 			ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
 			ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
@@ -291,23 +292,20 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			{
 				switch (key)
 				{
-					case nameof(BindablePropertyAttribute.DefaultMode):
+					case nameof(BaseBindablePropertyAttribute.DefaultMode):
 						defaultModeSyntax = ParseDefaultBindingMode(attribute, value, diagnostics);
 						break;
-					case nameof(BindablePropertyAttribute.Visibility):
+					case nameof(BaseBindablePropertyAttribute.Visibility):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out getterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 
 						break;
-					case nameof(BindablePropertyAttribute.WriteVisibility):
+					case nameof(BaseBindablePropertyAttribute.WriteVisibility):
 						if (!ToSyntaxTokens(attribute.ApplicationSyntaxReference!, value, out setterAccessors, out diagnostic))
 							diagnostics.Add(diagnostic);
 
 						break;
-					case nameof(BindablePropertyAttribute.AttachedType):
-						attachedType = ((ITypeSymbol?)value.Value)?.GetFullTypeName();
-						break;
-					case nameof(BindablePropertyAttribute.DefaultValue):
+					case nameof(BaseBindablePropertyAttribute.DefaultValue):
 						TryParseDefaultValue(attribute, diagnostics, value, propTypeSymbol, ref defaultValueSyntax);
 						break;
 				}
@@ -315,13 +313,12 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 			BindablePropertySyntaxGenerator generator = attachedType == null
 				? BindableInstancePropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultValueSyntax, defaultModeSyntax, getterAccessors, setterAccessors)
-				: BindableAttachedPropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultValueSyntax, defaultModeSyntax, IdentifierName(attachedType), getterAccessors, setterAccessors);
+				: BindableAttachedPropertySyntaxGenerator.Create(name, propType, declaringTypeSyntax, defaultValueSyntax, defaultModeSyntax, attachedType, getterAccessors, setterAccessors);
 
 			properties.Add(generator);
 		}
 
-		var classEntry = new ClassEntry(ns, type.Name, parentTypes, properties.ToImmutable());
-		return (classEntry, diagnostics.ToImmutable());
+		return new(ns, type.Name, parentTypes, properties.ToImmutable(), diagnostics.ToImmutable());
 	}
 
 	private static bool MetadataPredictate(SyntaxNode node, CancellationToken token)
@@ -329,7 +326,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		var info = context.SyntaxProvider.ForAttributeWithMetadataName(attributeName, MetadataPredictate, MetadataTransform);
-		context.RegisterSourceOutput(info, RegisterEntry);
+		var instanceProps = context.SyntaxProvider.ForAttributeWithMetadataName(attributeInstanceName, MetadataPredictate, MetadataTransform);
+		var attachedProps = context.SyntaxProvider.ForAttributeWithMetadataName(attributeAttachedName, MetadataPredictate, MetadataTransform);
+		context.RegisterSourceOutput(instanceProps, static (context, entry) => GenerateProperties(context, entry, null));
+		context.RegisterSourceOutput(attachedProps, static (context, entry) => GenerateProperties(context, entry, "Attached"));
 	}
 }

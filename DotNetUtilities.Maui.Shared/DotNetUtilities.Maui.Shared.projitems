@@ -6,7 +6,7 @@
     <SharedGUID>c181fd58-a49a-4e15-94d8-f88458de253d</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>DotNetUtilities.Maui.Shared</Import_RootNamespace>
+    <Import_RootNamespace>DotNetUtilities.Maui</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)**\*.cs" />

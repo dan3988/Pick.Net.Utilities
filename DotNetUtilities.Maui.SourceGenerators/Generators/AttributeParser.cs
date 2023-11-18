@@ -122,6 +122,9 @@ public abstract class AttributeParser
 	private ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
 	protected ExpressionSyntax DefaultValueSyntax => defaultValueSyntax;
 
+	private bool defaultValueFactory = false;
+	protected bool DefaultValueFactory => defaultValueFactory;
+
 	protected AttributeParser(INamedTypeSymbol declaringType, AttributeData attribute, string name, INamedTypeSymbol propertyType)
 	{
 		DeclaringType = declaringType;
@@ -134,6 +137,9 @@ public abstract class AttributeParser
 	{
 		foreach (var (key, value) in AttributeData.NamedArguments)
 			TryParseNamedArgument(diagnostics, key, (INamedTypeSymbol)value.Type!, value.Value);
+
+		if (!DefaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory)
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
 	}
 
 	protected virtual bool TryParseNamedArgument(DiagnosticsBuilder diagnostics, string key, INamedTypeSymbol type, object? value)
@@ -151,6 +157,9 @@ public abstract class AttributeParser
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValue):
 				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, type, value, ref defaultValueSyntax);
+				return true;
+			case nameof(BaseBindablePropertyAttribute.DefaultValueFactory):
+				defaultValueFactory = (bool)value!;
 				return true;
 		}
 

@@ -18,7 +18,7 @@ public sealed class InstanceBindablePropertyGenerator : BaseBindablePropertyGene
 		}
 
 		internal override BindablePropertySyntaxGenerator CreateGenerator()
-			=> BindableInstancePropertySyntaxGenerator.Create(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), DefaultValueSyntax, DefaultModeSyntax, GetterAccessors, SetterAccessors);
+			=> BindableInstancePropertySyntaxGenerator.Create(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, GetterAccessors, SetterAccessors);
 	}
 
 	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)

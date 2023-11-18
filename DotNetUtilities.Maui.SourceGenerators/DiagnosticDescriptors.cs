@@ -69,6 +69,15 @@ internal static class DiagnosticDescriptors
 		true,
 		"Can't convert given DefaultValue.");
 
+	public static DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
+		"DNU0008",
+		"Can't specify a value for DefaultValue while DefaultValueFactory is true for [BindableProperty]",
+		"Can't specify a value for DefaultValue while DefaultValueFactory is true",
+		typeof(BaseBindablePropertyGenerator).FullName,
+		DiagnosticSeverity.Error,
+		true,
+		"Can't specify a value for DefaultValue while DefaultValueFactory is true.");
+
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);

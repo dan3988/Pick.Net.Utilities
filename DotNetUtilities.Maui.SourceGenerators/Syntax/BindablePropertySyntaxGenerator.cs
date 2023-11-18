@@ -12,14 +12,15 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private static readonly IdentifierNameSyntax nameBindablePropertyKeyProperty = IdentifierName("BindableProperty");
 
-	protected static FieldDeclarationSyntax GenerateReadOnlyBindablePropertyDeclaration(SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField)
+	protected static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField)
 	{
 		var propertyInitializer = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, nameBindablePropertyKeyProperty);
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
-
-		return FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
+		var field = FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
 			.WithModifiers(modifiers)
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+
+		members.Add(field);
 	}
 
 	protected readonly string propertyName;
@@ -27,24 +28,33 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected readonly TypeSyntax declaringType;
 	protected readonly ExpressionSyntax defaultValueExpression;
 	protected readonly ExpressionSyntax defaultModeExpression;
+	protected readonly bool defaultValueFactory;
 
-	protected BindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression)
+	protected BindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory)
 	{
 		this.propertyName = propertyName;
 		this.propertyType = propertyType;
 		this.declaringType = declaringType;
 		this.defaultValueExpression = defaultValueExpression;
 		this.defaultModeExpression = defaultModeExpression;
+		this.defaultValueFactory = defaultValueFactory;
 	}
 
 	public TypeDeclarationSyntax Generate(TypeDeclarationSyntax syntax)
-		=> syntax.AddMembers(GenerateMembers());
+	{
+		var members = syntax.Members;
+		var builder = new List<MemberDeclarationSyntax>(members);
+		GenerateMembers(builder);
+		return syntax.WithMembers(new(builder));
+	}
 
-	protected abstract MemberDeclarationSyntax[] GenerateMembers();
+	protected abstract void GenerateMembers(ICollection<MemberDeclarationSyntax> members);
 
 	protected abstract LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method);
 
-	protected FieldDeclarationSyntax GenerateBindablePropertyDeclaration(SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod, out MethodDeclarationSyntax onChanging, out MethodDeclarationSyntax onChanged)
+	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method);
+
+	protected void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
 	{
 		var propertyInitializer = InvocationExpression(createMethod, SyntaxHelper.ArgumentList(
 			Argument(SyntaxHelper.Literal(propertyName)),
@@ -53,13 +63,26 @@ internal abstract class BindablePropertySyntaxGenerator
 			Argument(defaultValueExpression),
 			Argument(defaultModeExpression),
 			Argument(SyntaxHelper.Null),
-			Argument(CreateChangeHandler($"On{propertyName}Changing", out onChanging)),
-			Argument(CreateChangeHandler($"On{propertyName}Changed", out onChanged))));
+			Argument(CreateChangeHandler($"On{propertyName}Changing", out var onChanging)),
+			Argument(CreateChangeHandler($"On{propertyName}Changed", out var onChanged))));
+
+		members.Add(onChanging);
+		members.Add(onChanged);
+
+		if (defaultValueFactory)
+		{
+			propertyInitializer = propertyInitializer.AddArgumentListArguments(
+				Argument(SyntaxHelper.Null),
+				Argument(CreateDefaultValueGenerator(out var method)));
+
+			members.Add(method);
+		}
 
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
-
-		return FieldDeclaration(VariableDeclaration(fieldType).AddVariables(declarator))
+		var field = FieldDeclaration(VariableDeclaration(fieldType).AddVariables(declarator))
 			.WithModifiers(modifiers)
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+
+		members.Add(field);
 	}
 }

@@ -2,6 +2,7 @@
 
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
+internal readonly record struct BindablePropertySyntaxGeneratorConstructorParameters(string PropertyName, TypeSyntax PropertyType, TypeSyntax DeclaringType, ExpressionSyntax DefaultValueExpression, ExpressionSyntax DefaultModeExpression, bool DefaultValueFactory);
 internal abstract class BindablePropertySyntaxGenerator
 {
 	protected static readonly IdentifierNameSyntax nameValue = IdentifierName("value");
@@ -30,14 +31,9 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected readonly ExpressionSyntax defaultModeExpression;
 	protected readonly bool defaultValueFactory;
 
-	protected BindablePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory)
+	protected BindablePropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values)
 	{
-		this.propertyName = propertyName;
-		this.propertyType = propertyType;
-		this.declaringType = declaringType;
-		this.defaultValueExpression = defaultValueExpression;
-		this.defaultModeExpression = defaultModeExpression;
-		this.defaultValueFactory = defaultValueFactory;
+		(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory) = values;
 	}
 
 	public TypeDeclarationSyntax Generate(TypeDeclarationSyntax syntax)

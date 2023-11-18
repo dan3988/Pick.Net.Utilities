@@ -133,6 +133,9 @@ public abstract class AttributeParser
 		PropertyType = propertyType;
 	}
 
+	internal BindablePropertySyntaxGeneratorConstructorParameters CreateConstructorParameters()
+		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), defaultValueSyntax, defaultModeSyntax, defaultValueFactory);
+
 	internal void ParseNamedArguments(DiagnosticsBuilder diagnostics)
 	{
 		foreach (var (key, value) in AttributeData.NamedArguments)

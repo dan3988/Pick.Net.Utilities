@@ -7,17 +7,17 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
-	public static BindableAttachedPropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, TypeSyntax attachedType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+	public static BindableAttachedPropertySyntaxGenerator Create(in BindablePropertySyntaxGeneratorConstructorParameters values, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
 		return setModifiers.Count == 0
-			? new WritableGenerator(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, attachedType, getModifiers)
-			: new ReadOnlyGenerator(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, attachedType, getModifiers, setModifiers);
+			? new WritableGenerator(in values, attachedType, getModifiers)
+			: new ReadOnlyGenerator(in values, attachedType, getModifiers, setModifiers);
 	}
 
 	private readonly TypeSyntax attachedType;
 
-	private BindableAttachedPropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, TypeSyntax attachedType)
-		: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory)
+	private BindableAttachedPropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, TypeSyntax attachedType)
+		: base(in values)
 	{
 		this.attachedType = attachedType;
 	}
@@ -100,8 +100,8 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 	{
 		private readonly SyntaxTokenList modifiers;
 
-		internal WritableGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, TypeSyntax attachedType, SyntaxTokenList modifiers)
-			: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, attachedType)
+		internal WritableGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, TypeSyntax attachedType, SyntaxTokenList modifiers)
+			: base(in values, attachedType)
 		{
 			this.modifiers = modifiers;
 		}
@@ -120,8 +120,8 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 		private readonly SyntaxTokenList getModifiers;
 		private readonly SyntaxTokenList setModifiers;
 
-		internal ReadOnlyGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
-			: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, attachedType)
+		internal ReadOnlyGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+			: base(in values, attachedType)
 		{
 			this.getModifiers = getModifiers;
 			this.setModifiers = setModifiers;

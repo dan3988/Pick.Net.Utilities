@@ -9,11 +9,11 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
 
-	public static BindableInstancePropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+	public static BindableInstancePropertySyntaxGenerator Create(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
 		return setModifiers.Count == 0
-			? new WritableGenerator(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, getModifiers)
-			: new ReadOnlyGenerator(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory, getModifiers, setModifiers);
+			? new WritableGenerator(in values, getModifiers)
+			: new ReadOnlyGenerator(in values, getModifiers, setModifiers);
 	}
 
 	private static AccessorDeclarationSyntax GenerateGetter(TypeSyntax propertyType, TypeSyntax bindablePropertyField)
@@ -38,8 +38,8 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 			.WithSemicolonToken();
 	}
 
-	private BindableInstancePropertySyntaxGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory)
-		: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory)
+	private BindableInstancePropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values)
+		: base(in values)
 	{
 	}
 
@@ -95,8 +95,8 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 	{
 		private readonly SyntaxTokenList modifiers;
 
-		internal WritableGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, SyntaxTokenList modifiers)
-			: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory)
+		internal WritableGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList modifiers)
+			: base(in values)
 		{
 			this.modifiers = modifiers;
 		}
@@ -114,8 +114,8 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 		private readonly SyntaxTokenList getModifiers;
 		private readonly SyntaxTokenList setModifiers;
 
-		internal ReadOnlyGenerator(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, bool defaultValueFactory, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
-			: base(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory)
+		internal ReadOnlyGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+			: base(in values)
 		{
 			this.getModifiers = getModifiers;
 			this.setModifiers = setModifiers;

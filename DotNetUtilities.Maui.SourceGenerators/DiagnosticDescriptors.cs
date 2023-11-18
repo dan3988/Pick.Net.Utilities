@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+using DotNetUtilities.Maui.SourceGenerators.Generators;
+
 namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors
@@ -8,7 +10,7 @@ internal static class DiagnosticDescriptors
 		"DNU0001",
 		"PropertyName cannot be null or empty",
 		"PropertyName cannot be null or empty",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"PropertyName cannot be null or empty.");
@@ -17,7 +19,7 @@ internal static class DiagnosticDescriptors
 		"DNU0002",
 		"PropertyType cannot be null",
 		"PropertyType cannot be null",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"PropertyType cannot be null.");
@@ -26,7 +28,7 @@ internal static class DiagnosticDescriptors
 		"DNU0003",
 		"Invalid BindingMode value for [BindableProperty]",
 		"Invalid BindingMode value: {0}",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"Invalid BindingMode value.");
@@ -35,7 +37,7 @@ internal static class DiagnosticDescriptors
 		"DNU0004",
 		"Invalid PropertyVisibility value for [BindableProperty]",
 		"Invalid PropertyVisibility value: {0}",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"Invalid PropertyVisibility value.");
@@ -44,7 +46,7 @@ internal static class DiagnosticDescriptors
 		"DNU0005",
 		"DevaultValue not supported for given property type on [BindableProperty]",
 		"DevaultValue not supported for property type {0}",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"DevaultValue not supported for the given property type.");
@@ -53,7 +55,7 @@ internal static class DiagnosticDescriptors
 		"DNU0006",
 		"Invalid DevaultValue value for [BindableProperty]",
 		"Invalid DevaultValue value: {0}",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"Invalid DevaultValue value.");
@@ -62,7 +64,7 @@ internal static class DiagnosticDescriptors
 		"DNU0007",
 		"Can't convert given DefaultValue of [BindableProperty]",
 		"Can't convert DefaultValue from {0} to {1}",
-		typeof(BindablePropertyGenerator).FullName,
+		typeof(BaseBindablePropertyGenerator).FullName,
 		DiagnosticSeverity.Error,
 		true,
 		"Can't convert given DefaultValue.");

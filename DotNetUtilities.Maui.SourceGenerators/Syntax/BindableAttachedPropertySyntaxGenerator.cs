@@ -7,7 +7,7 @@ internal abstract class BindableAttachedPropertySyntaxGenerator : BindableProper
 	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttached");
 	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly");
 
-	public static BindableAttachedPropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, TypeSyntax attachedType, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
+	public static BindableAttachedPropertySyntaxGenerator Create(string propertyName, TypeSyntax propertyType, TypeSyntax declaringType, TypeSyntax attachedType, ExpressionSyntax defaultValueExpression, ExpressionSyntax defaultModeExpression, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
 		return setModifiers.Count == 0
 			? new WritableGenerator(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, attachedType, getModifiers)

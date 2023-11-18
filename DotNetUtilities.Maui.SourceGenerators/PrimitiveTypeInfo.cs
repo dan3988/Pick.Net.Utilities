@@ -4,10 +4,10 @@ internal abstract record PrimitiveTypeInfo
 {
 	public static readonly PrimitiveTypeInfo Boolean	= new BooleanTypeInfo();
 	public static readonly PrimitiveTypeInfo Char		= new SimpleTypeInfo<char>(TypeCode.Char, SyntaxHelper.TypeChar, SyntaxKind.CharKeyword, SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal);
-	public static readonly PrimitiveTypeInfo SByte		= new CastedNumericTypeInfo<sbyte>(TypeCode.SByte, SyntaxHelper.TypeSByte, SyntaxKind.SByteKeyword);
-	public static readonly PrimitiveTypeInfo Byte		= new CastedNumericTypeInfo<byte>(TypeCode.Byte, SyntaxHelper.TypeByte, SyntaxKind.ByteKeyword);
-	public static readonly PrimitiveTypeInfo Int16		= new CastedNumericTypeInfo<short>(TypeCode.Int16, SyntaxHelper.TypeInt16, SyntaxKind.ShortKeyword);
-	public static readonly PrimitiveTypeInfo UInt16		= new CastedNumericTypeInfo<ushort>(TypeCode.UInt16, SyntaxHelper.TypeUInt16, SyntaxKind.UShortKeyword);
+	public static readonly PrimitiveTypeInfo SByte		= new CastNumericTypeInfo<sbyte>(TypeCode.SByte, SyntaxHelper.TypeSByte, SyntaxKind.SByteKeyword);
+	public static readonly PrimitiveTypeInfo Byte		= new CastNumericTypeInfo<byte>(TypeCode.Byte, SyntaxHelper.TypeByte, SyntaxKind.ByteKeyword);
+	public static readonly PrimitiveTypeInfo Int16		= new CastNumericTypeInfo<short>(TypeCode.Int16, SyntaxHelper.TypeInt16, SyntaxKind.ShortKeyword);
+	public static readonly PrimitiveTypeInfo UInt16		= new CastNumericTypeInfo<ushort>(TypeCode.UInt16, SyntaxHelper.TypeUInt16, SyntaxKind.UShortKeyword);
 	public static readonly PrimitiveTypeInfo Int32		= new SimpleTypeInfo<int>(TypeCode.Int32, SyntaxHelper.TypeInt32, SyntaxKind.IntKeyword, SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal);
 	public static readonly PrimitiveTypeInfo UInt32		= new SimpleTypeInfo<uint>(TypeCode.UInt32, SyntaxHelper.TypeUInt32, SyntaxKind.UIntKeyword, SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal);
 	public static readonly PrimitiveTypeInfo Int64		= new SimpleTypeInfo<long>(TypeCode.Int64, SyntaxHelper.TypeInt64, SyntaxKind.LongKeyword, SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal);
@@ -17,7 +17,7 @@ internal abstract record PrimitiveTypeInfo
 	public static readonly PrimitiveTypeInfo Decimal	= new SimpleTypeInfo<decimal>(TypeCode.Decimal, SyntaxHelper.TypeDecimal, SyntaxKind.DecimalKeyword, SyntaxKind.NumericLiteralExpression, DecimalLiteral);
 	public static readonly PrimitiveTypeInfo String		= new SimpleTypeInfo<string>(TypeCode.String, SyntaxHelper.TypeString, SyntaxKind.StringKeyword, SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal);
 
-	private static readonly PrimitiveTypeInfo?[] _typeCodeLookup =
+	private static readonly PrimitiveTypeInfo?[] typeCodeLookup =
 	{
 		/* TypeCode.Empty = 0		*/ null,
 		/* TypeCode.Object = 1		*/ null,
@@ -48,10 +48,10 @@ internal abstract record PrimitiveTypeInfo
 
 	public static PrimitiveTypeInfo ForTypeCode(TypeCode type)
 	{
-		if (unchecked((uint)type >= (uint)_typeCodeLookup.Length))
+		if (unchecked((uint)type >= (uint)typeCodeLookup.Length))
 			throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid TypeCode");
 
-		return _typeCodeLookup[(int)type] ?? throw new ArgumentException(type + " is not a primitive type.", nameof(type));
+		return typeCodeLookup[(int)type] ?? throw new ArgumentException(type + " is not a primitive type.", nameof(type));
 	}
 
 	public TypeCode TypeCode { get; }
@@ -90,7 +90,7 @@ internal abstract record PrimitiveTypeInfo
 		}
 	}
 
-	private sealed record CastedNumericTypeInfo<T>(TypeCode TypeCode, PredefinedTypeSyntax TypeSyntax, SyntaxKind KeywordKind) : DynamicTypeInfo<T>(TypeCode, TypeSyntax, KeywordKind, SyntaxKind.NumericLiteralExpression)
+	private sealed record CastNumericTypeInfo<T>(TypeCode TypeCode, PredefinedTypeSyntax TypeSyntax, SyntaxKind KeywordKind) : DynamicTypeInfo<T>(TypeCode, TypeSyntax, KeywordKind, SyntaxKind.NumericLiteralExpression)
 		where T : unmanaged, IConvertible
 	{
 		public override SyntaxToken CreateLiteral(object value)

@@ -5,9 +5,9 @@ namespace DotNetUtilities.Collections;
 
 public class ObservableList<T> : ObservableCollection<T>
 {
-	private ReadOnlyObservableCollection<T>? _readOnly;
+	private ReadOnlyObservableCollection<T>? readOnly;
 
-	public ReadOnlyObservableCollection<T> ReadOnly => _readOnly ??= new(this);
+	public ReadOnlyObservableCollection<T> ReadOnly => readOnly ??= new(this);
 
 	public ObservableList()
 	{

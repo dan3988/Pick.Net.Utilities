@@ -27,7 +27,7 @@ public sealed class AttachedBindablePropertyGenerator : BaseBindablePropertyGene
 	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol, [MaybeNullWhen(false)] out INamedTypeSymbol attachedType)
 	{
 		var attrType = attribute.AttributeClass;
-		if (attrType != null && attrType.IsGenericType)
+		if (attrType is { IsGenericType: true })
 		{
 			var args = attrType.TypeArguments;
 			if (args.Length >= 2)

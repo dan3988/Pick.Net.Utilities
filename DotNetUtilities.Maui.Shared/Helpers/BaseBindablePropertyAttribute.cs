@@ -17,6 +17,10 @@ public abstract class BaseBindablePropertyAttribute : Attribute
 
 	public bool DefaultValueFactory { get; init; }
 
+	public bool CoerceValueCallback { get; init; }
+
+	public bool ValidateValueCallback { get; init; }
+
 	public PropertyVisibility Visibility { get; init; }
 
 	private PropertyVisibility? _writeVisibility;

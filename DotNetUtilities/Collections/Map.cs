@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace DotNetUtilities.Collections;
 
-public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
+public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, ICollection<IMapEntry<TKey, TValue>>, ICollection<IReadOnlyMapEntry>
 	where TKey : notnull
 	where TValue : class
 {
@@ -197,7 +197,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 		=> CopyTo(array, index);
 
 	bool ICollection<IReadOnlyMapEntry>.Contains(IReadOnlyMapEntry item)
-		=> item.Key is TKey key && item.Value is TValue value && Contains(key, value, item);
+		=> item is { Key: TKey key, Value: TValue value } && Contains(key, value, item);
 
 	bool ICollection<IMapEntry<TKey, TValue>>.Contains(IMapEntry<TKey, TValue> item)
 		=> Contains(item.Key, item.Value, item);
@@ -209,7 +209,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection
 		=> Remove(item.Key, item.Value, item);
 
 	bool ICollection<IReadOnlyMapEntry>.Remove(IReadOnlyMapEntry item)
-		=> item.Key is TKey key && item.Value is TValue value && Contains(key, value, item);
+		=> item is { Key: TKey key, Value: TValue value } && Contains(key, value, item);
 
 	void ICollection<IReadOnlyMapEntry>.Add(IReadOnlyMapEntry item)
 		=> ((IMap)this).Add(item.Key, item.Value);

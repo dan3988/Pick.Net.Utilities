@@ -1,6 +1,6 @@
 ﻿namespace DotNetUtilities.Maui.SourceGenerators;
 
-internal class WhitespaceSyntaxRewriter : CSharpSyntaxRewriter
+internal class WhitespaceSyntaxReWriter : CSharpSyntaxRewriter
 {
 	private static int GetDeclarationDepth(SyntaxToken token)
 		=> GetDeclarationDepth(token.Parent);
@@ -53,7 +53,7 @@ internal class WhitespaceSyntaxRewriter : CSharpSyntaxRewriter
 				}
 			}
 
-			if (node is StatementSyntax && node is not BlockSyntax)
+			if (node is StatementSyntax and not BlockSyntax)
 			{
 				// Nested statements are normally indented one level.
 				//
@@ -63,24 +63,15 @@ internal class WhitespaceSyntaxRewriter : CSharpSyntaxRewriter
 				//      using ...
 				//      using ...
 				//          .. embedded statement ..
-				if (node is UsingStatementSyntax { Parent: UsingStatementSyntax })
-					return parentDepth;
-
-				if (node is FixedStatementSyntax { Parent: FixedStatementSyntax })
-					return parentDepth;
-
-				return parentDepth + 1;
+				return node switch
+				{
+					UsingStatementSyntax { Parent: UsingStatementSyntax } => parentDepth,
+					FixedStatementSyntax { Parent: FixedStatementSyntax } => parentDepth,
+					_ => parentDepth + 1
+				};
 			}
 
-			if (node is MemberDeclarationSyntax ||
-				node is AccessorDeclarationSyntax ||
-				node is TypeParameterConstraintClauseSyntax ||
-				node is SwitchSectionSyntax ||
-				node is SwitchExpressionArmSyntax ||
-				node is UsingDirectiveSyntax ||
-				node is ExternAliasDirectiveSyntax ||
-				node is QueryExpressionSyntax ||
-				node is QueryContinuationSyntax)
+			if (node is MemberDeclarationSyntax or AccessorDeclarationSyntax or TypeParameterConstraintClauseSyntax or SwitchSectionSyntax or SwitchExpressionArmSyntax or UsingDirectiveSyntax or ExternAliasDirectiveSyntax or QueryExpressionSyntax or QueryContinuationSyntax)
 			{
 				return parentDepth + 1;
 			}

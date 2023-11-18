@@ -6,39 +6,39 @@ public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMa
 	where TKey : notnull
 	where TValue : class
 {
-	private readonly IReadOnlyMap<TKey, TValue> _map;
+	private readonly IReadOnlyMap<TKey, TValue> map;
 
 	public ReadOnlyMap(IReadOnlyMap<TKey, TValue> map)
 	{
-		_map = map;
+		this.map = map;
 	}
 
-	public int Count => _map.Count;
+	public int Count => map.Count;
 
-	public TValue? this[TKey key] => _map[key];
+	public TValue? this[TKey key] => map[key];
 
-	public IReadOnlyCollection<TKey> Keys => _map.Keys;
+	public IReadOnlyCollection<TKey> Keys => map.Keys;
 
-	public IReadOnlyCollection<TValue> Values => _map.Values;
+	public IReadOnlyCollection<TValue> Values => map.Values;
 
 	bool ICollection.IsSynchronized => false;
 
 	object ICollection.SyncRoot => this;
 
-	object? IReadOnlyMap.this[object key] => key is TKey k ? _map[k] : null;
+	object? IReadOnlyMap.this[object key] => key is TKey k ? map[k] : null;
 
 	IReadOnlyMapEntry? IReadOnlyMap.GetEntry(object key)
-		=> key is TKey k ? _map.GetEntry(k) : null;
+		=> key is TKey k ? map.GetEntry(k) : null;
 
 	public IReadOnlyMapEntry<TKey, TValue>? GetEntry(TKey key)
-		=> _map.GetEntry(key);
+		=> map.GetEntry(key);
 
 	public bool ContainsKey(TKey key)
-		=> _map.ContainsKey(key);
+		=> map.ContainsKey(key);
 
 	public void CopyTo(Array array, int index)
 	{
-		foreach (var item in _map)
+		foreach (var item in map)
 			array.SetValue(item, index++);
 	}
 
@@ -49,5 +49,5 @@ public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMa
 		=> GetEnumerator();
 
 	public IEnumerator<IReadOnlyMapEntry<TKey, TValue>> GetEnumerator()
-		=> _map.GetEnumerator();
+		=> map.GetEnumerator();
 }

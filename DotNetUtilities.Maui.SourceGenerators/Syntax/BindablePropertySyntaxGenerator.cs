@@ -3,13 +3,14 @@
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 internal readonly record struct BindablePropertySyntaxGeneratorConstructorParameters(string PropertyName, TypeSyntax PropertyType, TypeSyntax DeclaringType, ExpressionSyntax DefaultValueExpression, ExpressionSyntax DefaultModeExpression, bool DefaultValueFactory);
+
 internal abstract class BindablePropertySyntaxGenerator
 {
-	protected static readonly IdentifierNameSyntax nameValue = IdentifierName("value");
-	protected static readonly IdentifierNameSyntax nameGetValue = IdentifierName("GetValue");
-	protected static readonly IdentifierNameSyntax nameSetValue = IdentifierName("SetValue");
-	protected static readonly IdentifierNameSyntax nameBindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
-	protected static readonly IdentifierNameSyntax nameBindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
+	protected static readonly IdentifierNameSyntax NameValue = IdentifierName("value");
+	protected static readonly IdentifierNameSyntax NameGetValue = IdentifierName("GetValue");
+	protected static readonly IdentifierNameSyntax NameSetValue = IdentifierName("SetValue");
+	protected static readonly IdentifierNameSyntax NameBindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
+	protected static readonly IdentifierNameSyntax NameBindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
 
 	private static readonly IdentifierNameSyntax nameBindablePropertyKeyProperty = IdentifierName("BindableProperty");
 
@@ -17,23 +18,23 @@ internal abstract class BindablePropertySyntaxGenerator
 	{
 		var propertyInitializer = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, nameBindablePropertyKeyProperty);
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
-		var field = FieldDeclaration(VariableDeclaration(nameBindableProperty).AddVariables(declarator))
+		var field = FieldDeclaration(VariableDeclaration(NameBindableProperty).AddVariables(declarator))
 			.WithModifiers(modifiers)
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
 
 		members.Add(field);
 	}
 
-	protected readonly string propertyName;
-	protected readonly TypeSyntax propertyType;
-	protected readonly TypeSyntax declaringType;
-	protected readonly ExpressionSyntax defaultValueExpression;
-	protected readonly ExpressionSyntax defaultModeExpression;
-	protected readonly bool defaultValueFactory;
+	protected readonly string PropertyName;
+	protected readonly TypeSyntax PropertyType;
+	protected readonly TypeSyntax DeclaringType;
+	protected readonly ExpressionSyntax DefaultValueExpression;
+	protected readonly ExpressionSyntax DefaultModeExpression;
+	protected readonly bool DefaultValueFactory;
 
 	protected BindablePropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values)
 	{
-		(propertyName, propertyType, declaringType, defaultValueExpression, defaultModeExpression, defaultValueFactory) = values;
+		(PropertyName, PropertyType, DeclaringType, DefaultValueExpression, DefaultModeExpression, DefaultValueFactory) = values;
 	}
 
 	public TypeDeclarationSyntax Generate(TypeDeclarationSyntax syntax)
@@ -53,19 +54,19 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
 	{
 		var propertyInitializer = InvocationExpression(createMethod, SyntaxHelper.ArgumentList(
-			Argument(SyntaxHelper.Literal(propertyName)),
-			Argument(SyntaxHelper.TypeOf(propertyType)),
-			Argument(SyntaxHelper.TypeOf(declaringType)),
-			Argument(defaultValueExpression),
-			Argument(defaultModeExpression),
+			Argument(SyntaxHelper.Literal(PropertyName)),
+			Argument(SyntaxHelper.TypeOf(PropertyType)),
+			Argument(SyntaxHelper.TypeOf(DeclaringType)),
+			Argument(DefaultValueExpression),
+			Argument(DefaultModeExpression),
 			Argument(SyntaxHelper.Null),
-			Argument(CreateChangeHandler($"On{propertyName}Changing", out var onChanging)),
-			Argument(CreateChangeHandler($"On{propertyName}Changed", out var onChanged))));
+			Argument(CreateChangeHandler($"On{PropertyName}Changing", out var onChanging)),
+			Argument(CreateChangeHandler($"On{PropertyName}Changed", out var onChanged))));
 
 		members.Add(onChanging);
 		members.Add(onChanged);
 
-		if (defaultValueFactory)
+		if (DefaultValueFactory)
 		{
 			propertyInitializer = propertyInitializer.AddArgumentListArguments(
 				Argument(SyntaxHelper.Null),

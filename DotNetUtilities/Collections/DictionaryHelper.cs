@@ -26,9 +26,9 @@ public static class DictionaryHelper
 	internal sealed class EmptyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
 		where TKey : notnull
 	{
-		public readonly static EmptyDictionary<TKey, TValue> Instance = new();
+		public static readonly EmptyDictionary<TKey, TValue> Instance = new();
 
-		private readonly static IEnumerable<KeyValuePair<TKey, TValue>> en = Array.Empty<KeyValuePair<TKey, TValue>>();
+		private static readonly IEnumerable<KeyValuePair<TKey, TValue>> en = Array.Empty<KeyValuePair<TKey, TValue>>();
 
 		public TValue this[TKey key] => throw new KeyNotFoundException("EmptyDictionary instance will never have values.");
 

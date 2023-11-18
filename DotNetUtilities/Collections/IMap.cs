@@ -2,11 +2,10 @@
 
 namespace DotNetUtilities.Collections;
 
-
 /// <summary>
 /// Mutable extension of <see cref="IReadOnlyMap"/>
 /// </summary>
-public interface IMap : ICollection<IReadOnlyMapEntry>, IReadOnlyMap
+public interface IMap : IReadOnlyMap
 {
 	new object? this[object key] { get; set; }
 
@@ -18,7 +17,7 @@ public interface IMap : ICollection<IReadOnlyMapEntry>, IReadOnlyMap
 /// <summary>
 /// Mutable extension of <see cref="IReadOnlyMap{TKey, TValue}"/>
 /// </summary>
-public interface IMap<TKey, TValue> : ICollection<IMapEntry<TKey, TValue>>, IReadOnlyMap<TKey, TValue>
+public interface IMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>
 	where TKey : notnull
 	where TValue : class
 {

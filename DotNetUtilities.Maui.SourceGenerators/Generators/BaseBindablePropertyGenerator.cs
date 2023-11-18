@@ -2,18 +2,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-using DotNetUtilities.Maui.SourceGenerators;
 using DotNetUtilities.Maui.SourceGenerators.Syntax;
-
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetUtilities.Maui.SourceGenerators.Generators;
 
+using static SyntaxFactory;
 using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 {
-	private static readonly HashSet<TypeCode>?[] _implicitConversionTypes =
+	private static readonly HashSet<TypeCode>?[] implicitConversionTypes =
 	{
 		/* TypeCode.Empty = 0		*/ null,
 		/* TypeCode.Object = 1		*/ null,
@@ -41,18 +39,12 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 		if (from == to || to == TypeCode.Object)
 			return true;
 
-		var convertible = _implicitConversionTypes[(int)to];
+		var convertible = implicitConversionTypes[(int)to];
 		return convertible != null && convertible.Contains(from);
 	}
 
 	private static HashSet<T> Set<T>(params T[] values)
 		=> new(values);
-
-	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
-		=> new(Token(kind));
-
-	private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
-		=> new(kinds.Select(Token));
 
 	private static void GenerateProperties(SourceProductionContext context, ClassEntry entry)
 	{
@@ -61,12 +53,8 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 
 		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, entry.TypeName).AddModifier(SyntaxKind.PartialKeyword);
 
-		foreach (var property in entry.Properties)
-			type = property.Generate(type);
-
-		var types = entry.ParentTypes;
-		for (var i = 0; i < types.Length; i++)
-			type = TypeDeclaration(SyntaxKind.ClassDeclaration, types[i]).AddModifier(SyntaxKind.PartialKeyword).AddMembers(type);
+		type = entry.Properties.Aggregate(type, (current, property) => property.Generate(current));
+		type = entry.ParentTypes.Aggregate(type, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
 
 		var ns = NamespaceDeclaration(IdentifierName(entry.Namespace)).AddMembers(type);
 		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
@@ -101,7 +89,7 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 #pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.
 	}
 
-	private static ImmutableArray<string> GetContainingTypes(INamedTypeSymbol type)
+	private static ImmutableArray<string> GetContainingTypes(ISymbol type)
 	{
 		var parent = type.ContainingType;
 		if (parent == null)
@@ -127,9 +115,8 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 	{
 		var sb = new StringBuilder(@namespace).Append('.');
 
-		var types = parentTypes;
-		for (var i = types.Length; --i >= 0;)
-			sb.Append(types[i]).Append('+');
+		for (var i = parentTypes.Length; --i >= 0;)
+			sb.Append(parentTypes[i]).Append('+');
 
 		sb.Append(typeName);
 
@@ -143,28 +130,27 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 	{
 		var type = (INamedTypeSymbol)context.TargetSymbol;
 		var parentTypes = GetContainingTypes(type);
-		var ns = type.ContainingNamespace.ToDisplayString(new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces));
+		var ns = type.ContainingNamespace.GetFullName();
 		var attributes = context.Attributes;
 		var properties = ImmutableArray.CreateBuilder<BindablePropertySyntaxGenerator>(attributes.Length);
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
-		for (var i = 0; i < attributes.Length; i++)
+		foreach (var attribute in attributes)
 		{
-			var attribute = attributes[i];
 			var parser = CreateParser(type, attribute, diagnostics);
-			if (parser != null)
-			{
-				parser.ParseNamedArguments(diagnostics);
-				var generator = parser.CreateGenerator();
-				properties.Add(generator);
-			}
+			if (parser == null)
+				continue;
+
+			parser.ParseNamedArguments(diagnostics);
+			var generator = parser.CreateGenerator();
+			properties.Add(generator);
 		}
 
 		var fileName = GetFileName(ns, type.Name, parentTypes, FileNameSuffix);
 		return new(ns, type.Name, fileName, parentTypes, properties.ToImmutable(), diagnostics.ToImmutable());
 	}
 
-	private static bool MetadataPredictate(SyntaxNode node, CancellationToken token)
+	private static bool MetadataPredicate(SyntaxNode node, CancellationToken token)
 		=> node.IsKind(SyntaxKind.ClassDeclaration);
 
 	public abstract Type AttributeType { get; }
@@ -175,7 +161,7 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		var info = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeType.FullName, MetadataPredictate, MetadataTransform);
+		var info = context.SyntaxProvider.ForAttributeWithMetadataName(AttributeType.FullName, MetadataPredicate, MetadataTransform);
 		context.RegisterSourceOutput(info, GenerateProperties);
 	}
 }

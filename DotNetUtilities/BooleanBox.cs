@@ -1,4 +1,4 @@
-﻿namespace DotNetUtilities.Maui;
+﻿namespace DotNetUtilities;
 
 public static class BooleanBox
 {

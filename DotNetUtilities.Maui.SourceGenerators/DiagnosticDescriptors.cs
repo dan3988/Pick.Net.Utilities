@@ -6,11 +6,13 @@ namespace DotNetUtilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors
 {
+	private const string Category = "BindablePropertyGenerator";
+
 	public static DiagnosticDescriptor BindablePropertyEmptyPropertyName = new(
 		"DNU0001",
 		"PropertyName cannot be null or empty",
 		"PropertyName cannot be null or empty",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"PropertyName cannot be null or empty.");
@@ -19,7 +21,7 @@ internal static class DiagnosticDescriptors
 		"DNU0002",
 		"PropertyType cannot be null",
 		"PropertyType cannot be null",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"PropertyType cannot be null.");
@@ -28,7 +30,7 @@ internal static class DiagnosticDescriptors
 		"DNU0003",
 		"Invalid BindingMode value for [BindableProperty]",
 		"Invalid BindingMode value: {0}",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"Invalid BindingMode value.");
@@ -37,34 +39,34 @@ internal static class DiagnosticDescriptors
 		"DNU0004",
 		"Invalid PropertyVisibility value for [BindableProperty]",
 		"Invalid PropertyVisibility value: {0}",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"Invalid PropertyVisibility value.");
 
 	public static DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
 		"DNU0005",
-		"DevaultValue not supported for given property type on [BindableProperty]",
-		"DevaultValue not supported for property type {0}",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		"DefaultValue not supported for given property type on [BindableProperty]",
+		"DefaultValue not supported for property type {0}",
+		Category,
 		DiagnosticSeverity.Error,
 		true,
-		"DevaultValue not supported for the given property type.");
+		"DefaultValue not supported for the given property type.");
 
 	public static DiagnosticDescriptor BindablePropertyDefaultValueInvalid = new(
 		"DNU0006",
-		"Invalid DevaultValue value for [BindableProperty]",
-		"Invalid DevaultValue value: {0}",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		"Invalid DefaultValue value for [BindableProperty]",
+		"Invalid DefaultValue value: {0}",
+		Category,
 		DiagnosticSeverity.Error,
 		true,
-		"Invalid DevaultValue value.");
+		"Invalid DefaultValue value.");
 
 	public static DiagnosticDescriptor BindablePropertyDefaultValueCantConvert = new(
 		"DNU0007",
 		"Can't convert given DefaultValue of [BindableProperty]",
 		"Can't convert DefaultValue from {0} to {1}",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"Can't convert given DefaultValue.");
@@ -73,7 +75,7 @@ internal static class DiagnosticDescriptors
 		"DNU0008",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true for [BindableProperty]",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true",
-		typeof(BaseBindablePropertyGenerator).FullName,
+		Category,
 		DiagnosticSeverity.Error,
 		true,
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true.");

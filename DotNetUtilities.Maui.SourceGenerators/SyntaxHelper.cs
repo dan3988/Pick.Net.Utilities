@@ -30,12 +30,13 @@ internal static class SyntaxHelper
 	public static readonly SyntaxTriviaList EmptyTriviaList = TriviaList();
 
 	private static readonly SymbolDisplayFormat fullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+	private static readonly SymbolDisplayFormat fullNamespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 	
 	private static readonly SyntaxToken semicolon = Token(SyntaxKind.SemicolonToken);
 	private static readonly SyntaxToken nameof = Identifier(EmptyTriviaList, SyntaxKind.NameOfKeyword, "nameof", "nameof", EmptyTriviaList);
 	private static readonly IdentifierNameSyntax nameofSyntax = IdentifierName(nameof);
 
-	private static readonly Dictionary<SpecialType, TypeCode> _specialTypesMap = new()
+	private static readonly Dictionary<SpecialType, TypeCode> specialTypesMap = new()
 	{
 		[SpecialType.System_Object] = TypeCode.Object,
 		[SpecialType.System_Boolean] = TypeCode.Boolean,
@@ -56,7 +57,7 @@ internal static class SyntaxHelper
 	};
 
 	public static bool TryGetTypeCode(this SpecialType type, out TypeCode typeCode)
-		=> _specialTypesMap.TryGetValue(type, out typeCode);
+		=> specialTypesMap.TryGetValue(type, out typeCode);
 
 	public static IdentifierNameSyntax ToIdentifier(this ITypeSymbol type)
 	{
@@ -73,7 +74,7 @@ internal static class SyntaxHelper
 	public static T AddFormatting<T>(this T syntax) where T : CSharpSyntaxNode
 	{
 		syntax = syntax.NormalizeWhitespace("\t");
-		var visitor = new WhitespaceSyntaxRewriter();
+		var visitor = new WhitespaceSyntaxReWriter();
 		return (T)syntax.Accept(visitor)!;
 	}
 
@@ -94,6 +95,9 @@ internal static class SyntaxHelper
 
 	public static string GetFullTypeName(this ITypeSymbol symbol)
 		=> symbol.ToDisplayString(fullTypeNameFormat);
+
+	public static string GetFullName(this INamespaceSymbol symbol)
+		=> symbol.ToDisplayString(fullNamespaceFormat);
 
 	public static AccessorDeclarationSyntax WithSemicolonToken(this AccessorDeclarationSyntax syntax)
 		=> syntax.WithSemicolonToken(semicolon);

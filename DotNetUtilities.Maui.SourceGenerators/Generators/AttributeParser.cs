@@ -1,13 +1,11 @@
 ﻿using System.Collections.Immutable;
 
 using DotNetUtilities.Maui.Helpers;
-using DotNetUtilities.Maui.SourceGenerators;
 using DotNetUtilities.Maui.SourceGenerators.Syntax;
-
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetUtilities.Maui.SourceGenerators.Generators;
 
+using static SyntaxFactory;
 using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 public abstract class AttributeParser
@@ -49,9 +47,9 @@ public abstract class AttributeParser
 		}
 	}
 
-	private static bool TryParseDefaultValue(AttributeData attribute, DiagnosticsBuilder diagnostics, INamedTypeSymbol propertyType, INamedTypeSymbol valueType, object? value, ref ExpressionSyntax syntax)
+	private static bool TryParseDefaultValue(AttributeData attribute, DiagnosticsBuilder diagnostics, INamedTypeSymbol propertyType, object? value, ref ExpressionSyntax syntax)
 	{
-		static bool TryParseCore(AttributeData attribute, DiagnosticsBuilder diagnostics, INamedTypeSymbol propertyType, INamedTypeSymbol realPropertyType, ITypeSymbol? valueType, object? value, ref ExpressionSyntax syntax)
+		static bool TryParseCore(AttributeData attribute, DiagnosticsBuilder diagnostics, ITypeSymbol propertyType, INamedTypeSymbol realPropertyType, object? value, ref ExpressionSyntax syntax)
 		{
 			if (!propertyType.SpecialType.TryGetTypeCode(out var target))
 			{
@@ -74,7 +72,7 @@ public abstract class AttributeParser
 			}
 
 			var underlyingType = propertyType.EnumUnderlyingType!;
-			if (TryParseCore(attribute, diagnostics, underlyingType, propertyType, valueType, value, ref syntax))
+			if (TryParseCore(attribute, diagnostics, underlyingType, propertyType, value, ref syntax))
 			{
 				syntax = CastExpression(IdentifierName(typeName), syntax);
 				return true;
@@ -84,7 +82,7 @@ public abstract class AttributeParser
 		}
 		else
 		{
-			return TryParseCore(attribute, diagnostics, propertyType, propertyType, valueType, value, ref syntax);
+			return TryParseCore(attribute, diagnostics, propertyType, propertyType, value, ref syntax);
 		}
 	}
 
@@ -117,13 +115,8 @@ public abstract class AttributeParser
 	protected SyntaxTokenList SetterAccessors => setterAccessors;
 
 	private ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
-	protected ExpressionSyntax DefaultModeSyntax => defaultModeSyntax;
-
 	private ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
-	protected ExpressionSyntax DefaultValueSyntax => defaultValueSyntax;
-
-	private bool defaultValueFactory = false;
-	protected bool DefaultValueFactory => defaultValueFactory;
+	private bool defaultValueFactory;
 
 	protected AttributeParser(INamedTypeSymbol declaringType, AttributeData attribute, string name, INamedTypeSymbol propertyType)
 	{
@@ -133,7 +126,7 @@ public abstract class AttributeParser
 		PropertyType = propertyType;
 	}
 
-	internal BindablePropertySyntaxGeneratorConstructorParameters CreateConstructorParameters()
+	internal BindablePropertySyntaxGeneratorConstructorParameters CreateParameters()
 		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), defaultValueSyntax, defaultModeSyntax, defaultValueFactory);
 
 	internal void ParseNamedArguments(DiagnosticsBuilder diagnostics)
@@ -141,7 +134,7 @@ public abstract class AttributeParser
 		foreach (var (key, value) in AttributeData.NamedArguments)
 			TryParseNamedArgument(diagnostics, key, (INamedTypeSymbol)value.Type!, value.Value);
 
-		if (!DefaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory)
+		if (!defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory)
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
 	}
 
@@ -159,7 +152,7 @@ public abstract class AttributeParser
 				TryParseVisibility(AttributeData, diagnostics, value, ref setterAccessors);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValue):
-				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, type, value, ref defaultValueSyntax);
+				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, value, ref defaultValueSyntax);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValueFactory):
 				defaultValueFactory = (bool)value!;

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static SyntaxFactory;
 
 internal abstract class BindableInstancePropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
@@ -18,7 +18,7 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 	private static AccessorDeclarationSyntax GenerateGetter(TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
-		var expression = CastExpression(propertyType, InvocationExpression(nameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
+		var expression = CastExpression(propertyType, InvocationExpression(NameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
 
 		return AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 			.WithExpressionBody(ArrowExpressionClause(expression))
@@ -27,10 +27,10 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 	private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField, SyntaxTokenList accessors)
 	{
-		var expression = InvocationExpression(nameSetValue)
+		var expression = InvocationExpression(NameSetValue)
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(nameValue));
+				Argument(NameValue));
 
 		return AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
 			.WithModifiers(accessors)
@@ -45,10 +45,10 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 	private void GenerateBindablePropertyAccessors(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers, TypeSyntax readablePropertyField, TypeSyntax writablePropertyField)
 	{
-		var prop = PropertyDeclaration(propertyType, propertyName)
+		var prop = PropertyDeclaration(PropertyType, PropertyName)
 			.WithModifiers(getModifiers)
 			.AddAccessorListAccessors(
-				GenerateGetter(propertyType, readablePropertyField),
+				GenerateGetter(PropertyType, readablePropertyField),
 				GenerateSetter(writablePropertyField, setModifiers));
 
 		members.Add(prop);
@@ -56,14 +56,14 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method)
 	{
-		method = MethodDeclaration(propertyType, $"Generate{propertyName}DefaultValue")
+		method = MethodDeclaration(PropertyType, $"Generate{PropertyName}DefaultValue")
 			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
 			.WithSemicolonToken();
 
 		var paramBindable = Parameter(Identifier("bindable"));
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable}));
 		var body = InvocationExpression(
-				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)));
+				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)));
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
@@ -77,16 +77,16 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 		method = MethodDeclaration(SyntaxHelper.TypeVoid, name)
 			.AddModifier(SyntaxKind.PartialKeyword)
 			.AddParameterListParameters(
-				paramOldValue.WithType(propertyType),
-				paramNewValue.WithType(propertyType))
+				paramOldValue.WithType(PropertyType),
+				paramNewValue.WithType(PropertyType))
 			.WithSemicolonToken();
 
-		var parameters = ParameterList(SeparatedList(new ParameterSyntax[] { paramBindable, paramOldValue, paramNewValue }));
+		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramOldValue, paramNewValue }));
 		var body = InvocationExpression(
-				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)))
+				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)))
 			.AddArgumentListArguments(
-				Argument(CastExpression(propertyType, IdentifierName(paramOldValue.Identifier))),
-				Argument(CastExpression(propertyType, IdentifierName(paramNewValue.Identifier))));
+				Argument(CastExpression(PropertyType, IdentifierName(paramOldValue.Identifier))),
+				Argument(CastExpression(PropertyType, IdentifierName(paramNewValue.Identifier))));
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
@@ -103,8 +103,8 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 		protected override void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 		{
-			var bindablePropertyField = IdentifierName(propertyName + "Property");
-			GenerateBindablePropertyDeclaration(members, modifiers, bindablePropertyField, nameBindableProperty, nameCreate);
+			var bindablePropertyField = IdentifierName(PropertyName + "Property");
+			GenerateBindablePropertyDeclaration(members, modifiers, bindablePropertyField, NameBindableProperty, nameCreate);
 			GenerateBindablePropertyAccessors(members, modifiers, default, bindablePropertyField, bindablePropertyField);
 		}
 	}
@@ -123,9 +123,9 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 		protected override void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 		{
-			var bindablePropertyKeyField = IdentifierName(propertyName + "PropertyKey");
-			var bindablePropertyField = IdentifierName(propertyName + "Property");
-			GenerateBindablePropertyDeclaration(members, setModifiers, bindablePropertyKeyField, nameBindablePropertyKey, nameCreateReadOnly);
+			var bindablePropertyKeyField = IdentifierName(PropertyName + "PropertyKey");
+			var bindablePropertyField = IdentifierName(PropertyName + "Property");
+			GenerateBindablePropertyDeclaration(members, setModifiers, bindablePropertyKeyField, NameBindablePropertyKey, nameCreateReadOnly);
 			GenerateReadOnlyBindablePropertyDeclaration(members, getModifiers, bindablePropertyField, bindablePropertyKeyField);
 			GenerateBindablePropertyAccessors(members, getModifiers, setModifiers, bindablePropertyField, bindablePropertyKeyField);
 		}

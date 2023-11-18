@@ -2,7 +2,7 @@
 
 namespace DotNetUtilities.Maui.TestApp.Controls;
 
-[BindableProperty<string>("Text", DefaultValueFactory = true)]
+[BindableProperty<string>("Text", DefaultValueFactory = true, ValidateValueCallback = true, CoerceValueCallback = true)]
 [BindableProperty<int>("MaxLength", DefaultValue = 0)]
 [BindableProperty<int>("MinLength", DefaultValue = 4000)]
 [BindableProperty<string>("TransformedText", WriteVisibility = PropertyVisibility.Private)]

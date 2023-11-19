@@ -1,0 +1,77 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".Designer.cs" #>
+<#
+T[] Copy<T>(T[] array, int count)
+{
+	var copy = new T[count];
+	Array.Copy(array, copy, count);
+	return copy;
+}
+
+IEnumerable<T> Single<T>(T value)
+	=> Enumerable.Repeat(value, 1);
+
+const int count = 16;
+
+var parametersMax = Enumerable.Range(1, count).Select(v => $"T{v}").ToArray();
+var actionParameters = Enumerable.Range(1, count).Select(v => parametersMax.Take(v).ToArray()).ToArray();
+//var funcParameters = Enumerable.Range(0, count + 1).Select(v => parametersMax.Take(v).Concat(Single("TResult")).ToArray()).ToArray();
+#>
+using System.Reflection;
+
+namespace DotNetUtilities.Reflection;
+
+partial class DelegateHelper
+{
+	#region CreateAction Overloads
+
+	public static Action CreateAction(MethodInfo method)
+		=> CreateDelegate<Action>(method);
+
+<# foreach (var parameters in actionParameters) { #>
+<# var names = string.Join(", ", parameters); #>
+	public static Action<<#=names#>> CreateAction<<#=names#>>(MethodInfo method)
+		=> CreateDelegate<Action<<#=names#>>>(method);
+
+<# } #>
+	#endregion CreateAction Overloads
+	
+	#region CreateActionType Overloads
+
+<# foreach (var parameters in actionParameters) { #>
+	public static Type CreateActionType(<#=string.Join(", ", Enumerable.Range(1, parameters.Length).Select(v => "Type arg" + v))#>)
+		=> typeof(Action<<#=new string(',', parameters.Length - 1)#>>).MakeGenericType(<#=string.Join(", ", Enumerable.Range(1, parameters.Length).Select(v => "arg" + v))#>);
+
+<# } #>
+	#endregion CreateActionType Overloads
+
+	#region CreateFunc Overloads
+	
+	public static Func<TResult> CreateFunc<TResult>(MethodInfo method)
+		=> CreateDelegate<Func<TResult>>(method);
+
+<# foreach (var parameters in actionParameters) { #>
+<# var names = string.Join(", ", parameters); #>
+	public static Func<<#=names#>, TResult> CreateFunc<<#=names#>, TResult>(MethodInfo method)
+		=> CreateDelegate<Func<<#=names#>, TResult>>(method);
+
+<# } #>
+	#endregion CreateFunc Overloads
+
+	#region CreateFuncType Overloads
+	
+	public static Type CreateFuncType<TResult>(Type result)
+		=> typeof(Func<>).MakeGenericType(result);
+
+<# foreach (var parameters in actionParameters) { #>
+	public static Type CreateFuncType(<#=string.Join(", ", Enumerable.Range(1, parameters.Length).Select(v => "Type arg" + v))#>, Type result)
+		=> typeof(Func<<#=new string(',', parameters.Length)#>>).MakeGenericType(<#=string.Join(", ", Enumerable.Range(1, parameters.Length).Select(v => "arg" + v))#>, result);
+
+<# } #>
+	#endregion CreateFuncType Overloads
+
+}

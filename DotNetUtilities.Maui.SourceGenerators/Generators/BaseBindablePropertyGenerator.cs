@@ -46,23 +46,24 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 	private static HashSet<T> Set<T>(params T[] values)
 		=> new(values);
 
-	private static void GenerateProperties(SourceProductionContext context, ClassEntry entry)
+	private static void GenerateProperties(SourceProductionContext context, BindablePropertyGeneratorEntry entry)
 	{
 		foreach (var diagnostic in entry.Diagnostics)
 			context.ReportDiagnostic(diagnostic);
 
-		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, entry.TypeName).AddModifier(SyntaxKind.PartialKeyword);
+		var (@namespace, typeName, fileName, _) = entry.ClassInfo;
+		var type = TypeDeclaration(SyntaxKind.ClassDeclaration, typeName).AddModifier(SyntaxKind.PartialKeyword);
 
 		type = entry.Properties.Aggregate(type, (current, property) => property.Generate(current));
-		type = entry.ParentTypes.Aggregate(type, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
+		type = entry.ClassInfo.ParentTypes.Aggregate(type, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
 
-		var ns = NamespaceDeclaration(IdentifierName(entry.Namespace)).AddMembers(type);
+		var ns = NamespaceDeclaration(IdentifierName(@namespace)).AddMembers(type);
 		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
 
-		context.AddSource(entry.FileName, unit);
+		context.AddSource(fileName, unit);
 #if DEBUG
 		var text = unit.ToFullString();
-		Console.WriteLine(entry.FileName);
+		Console.WriteLine(fileName);
 		Console.WriteLine(text);
 #endif
 	}
@@ -89,48 +90,10 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 #pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.
 	}
 
-	private static ImmutableArray<string> GetContainingTypes(ISymbol type)
-	{
-		var parent = type.ContainingType;
-		if (parent == null)
-		{
-			return ImmutableArray<string>.Empty;
-		}
-		else
-		{
-			var builder = ImmutableArray.CreateBuilder<string>();
-
-			do
-			{
-				builder.Add(parent.MetadataName);
-				parent = parent.ContainingType;
-			}
-			while (parent != null);
-
-			return builder.ToImmutable();
-		}
-	}
-
-	private static string GetFileName(string @namespace, string typeName, ImmutableArray<string> parentTypes, string? suffix)
-	{
-		var sb = new StringBuilder(@namespace).Append('.');
-
-		for (var i = parentTypes.Length; --i >= 0;)
-			sb.Append(parentTypes[i]).Append('+');
-
-		sb.Append(typeName);
-
-		if (suffix != null)
-			sb.Append('.').Append(suffix);
-
-		return sb.Append(".g.cs").ToString();
-	}
-
-	private ClassEntry MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
+	private BindablePropertyGeneratorEntry MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		var type = (INamedTypeSymbol)context.TargetSymbol;
-		var parentTypes = GetContainingTypes(type);
-		var ns = type.ContainingNamespace.GetFullName();
+		var classInfo = ClassInfo.Create(type, FileNameSuffix);
 		var attributes = context.Attributes;
 		var properties = ImmutableArray.CreateBuilder<BindablePropertySyntaxGenerator>(attributes.Length);
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
@@ -146,8 +109,7 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 			properties.Add(generator);
 		}
 
-		var fileName = GetFileName(ns, type.Name, parentTypes, FileNameSuffix);
-		return new(ns, type.Name, fileName, parentTypes, properties.ToImmutable(), diagnostics.ToImmutable());
+		return new(classInfo, properties.ToImmutable(), diagnostics.ToImmutable());
 	}
 
 	private static bool MetadataPredicate(SyntaxNode node, CancellationToken token)

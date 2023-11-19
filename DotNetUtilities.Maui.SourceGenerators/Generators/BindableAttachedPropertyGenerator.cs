@@ -9,7 +9,7 @@ namespace DotNetUtilities.Maui.SourceGenerators.Generators;
 using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 [Generator]
-public sealed class AttachedBindablePropertyGenerator : BaseBindablePropertyGenerator
+public sealed class BindableAttachedPropertyGenerator : BaseBindablePropertyGenerator
 {
 	public sealed class AttachedAttributeParser : AttributeParser
 	{

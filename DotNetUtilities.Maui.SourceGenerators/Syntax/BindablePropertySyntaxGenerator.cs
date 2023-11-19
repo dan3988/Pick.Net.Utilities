@@ -1,8 +1,16 @@
 ﻿namespace DotNetUtilities.Maui.SourceGenerators.Syntax;
 
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static SyntaxFactory;
 
-internal readonly record struct BindablePropertySyntaxGeneratorConstructorParameters(string PropertyName, TypeSyntax PropertyType, TypeSyntax DeclaringType, ExpressionSyntax DefaultValueExpression, ExpressionSyntax DefaultModeExpression, bool DefaultValueFactory);
+internal readonly record struct BindablePropertySyntaxGeneratorConstructorParameters(
+	string PropertyName,
+	TypeSyntax PropertyType,
+	TypeSyntax DeclaringType,
+	ExpressionSyntax DefaultValueExpression,
+	ExpressionSyntax DefaultModeExpression,
+	bool DefaultValueFactory,
+	bool CoerceValueCallback,
+	bool ValidateValueCallback);
 
 internal abstract class BindablePropertySyntaxGenerator
 {
@@ -31,10 +39,12 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected readonly ExpressionSyntax DefaultValueExpression;
 	protected readonly ExpressionSyntax DefaultModeExpression;
 	protected readonly bool DefaultValueFactory;
+	protected readonly bool CoerceValueCallback;
+	protected readonly bool ValidateValueCallback;
 
 	protected BindablePropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values)
 	{
-		(PropertyName, PropertyType, DeclaringType, DefaultValueExpression, DefaultModeExpression, DefaultValueFactory) = values;
+		(PropertyName, PropertyType, DeclaringType, DefaultValueExpression, DefaultModeExpression, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = values;
 	}
 
 	public TypeDeclarationSyntax Generate(TypeDeclarationSyntax syntax)
@@ -49,32 +59,58 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected abstract LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method);
 
+	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method);
+
+	protected abstract LambdaExpressionSyntax CreateCoerceValueHandler(out MethodDeclarationSyntax method);
+
 	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method);
 
 	protected void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
 	{
-		var propertyInitializer = InvocationExpression(createMethod, SyntaxHelper.ArgumentList(
-			Argument(SyntaxHelper.Literal(PropertyName)),
-			Argument(SyntaxHelper.TypeOf(PropertyType)),
-			Argument(SyntaxHelper.TypeOf(DeclaringType)),
-			Argument(DefaultValueExpression),
-			Argument(DefaultModeExpression),
-			Argument(SyntaxHelper.Null),
-			Argument(CreateChangeHandler($"On{PropertyName}Changing", out var onChanging)),
-			Argument(CreateChangeHandler($"On{PropertyName}Changed", out var onChanged))));
+		var arguments = new ExpressionSyntax[10];
+		arguments[0] = SyntaxHelper.Literal(PropertyName);
+		arguments[1] = SyntaxHelper.TypeOf(PropertyType);
+		arguments[2] = SyntaxHelper.TypeOf(DeclaringType);
+		arguments[3] = DefaultValueExpression;
+		arguments[4] = DefaultModeExpression;
+
+		if (ValidateValueCallback)
+		{
+			arguments[5] = CreateValidateValueHandler(out var method);
+			members.Add(method);
+		}
+		else
+		{
+			arguments[5] = SyntaxHelper.Null;
+		}
+
+		arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
+		arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
 
 		members.Add(onChanging);
 		members.Add(onChanged);
 
-		if (DefaultValueFactory)
+		if (CoerceValueCallback)
 		{
-			propertyInitializer = propertyInitializer.AddArgumentListArguments(
-				Argument(SyntaxHelper.Null),
-				Argument(CreateDefaultValueGenerator(out var method)));
-
+			arguments[8] = CreateCoerceValueHandler(out var method);
 			members.Add(method);
 		}
+		else
+		{
+			arguments[8] = SyntaxHelper.Null;
+		}
 
+		if (DefaultValueFactory)
+		{
+			arguments[9] = CreateDefaultValueGenerator(out var method);
+			members.Add(method);
+		}
+		else
+		{
+			arguments[9] = SyntaxHelper.Null;
+		}
+
+		var propertyInitializer = InvocationExpression(createMethod, SyntaxHelper.ArgumentList(arguments));
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
 		var field = FieldDeclaration(VariableDeclaration(fieldType).AddVariables(declarator))
 			.WithModifiers(modifiers)

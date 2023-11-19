@@ -212,12 +212,18 @@ internal static class SyntaxHelper
 	}
 
 	public static ArgumentListSyntax ArgumentList(params ExpressionSyntax[] arguments)
+		=> ArgumentList((IEnumerable<ExpressionSyntax>)arguments);
+
+	public static ArgumentListSyntax ArgumentList(IEnumerable<ExpressionSyntax> arguments)
 	{
 		var list = SeparatedList(arguments.Select(Argument));
 		return SyntaxFactory.ArgumentList(list);
 	}
 
 	public static ArgumentListSyntax ArgumentList(params ArgumentSyntax[] arguments)
+		=> ArgumentList((IEnumerable<ArgumentSyntax>)arguments);
+
+	public static ArgumentListSyntax ArgumentList(IEnumerable<ArgumentSyntax> arguments)
 	{
 		var list = SeparatedList(arguments);
 		return SyntaxFactory.ArgumentList(list);

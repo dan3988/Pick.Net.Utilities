@@ -116,7 +116,9 @@ public abstract class AttributeParser
 
 	private ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
 	private ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
-	private bool defaultValueFactory;
+	private bool? defaultValueFactory;
+	private bool? coerceValueCallback;
+	private bool? validateValueCallback;
 
 	protected AttributeParser(INamedTypeSymbol declaringType, AttributeData attribute, string name, INamedTypeSymbol propertyType)
 	{
@@ -127,14 +129,14 @@ public abstract class AttributeParser
 	}
 
 	internal BindablePropertySyntaxGeneratorConstructorParameters CreateParameters()
-		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), defaultValueSyntax, defaultModeSyntax, defaultValueFactory);
+		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), defaultValueSyntax, defaultModeSyntax, defaultValueFactory ?? false, coerceValueCallback ?? false, validateValueCallback ?? false);
 
 	internal void ParseNamedArguments(DiagnosticsBuilder diagnostics)
 	{
 		foreach (var (key, value) in AttributeData.NamedArguments)
 			TryParseNamedArgument(diagnostics, key, (INamedTypeSymbol)value.Type!, value.Value);
 
-		if (!defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory)
+		if (!defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory == true)
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
 	}
 
@@ -155,7 +157,13 @@ public abstract class AttributeParser
 				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, value, ref defaultValueSyntax);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValueFactory):
-				defaultValueFactory = (bool)value!;
+				defaultValueFactory = (bool?)value;
+				return true;
+			case nameof(BaseBindablePropertyAttribute.CoerceValueCallback):
+				coerceValueCallback = (bool?)value;
+				return true;
+			case nameof(BaseBindablePropertyAttribute.ValidateValueCallback):
+				validateValueCallback = (bool?)value;
 				return true;
 		}
 

@@ -36,7 +36,7 @@ public abstract class BaseBindablePropertyAttribute : Attribute
 		Name = name;
 	}
 
-	protected private abstract object? GetDefaultValue();
+	private protected abstract object? GetDefaultValue();
 
 	public bool IsReadOnly(out PropertyVisibility writeLevel)
 	{

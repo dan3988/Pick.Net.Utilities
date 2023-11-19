@@ -68,6 +68,50 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 
+	protected override LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method)
+	{
+		var paramBindable = Parameter(Identifier("bindable"));
+		var paramValue = Parameter(Identifier("value"));
+
+		method = MethodDeclaration(SyntaxHelper.TypeBoolean, $"Validate{PropertyName}Value")
+			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
+			.AddParameterListParameters(paramValue.WithType(PropertyType))
+			.WithSemicolonToken();
+
+		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramValue }));
+		var methodReference = MemberAccessExpression(
+			SyntaxKind.SimpleMemberAccessExpression,
+			CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
+			IdentifierName(method.Identifier));
+
+		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(PropertyType, IdentifierName(paramValue.Identifier)));
+		var body = InvocationExpression(methodReference, methodArguments);
+
+		return ParenthesizedLambdaExpression(parameters, null, body);
+	}
+
+	protected override LambdaExpressionSyntax CreateCoerceValueHandler(out MethodDeclarationSyntax method)
+	{
+		var paramBindable = Parameter(Identifier("bindable"));
+		var paramValue = Parameter(Identifier("value"));
+
+		method = MethodDeclaration(PropertyType, $"Coerce{PropertyName}Value")
+			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
+			.AddParameterListParameters(paramValue.WithType(PropertyType))
+			.WithSemicolonToken();
+
+		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramValue }));
+		var methodReference = MemberAccessExpression(
+			SyntaxKind.SimpleMemberAccessExpression,
+			CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
+			IdentifierName(method.Identifier));
+
+		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(PropertyType, IdentifierName(paramValue.Identifier)));
+		var body = InvocationExpression(methodReference, methodArguments);
+
+		return ParenthesizedLambdaExpression(parameters, null, body);
+	}
+
 	protected override LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));

@@ -1,0 +1,27 @@
+name: Publish
+on:
+  push:
+    branches: [main]
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        packages: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Verify commit exists in origin/main
+      run: |
+        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+        git branch --remote --contains | grep origin/main
+    - name: Set VERSION variable from tag
+      run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+    - name: Build
+      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${VERSION}
+    - name: Pack
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${VERSION}
+    # - name: Push
+    #   run: dotnet nuget push NuGet.Workflow.${VERSION}.nupkg --source https://nuget.pkg.github.com/acraven/index.json --api-key ${{ secrets.GITHUB_TOKEN }}

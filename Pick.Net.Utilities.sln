@@ -12,13 +12,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0463050-2DAE-4C08-8D32-DEDE9767DB5B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities", "Pick.Net.Utilities\Pick.Net.Utilities.csproj", "{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{78CB99A5-6EB2-40E3-829A-12406CFC368A}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Pick.Net.Utilities.Maui.Shared", "Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.shproj", "{5A7E9B50-F575-430D-A88D-5EB5820DE912}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Pick.Net.Utilities.Maui.Shared", "Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.shproj", "{C181FD58-A49A-4E15-94D8-F88458DE253D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

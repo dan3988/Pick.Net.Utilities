@@ -56,7 +56,7 @@ jobs:
         echo "The GitHub Actor's username is: $GITHUB_ACTOR"
         echo "GitHub SHA: $GITHUB_SHA"
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=$VERSION /p:BuildNumber=${{ github.run_number }}
+      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
     - name: Pack
       run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }}
     - name: Upload

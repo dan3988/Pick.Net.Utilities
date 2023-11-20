@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34009.444
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Maui", "Pick.Net.Utilities.Maui\Pick.Net.Utilities.Maui.csproj", "{2BCBBAB9-67E3-4076-8C31-C76B38D770D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Maui.SourceGenerators", "Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj", "{871760E7-67E0-48B4-B415-DB6B8FB68448}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Maui.TestApp", "Pick.Net.Utilities.Maui.TestApp\Pick.Net.Utilities.Maui.TestApp.csproj", "{981BD7A0-412D-469E-BD01-911F4B36C4C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0463050-2DAE-4C08-8D32-DEDE9767DB5B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities", "Pick.Net.Utilities\Pick.Net.Utilities.csproj", "{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{78CB99A5-6EB2-40E3-829A-12406CFC368A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Pick.Net.Utilities.Maui.Shared", "Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.shproj", "{5A7E9B50-F575-430D-A88D-5EB5820DE912}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2BCBBAB9-67E3-4076-8C31-C76B38D770D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BCBBAB9-67E3-4076-8C31-C76B38D770D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BCBBAB9-67E3-4076-8C31-C76B38D770D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BCBBAB9-67E3-4076-8C31-C76B38D770D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{871760E7-67E0-48B4-B415-DB6B8FB68448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{871760E7-67E0-48B4-B415-DB6B8FB68448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{871760E7-67E0-48B4-B415-DB6B8FB68448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{871760E7-67E0-48B4-B415-DB6B8FB68448}.Release|Any CPU.Build.0 = Release|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78CB99A5-6EB2-40E3-829A-12406CFC368A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78CB99A5-6EB2-40E3-829A-12406CFC368A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78CB99A5-6EB2-40E3-829A-12406CFC368A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78CB99A5-6EB2-40E3-829A-12406CFC368A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F5B7D413-EFA2-4DDB-A7F5-F818F1E2F481}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems*{2bcbbab9-67e3-4076-8c31-c76b38d770d1}*SharedItemsImports = 5
+		Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems*{871760e7-67e0-48b4-b415-db6b8fb68448}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal

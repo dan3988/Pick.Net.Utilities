@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Pick.Net.Utilities.Maui.SourceGenerators": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Pick.Net.Utilities.Maui.TestApp\\Pick.Net.Utilities.Maui.TestApp.csproj"
+    }
+  }
+}

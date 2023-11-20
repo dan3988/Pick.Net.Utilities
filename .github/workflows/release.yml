@@ -25,9 +25,9 @@ jobs:
     - name: Set VERSION variable from tag
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
     - name: Print Version
-      run: echo "VERSION"
       env:
         VERSION: ${VERSION}
+      run: echo "VERSION"
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${VERSION} /p:BuildNumber=${{ github.run_number }}
     - name: Pack

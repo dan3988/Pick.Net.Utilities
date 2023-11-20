@@ -27,7 +27,7 @@ jobs:
     - name: Print Version
       env:
         VERSION: ${VERSION}
-      run: echo "VERSION"
+      run: echo "$VERSION"
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${VERSION} /p:BuildNumber=${{ github.run_number }}
     - name: Pack

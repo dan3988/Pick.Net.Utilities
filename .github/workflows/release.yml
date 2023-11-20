@@ -15,6 +15,11 @@ jobs:
       run: |
         git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
         git branch --remote --contains | grep origin/main
+    - name: Get Version
+      run: |
+        $VERSION = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        Write-Output "Version: $version"
+        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -51,7 +56,7 @@ jobs:
         echo "The GitHub Actor's username is: $GITHUB_ACTOR"
         echo "GitHub SHA: $GITHUB_SHA"
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.GITHUB_REF_NAME }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=$VERSION /p:BuildNumber=${{ github.run_number }}
     - name: Pack
       run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }}
     - name: Upload

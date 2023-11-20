@@ -26,9 +26,4 @@
       <LastGenOutput>DelegateHelper.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <Target Name="test" BeforeTargets="Build">
-    <Message Importance="high" Text="Version: $(Version)"/>
-    <Message Importance="high" Text="AssemblyVersion: $(AssemblyVersion)"/>
-    <Message Importance="high" Text="FileVersion: $(FileVersion)"/>
-  </Target>
 </Project>

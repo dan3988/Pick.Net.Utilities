@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        package: [ 'Pick.Net.Utilities' ] #, 'Pick.Net.Utilities.Maui' ]
+        package: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -24,37 +24,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - name: Dump job context
-      env:
-        JOB_CONTEXT: ${{ toJson(job) }}
-      run: echo "$JOB_CONTEXT"
-    - name: Dump steps context
-      env:
-        STEPS_CONTEXT: ${{ toJson(steps) }}
-      run: echo "$STEPS_CONTEXT"
-    - name: Dump runner context
-      env:
-        RUNNER_CONTEXT: ${{ toJson(runner) }}
-      run: echo "$RUNNER_CONTEXT"
-    - name: Dump strategy context
-      env:
-        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-      run: echo "$STRATEGY_CONTEXT"
-    - name: Dump matrix context
-      env:
-        MATRIX_CONTEXT: ${{ toJson(matrix) }}
-      run: echo "$MATRIX_CONTEXT"
-    - name: Show default environment variables
-      run: |
-        echo "The job_id is: $GITHUB_JOB"   # reference the default environment variables
-        echo "The id of this action is: $GITHUB_ACTION"   # reference the default environment variables
-        echo "The run id is: $GITHUB_RUN_ID"
-        echo "The GitHub Actor's username is: $GITHUB_ACTOR"
-        echo "GitHub SHA: $GITHUB_SHA"
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
     - name: Pack
@@ -67,4 +36,4 @@ jobs:
     - name: Add Nuget Source
       run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Pick-Net/index.json"
     - name: Push
-      run: dotnet nuget push ${{ matrix.package }}.${VERSION}.nupkg --source "github"" --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ${{ matrix.package }}.${VERSION}.nupkg --source "github" --api-key "${{ secrets.GITHUB_TOKEN }}"

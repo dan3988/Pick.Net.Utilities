@@ -23,5 +23,12 @@ jobs:
       run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${VERSION}
     - name: Pack
       run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${VERSION}
+    - name: Upload
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ${{ matrix.package }}
+        path: .build
+    - name: Add Nuget Source
+      run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Pick-Net/index.json"
     - name: Push
-      run: dotnet nuget push NuGet.Workflow.${VERSION}.nupkg --source https://nuget.pkg.github.com/acraven/index.json --api-key ${{ secrets.NUGET_TOKEN }}
+      run: dotnet nuget push ${{ matrix.package }}.${VERSION}.nupkg --source "github"" --api-key ${{ secrets.GITHUB_TOKEN }}

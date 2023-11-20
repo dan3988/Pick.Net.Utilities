@@ -6,6 +6,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
+    <AssemblyVersion>$(Version).$(BuildNumber)</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -24,4 +25,9 @@
     <None Remove="obj/**" />
   </ItemGroup>
   <Import Condition="'$(TargetFramework)' == 'net7.0'" Project="..\Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems" Label="Shared" />
+  <Target Name="test" BeforeTargets="Build">
+    <Message Importance="high" Text="Version: $(Version)"/>
+    <Message Importance="high" Text="AssemblyVersion: $(AssemblyVersion)"/>
+    <Message Importance="high" Text="FileVersion: $(FileVersion)"/>
+  </Target>
 </Project>

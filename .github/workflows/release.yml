@@ -1,6 +1,7 @@
 name: Publish
 on:
-  workflow_dispatch
+  push:
+    branches: [main]
 #  push:
 #    tags:
 #    - "v[0-9]+.[0-9]+.[0-9]+"
@@ -26,9 +27,9 @@ jobs:
         echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
         echo ${VERSION}
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" /p:VersionPrefix=${VERSION}
+      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${VERSION} /p:BuildNumber=${{ github.run_number }}
     - name: Pack
-      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:VersionPrefix=${VERSION}
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }}
     - name: Upload
       uses: actions/upload-artifact@v3.1.2
       with:

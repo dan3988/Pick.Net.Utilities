@@ -7,6 +7,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
+    <AssemblyVersion>$(Version).$(BuildNumber)</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -25,4 +26,9 @@
       <LastGenOutput>DelegateHelper.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <Target Name="test" BeforeTargets="Build">
+    <Message Importance="high" Text="Version: $(Version)"/>
+    <Message Importance="high" Text="AssemblyVersion: $(AssemblyVersion)"/>
+    <Message Importance="high" Text="FileVersion: $(FileVersion)"/>
+  </Target>
 </Project>

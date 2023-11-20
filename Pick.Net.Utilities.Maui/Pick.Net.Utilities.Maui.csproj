@@ -3,6 +3,12 @@
     <TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <UseMaui>true</UseMaui>

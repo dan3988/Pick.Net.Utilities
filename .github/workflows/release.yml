@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        package: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]
+        package: [ 'Pick.Net.Utilities' ] #, 'Pick.Net.Utilities.Maui' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2

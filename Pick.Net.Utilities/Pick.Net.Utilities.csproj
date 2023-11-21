@@ -7,8 +7,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
-    <Version>0.0.0</Version>
-    <BuildNumber>0</BuildNumber>
+    <Version Condition="'$(Version)' == ''">0.0.0</Version>
+    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
     <AssemblyVersion>$(Version).$(BuildNumber)</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

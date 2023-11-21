@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
     <RepositoryType>git</RepositoryType>
@@ -16,7 +16,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+  <ItemGroup>
     <ProjectReference Include="..\Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>

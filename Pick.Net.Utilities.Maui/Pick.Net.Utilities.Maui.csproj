@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
     <RepositoryType>git</RepositoryType>
@@ -16,6 +16,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <ProjectReference Include="..\Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pick.Net.Utilities\Pick.Net.Utilities.csproj" />
     <None Include="..\Pick.Net.Utilities.Maui.SourceGenerators\bin\$(Configuration)\netstandard2.0\Pick.Net.Utilities.Maui.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.0\cs" Pack="true" Visible="false" />

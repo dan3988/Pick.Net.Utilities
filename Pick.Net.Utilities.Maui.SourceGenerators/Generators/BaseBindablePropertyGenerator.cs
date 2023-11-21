@@ -85,6 +85,12 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 			return false;
 		}
 
+		if (!SyntaxFacts.IsValidIdentifier(name))
+		{
+			builder.Add(DiagnosticDescriptors.BindablePropertyInvalidPropertyName, attribute.ApplicationSyntaxReference, name);
+			return false;
+		}
+
 #pragma warning disable CS8762 // Parameter must have a non-null value when exiting in some condition.
 		return true;
 #pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.

@@ -15,8 +15,17 @@ internal static class DiagnosticDescriptors
 		true,
 		"PropertyName cannot be null or empty.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidPropertyName = new(
 		"DNU0002",
+		"PropertyName is not a valid .NET identifier",
+		"PropertyName is not a valid .NET identifier: {0}",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		"PropertyName is not a valid .NET identifier.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
+		"DNU0003",
 		"Invalid BindingMode value for [BindableProperty]",
 		"Invalid BindingMode value: {0}",
 		Category,
@@ -25,7 +34,7 @@ internal static class DiagnosticDescriptors
 		"Invalid BindingMode value.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidVisibility = new(
-		"DNU0003",
+		"DNU0004",
 		"Invalid PropertyVisibility value for [BindableProperty]",
 		"Invalid PropertyVisibility value: {0}",
 		Category,
@@ -34,7 +43,7 @@ internal static class DiagnosticDescriptors
 		"Invalid PropertyVisibility value.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
-		"DNU0004",
+		"DNU0005",
 		"DefaultValue not supported for given property type on [BindableProperty]",
 		"DefaultValue not supported for property type {0}",
 		Category,
@@ -43,7 +52,7 @@ internal static class DiagnosticDescriptors
 		"DefaultValue not supported for the given property type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		"DNU0005",
+		"DNU0006",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true for [BindableProperty]",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true",
 		Category,

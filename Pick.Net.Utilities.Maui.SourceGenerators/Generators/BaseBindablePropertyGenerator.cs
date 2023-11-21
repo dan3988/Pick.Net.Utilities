@@ -11,7 +11,7 @@ using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 {
-	private static readonly HashSet<TypeCode>?[] implicitConversionTypes =
+	private static readonly HashSet<TypeCode>?[] ImplicitConversionTypes =
 	{
 		/* TypeCode.Empty = 0		*/ null,
 		/* TypeCode.Object = 1		*/ null,
@@ -39,7 +39,7 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 		if (from == to || to == TypeCode.Object)
 			return true;
 
-		var convertible = implicitConversionTypes[(int)to];
+		var convertible = ImplicitConversionTypes[(int)to];
 		return convertible != null && convertible.Contains(from);
 	}
 

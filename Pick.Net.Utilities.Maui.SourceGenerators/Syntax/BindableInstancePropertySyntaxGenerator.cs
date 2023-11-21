@@ -6,8 +6,8 @@ using static SyntaxFactory;
 
 internal abstract class BindableInstancePropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private static readonly IdentifierNameSyntax nameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
-	private static readonly IdentifierNameSyntax nameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
+	private static readonly IdentifierNameSyntax NameCreate = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
+	private static readonly IdentifierNameSyntax NameCreateReadOnly = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
 
 	public static BindableInstancePropertySyntaxGenerator Create(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 	{
@@ -137,41 +137,41 @@ internal abstract class BindableInstancePropertySyntaxGenerator : BindableProper
 
 	private sealed class WritableGenerator : BindableInstancePropertySyntaxGenerator
 	{
-		private readonly SyntaxTokenList modifiers;
+		private readonly SyntaxTokenList _modifiers;
 
 		internal WritableGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList modifiers)
 			: base(in values)
 		{
-			this.modifiers = modifiers;
+			_modifiers = modifiers;
 		}
 
 		protected override void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 		{
 			var bindablePropertyField = IdentifierName(PropertyName + "Property");
-			GenerateBindablePropertyDeclaration(members, modifiers, bindablePropertyField, NameBindableProperty, nameCreate);
-			GenerateBindablePropertyAccessors(members, modifiers, default, bindablePropertyField, bindablePropertyField);
+			GenerateBindablePropertyDeclaration(members, _modifiers, bindablePropertyField, NameBindableProperty, NameCreate);
+			GenerateBindablePropertyAccessors(members, _modifiers, default, bindablePropertyField, bindablePropertyField);
 		}
 	}
 
 	private sealed class ReadOnlyGenerator : BindableInstancePropertySyntaxGenerator
 	{
-		private readonly SyntaxTokenList getModifiers;
-		private readonly SyntaxTokenList setModifiers;
+		private readonly SyntaxTokenList _getModifiers;
+		private readonly SyntaxTokenList _setModifiers;
 
 		internal ReadOnlyGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values, SyntaxTokenList getModifiers, SyntaxTokenList setModifiers)
 			: base(in values)
 		{
-			this.getModifiers = getModifiers;
-			this.setModifiers = setModifiers;
+			_getModifiers = getModifiers;
+			_setModifiers = setModifiers;
 		}
 
 		protected override void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 		{
 			var bindablePropertyKeyField = IdentifierName(PropertyName + "PropertyKey");
 			var bindablePropertyField = IdentifierName(PropertyName + "Property");
-			GenerateBindablePropertyDeclaration(members, setModifiers, bindablePropertyKeyField, NameBindablePropertyKey, nameCreateReadOnly);
-			GenerateReadOnlyBindablePropertyDeclaration(members, getModifiers, bindablePropertyField, bindablePropertyKeyField);
-			GenerateBindablePropertyAccessors(members, getModifiers, setModifiers, bindablePropertyField, bindablePropertyKeyField);
+			GenerateBindablePropertyDeclaration(members, _setModifiers, bindablePropertyKeyField, NameBindablePropertyKey, NameCreateReadOnly);
+			GenerateReadOnlyBindablePropertyDeclaration(members, _getModifiers, bindablePropertyField, bindablePropertyKeyField);
+			GenerateBindablePropertyAccessors(members, _getModifiers, _setModifiers, bindablePropertyField, bindablePropertyKeyField);
 		}
 	}
 }

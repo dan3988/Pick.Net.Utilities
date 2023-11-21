@@ -20,11 +20,11 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected static readonly IdentifierNameSyntax NameBindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 	protected static readonly IdentifierNameSyntax NameBindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
 
-	private static readonly IdentifierNameSyntax nameBindablePropertyKeyProperty = IdentifierName("BindableProperty");
+	private static readonly IdentifierNameSyntax NameBindablePropertyKeyProperty = IdentifierName("BindableProperty");
 
 	protected static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField)
 	{
-		var propertyInitializer = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, nameBindablePropertyKeyProperty);
+		var propertyInitializer = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, NameBindablePropertyKeyProperty);
 		var declarator = VariableDeclarator(fieldName.Identifier).WithInitializer(EqualsValueClause(propertyInitializer));
 		var field = FieldDeclaration(VariableDeclaration(NameBindableProperty).AddVariables(declarator))
 			.WithModifiers(modifiers)

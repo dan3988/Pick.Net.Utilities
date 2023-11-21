@@ -10,14 +10,14 @@ using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 public abstract class AttributeParser
 {
-	private static readonly IdentifierNameSyntax nameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
-	private static readonly IdentifierNameSyntax nameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
+	private static readonly IdentifierNameSyntax NameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
+	private static readonly IdentifierNameSyntax NameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
 
-	private static readonly SyntaxTokenList tokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
+	private static readonly SyntaxTokenList TokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
 
-	private static readonly Dictionary<PropertyVisibility, SyntaxTokenList> visibilityTokens = new()
+	private static readonly Dictionary<PropertyVisibility, SyntaxTokenList> VisibilityTokens = new()
 	{
-		[PropertyVisibility.Public] = tokensPublic,
+		[PropertyVisibility.Public] = TokensPublic,
 		[PropertyVisibility.Protected] = CreateTokenList(SyntaxKind.ProtectedKeyword),
 		[PropertyVisibility.Internal] = CreateTokenList(SyntaxKind.InternalKeyword),
 		[PropertyVisibility.Private] = CreateTokenList(SyntaxKind.PrivateKeyword),
@@ -35,7 +35,7 @@ public abstract class AttributeParser
 	{
 		var level = (PropertyVisibility)Convert.ToInt32(value);
 
-		if (visibilityTokens.TryGetValue(level, out var result))
+		if (VisibilityTokens.TryGetValue(level, out var result))
 		{
 			tokens = result;
 			return true;
@@ -92,11 +92,11 @@ public abstract class AttributeParser
 		if (!Enum.IsDefined(typeof(BindingMode), enumValue))
 		{
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, attribute.ApplicationSyntaxReference, enumValue);
-			return CastExpression(nameBindingMode, LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((int)enumValue)));
+			return CastExpression(NameBindingMode, LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((int)enumValue)));
 		}
 		else
 		{
-			return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, IdentifierName(enumValue.ToString()));
+			return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindingMode, IdentifierName(enumValue.ToString()));
 		}
 	}
 
@@ -108,17 +108,17 @@ public abstract class AttributeParser
 
 	public INamedTypeSymbol DeclaringType { get; }
 
-	private SyntaxTokenList getterAccessors = tokensPublic;
-	protected SyntaxTokenList GetterAccessors => getterAccessors;
+	private SyntaxTokenList _getterAccessors = TokensPublic;
+	protected SyntaxTokenList GetterAccessors => _getterAccessors;
 
-	private SyntaxTokenList setterAccessors;
-	protected SyntaxTokenList SetterAccessors => setterAccessors;
+	private SyntaxTokenList _setterAccessors;
+	protected SyntaxTokenList SetterAccessors => _setterAccessors;
 
-	private ExpressionSyntax defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, nameBindingMode, nameBindingModeOneWay);
-	private ExpressionSyntax defaultValueSyntax = SyntaxHelper.Null;
-	private bool? defaultValueFactory;
-	private bool? coerceValueCallback;
-	private bool? validateValueCallback;
+	private ExpressionSyntax _defaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindingMode, NameBindingModeOneWay);
+	private ExpressionSyntax _defaultValueSyntax = SyntaxHelper.Null;
+	private bool? _defaultValueFactory;
+	private bool? _coerceValueCallback;
+	private bool? _validateValueCallback;
 
 	protected AttributeParser(INamedTypeSymbol declaringType, AttributeData attribute, string name, INamedTypeSymbol propertyType)
 	{
@@ -129,14 +129,14 @@ public abstract class AttributeParser
 	}
 
 	internal BindablePropertySyntaxGeneratorConstructorParameters CreateParameters()
-		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), defaultValueSyntax, defaultModeSyntax, defaultValueFactory ?? false, coerceValueCallback ?? false, validateValueCallback ?? false);
+		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), _defaultValueSyntax, _defaultModeSyntax, _defaultValueFactory ?? false, _coerceValueCallback ?? false, _validateValueCallback ?? false);
 
 	internal void ParseNamedArguments(DiagnosticsBuilder diagnostics)
 	{
 		foreach (var (key, value) in AttributeData.NamedArguments)
 			TryParseNamedArgument(diagnostics, key, (INamedTypeSymbol)value.Type!, value.Value);
 
-		if (!defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory == true)
+		if (!_defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && _defaultValueFactory == true)
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
 	}
 
@@ -145,25 +145,25 @@ public abstract class AttributeParser
 		switch (key)
 		{
 			case nameof(BaseBindablePropertyAttribute.DefaultMode):
-				defaultModeSyntax = ParseDefaultBindingMode(AttributeData, value, diagnostics);
+				_defaultModeSyntax = ParseDefaultBindingMode(AttributeData, value, diagnostics);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.Visibility):
-				TryParseVisibility(AttributeData, diagnostics, value, ref getterAccessors);
+				TryParseVisibility(AttributeData, diagnostics, value, ref _getterAccessors);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.WriteVisibility):
-				TryParseVisibility(AttributeData, diagnostics, value, ref setterAccessors);
+				TryParseVisibility(AttributeData, diagnostics, value, ref _setterAccessors);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValue):
-				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, value, ref defaultValueSyntax);
+				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, value, ref _defaultValueSyntax);
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValueFactory):
-				defaultValueFactory = (bool?)value;
+				_defaultValueFactory = (bool?)value;
 				return true;
 			case nameof(BaseBindablePropertyAttribute.CoerceValueCallback):
-				coerceValueCallback = (bool?)value;
+				_coerceValueCallback = (bool?)value;
 				return true;
 			case nameof(BaseBindablePropertyAttribute.ValidateValueCallback):
-				validateValueCallback = (bool?)value;
+				_validateValueCallback = (bool?)value;
 				return true;
 		}
 

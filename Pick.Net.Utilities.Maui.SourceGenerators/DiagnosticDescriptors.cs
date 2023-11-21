@@ -1,14 +1,12 @@
 ﻿using System.Collections.Immutable;
 
-using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors
 {
 	private const string Category = "BindablePropertyGenerator";
 
-	public static DiagnosticDescriptor BindablePropertyEmptyPropertyName = new(
+	public static readonly DiagnosticDescriptor BindablePropertyEmptyPropertyName = new(
 		"DNU0001",
 		"PropertyName cannot be null or empty",
 		"PropertyName cannot be null or empty",
@@ -17,17 +15,8 @@ internal static class DiagnosticDescriptors
 		true,
 		"PropertyName cannot be null or empty.");
 
-	public static DiagnosticDescriptor BindablePropertyNullPropertyType = new(
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
 		"DNU0002",
-		"PropertyType cannot be null",
-		"PropertyType cannot be null",
-		Category,
-		DiagnosticSeverity.Error,
-		true,
-		"PropertyType cannot be null.");
-
-	public static DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
-		"DNU0003",
 		"Invalid BindingMode value for [BindableProperty]",
 		"Invalid BindingMode value: {0}",
 		Category,
@@ -35,8 +24,8 @@ internal static class DiagnosticDescriptors
 		true,
 		"Invalid BindingMode value.");
 
-	public static DiagnosticDescriptor BindablePropertyInvalidVisibility = new(
-		"DNU0004",
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidVisibility = new(
+		"DNU0003",
 		"Invalid PropertyVisibility value for [BindableProperty]",
 		"Invalid PropertyVisibility value: {0}",
 		Category,
@@ -44,8 +33,8 @@ internal static class DiagnosticDescriptors
 		true,
 		"Invalid PropertyVisibility value.");
 
-	public static DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
-		"DNU0005",
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
+		"DNU0004",
 		"DefaultValue not supported for given property type on [BindableProperty]",
 		"DefaultValue not supported for property type {0}",
 		Category,
@@ -53,26 +42,8 @@ internal static class DiagnosticDescriptors
 		true,
 		"DefaultValue not supported for the given property type.");
 
-	public static DiagnosticDescriptor BindablePropertyDefaultValueInvalid = new(
-		"DNU0006",
-		"Invalid DefaultValue value for [BindableProperty]",
-		"Invalid DefaultValue value: {0}",
-		Category,
-		DiagnosticSeverity.Error,
-		true,
-		"Invalid DefaultValue value.");
-
-	public static DiagnosticDescriptor BindablePropertyDefaultValueCantConvert = new(
-		"DNU0007",
-		"Can't convert given DefaultValue of [BindableProperty]",
-		"Can't convert DefaultValue from {0} to {1}",
-		Category,
-		DiagnosticSeverity.Error,
-		true,
-		"Can't convert given DefaultValue.");
-
-	public static DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		"DNU0008",
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
+		"DNU0005",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true for [BindableProperty]",
 		"Can't specify a value for DefaultValue while DefaultValueFactory is true",
 		Category,

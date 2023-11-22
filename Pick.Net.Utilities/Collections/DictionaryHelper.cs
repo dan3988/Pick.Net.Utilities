@@ -1,14 +1,21 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.ObjectModel;
 
 namespace Pick.Net.Utilities.Collections;
 
 public static class DictionaryHelper
 {
-	public static IReadOnlyDictionary<TKey, TValue> Empty<TKey, TValue>()
-		where TKey : notnull
+	public static ReadOnlyDictionary<TKey, TValue> Empty<TKey, TValue>() where TKey : notnull
 	{
-		return EmptyDictionary<TKey, TValue>.Instance;
+#if NET8_0_OR_GREATER
+		return ReadOnlyDictionary<TKey, TValue>.Empty;
+#else
+		return EmptyDictionary<TKey, TValue>.Value;
+	}
+
+	private static class EmptyDictionary<TKey, TValue> where TKey : notnull
+	{
+		internal static readonly ReadOnlyDictionary<TKey, TValue> Value = new(new Dictionary<TKey, TValue>());
+#endif
 	}
 
 	public static bool TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> v, TKey key, ref TValue value)
@@ -21,29 +28,5 @@ public static class DictionaryHelper
 		}
 
 		return false;
-	}
-
-	internal sealed class EmptyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
-		where TKey : notnull
-	{
-		public static readonly EmptyDictionary<TKey, TValue> Instance = new();
-
-		private static readonly IEnumerable<KeyValuePair<TKey, TValue>> en = Array.Empty<KeyValuePair<TKey, TValue>>();
-
-		public TValue this[TKey key] => throw new KeyNotFoundException("EmptyDictionary instance will never have values.");
-
-		public int Count => 0;
-
-		public IEnumerable<TKey> Keys => Array.Empty<TKey>();
-
-		public IEnumerable<TValue> Values => Array.Empty<TValue>();
-
-		public bool ContainsKey(TKey key) => false;
-
-		public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) { value = default!; return false; }
-
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => en.GetEnumerator();
-
-		IEnumerator IEnumerable.GetEnumerator() => en.GetEnumerator();
 	}
 }

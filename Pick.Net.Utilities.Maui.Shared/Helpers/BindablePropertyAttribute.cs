@@ -3,6 +3,7 @@
 namespace Pick.Net.Utilities.Maui.Helpers;
 
 public sealed class BindablePropertyAttribute<TValue> : BaseBindablePropertyAttribute<TValue>
+	where TValue : notnull
 {
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	public override Type? AttachedType => null;

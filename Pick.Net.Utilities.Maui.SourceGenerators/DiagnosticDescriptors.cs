@@ -90,6 +90,24 @@ internal static class DiagnosticDescriptors
 		true,
 		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
 
+	public static readonly DiagnosticDescriptor BindablePropertyNullableValueType = new(
+		Prefix + "0007",
+		"Nullable types cannot be used",
+		"Type of property {0} must be made nullable using the IsNullable property",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		"Cannot use nullable value type as [BindableProperty] or [AttachedBindableProperty] property type, use IsNullable property instead.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
+		Prefix + "0008",
+		"No default value or value generator for non-nullable property",
+		"The default value of non-nullable property {0} will be null",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
+
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);

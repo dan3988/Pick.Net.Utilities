@@ -5,6 +5,7 @@ using static SyntaxFactory;
 internal readonly record struct BindablePropertySyntaxGeneratorConstructorParameters(
 	string PropertyName,
 	TypeSyntax PropertyType,
+	TypeSyntax PropertyTypeUnannotated,
 	TypeSyntax DeclaringType,
 	ExpressionSyntax DefaultValueExpression,
 	ExpressionSyntax DefaultModeExpression,
@@ -35,6 +36,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected readonly string PropertyName;
 	protected readonly TypeSyntax PropertyType;
+	protected readonly TypeSyntax PropertyTypeUnannotated;
 	protected readonly TypeSyntax DeclaringType;
 	protected readonly ExpressionSyntax DefaultValueExpression;
 	protected readonly ExpressionSyntax DefaultModeExpression;
@@ -44,7 +46,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected BindablePropertySyntaxGenerator(in BindablePropertySyntaxGeneratorConstructorParameters values)
 	{
-		(PropertyName, PropertyType, DeclaringType, DefaultValueExpression, DefaultModeExpression, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = values;
+		(PropertyName, PropertyType, PropertyTypeUnannotated, DeclaringType, DefaultValueExpression, DefaultModeExpression, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = values;
 	}
 
 	public TypeDeclarationSyntax Generate(TypeDeclarationSyntax syntax)
@@ -69,7 +71,7 @@ internal abstract class BindablePropertySyntaxGenerator
 	{
 		var arguments = new ExpressionSyntax[10];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
-		arguments[1] = SyntaxHelper.TypeOf(PropertyType);
+		arguments[1] = SyntaxHelper.TypeOf(PropertyTypeUnannotated);
 		arguments[2] = SyntaxHelper.TypeOf(DeclaringType);
 		arguments[3] = DefaultValueExpression;
 		arguments[4] = DefaultModeExpression;

@@ -57,8 +57,12 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 		type = entry.Properties.Aggregate(type, (current, property) => property.Generate(current));
 		type = entry.ClassInfo.ParentTypes.Aggregate(type, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
 
+		var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);
 		var ns = NamespaceDeclaration(IdentifierName(@namespace)).AddMembers(type);
-		var unit = CompilationUnit().AddMembers(ns).AddFormatting();
+		var unit = CompilationUnit()
+			.AddMembers(ns)
+			.WithLeadingTrivia(Trivia(nullableEnable))
+			.AddFormatting();
 
 		context.AddSource(fileName, unit);
 #if DEBUG
@@ -66,6 +70,15 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 		Console.WriteLine(fileName);
 		Console.WriteLine(text);
 #endif
+	}
+
+	protected static void CheckPropertyTypeNullability(AttributeData attribute, DiagnosticsBuilder diagnostics, ref INamedTypeSymbol symbol)
+	{
+		if (symbol.NullableAnnotation != NullableAnnotation.Annotated)
+			return;
+
+		diagnostics.Add(DiagnosticDescriptors.BindablePropertyNullableValueType, attribute.ApplicationSyntaxReference);
+		symbol = (INamedTypeSymbol)(symbol.IsValueType ? symbol.TypeArguments[0] : symbol.WithNullableAnnotation(NullableAnnotation.None));
 	}
 
 	protected static bool TryParseAttributePositionalArgs(AttributeData attribute, DiagnosticsBuilder builder, [MaybeNullWhen(false)] out string name)
@@ -76,7 +89,6 @@ public abstract class BaseBindablePropertyGenerator : IIncrementalGenerator
 			name = null;
 			return false;
 		}
-
 		name = (string?)arguments[0].Value;
 
 		if (string.IsNullOrEmpty(name))

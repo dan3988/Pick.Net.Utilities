@@ -3,6 +3,7 @@
 namespace Pick.Net.Utilities.Maui.Helpers;
 
 public sealed class AttachedBindablePropertyAttribute<TValue, TAttached> : BaseBindablePropertyAttribute<TValue>
+	where TValue : notnull
 	where TAttached : BindableObject
 {
 	[EditorBrowsable(EditorBrowsableState.Never)]

@@ -119,6 +119,7 @@ public abstract class AttributeParser
 	private bool? _defaultValueFactory;
 	private bool? _coerceValueCallback;
 	private bool? _validateValueCallback;
+	private bool? _isNullable;
 
 	protected AttributeParser(INamedTypeSymbol declaringType, AttributeData attribute, string name, INamedTypeSymbol propertyType)
 	{
@@ -129,15 +130,42 @@ public abstract class AttributeParser
 	}
 
 	internal BindablePropertySyntaxGeneratorConstructorParameters CreateParameters()
-		=> new(PropertyName, PropertyType.ToIdentifier(), DeclaringType.ToIdentifier(), _defaultValueSyntax, _defaultModeSyntax, _defaultValueFactory ?? false, _coerceValueCallback ?? false, _validateValueCallback ?? false);
+	{
+		var propType = (TypeSyntax)PropertyType.ToIdentifier();
+		var propTypeUnannotated = propType;
+		if (_isNullable == true)
+		{
+			propType = propType.AsNullable();
+
+			if (PropertyType.IsValueType)
+				propTypeUnannotated = propType;
+		}
+
+		return new(PropertyName, propType, propTypeUnannotated, DeclaringType.ToIdentifier(), _defaultValueSyntax, _defaultModeSyntax, _defaultValueFactory ?? false, _coerceValueCallback ?? false, _validateValueCallback ?? false);
+	}
 
 	internal void ParseNamedArguments(DiagnosticsBuilder diagnostics)
 	{
 		foreach (var (key, value) in AttributeData.NamedArguments)
 			TryParseNamedArgument(diagnostics, key, (INamedTypeSymbol)value.Type!, value.Value);
 
-		if (!_defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && _defaultValueFactory == true)
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
+		var hasDefaultValue = !_defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression);
+		var hasDefaultValueFactory = _defaultValueFactory == true;
+
+		if (hasDefaultValue)
+		{
+			if (hasDefaultValueFactory)
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, AttributeData.ApplicationSyntaxReference);
+			}
+		}
+		else if (!hasDefaultValueFactory)
+		{
+			if (_isNullable != true && !PropertyType.IsValueType)
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNull, AttributeData.ApplicationSyntaxReference, PropertyName);
+			}
+		}
 	}
 
 	protected virtual bool TryParseNamedArgument(DiagnosticsBuilder diagnostics, string key, INamedTypeSymbol type, object? value)
@@ -155,6 +183,9 @@ public abstract class AttributeParser
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValue):
 				TryParseDefaultValue(AttributeData, diagnostics, PropertyType, value, ref _defaultValueSyntax);
+				return true;
+			case nameof(BaseBindablePropertyAttribute.IsNullable):
+				_isNullable = (bool?)value;
 				return true;
 			case nameof(BaseBindablePropertyAttribute.DefaultValueFactory):
 				_defaultValueFactory = (bool?)value;

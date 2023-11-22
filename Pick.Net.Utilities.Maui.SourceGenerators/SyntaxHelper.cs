@@ -61,6 +61,9 @@ internal static class SyntaxHelper
 	public static T AddModifiers<T>(this T syntax, params SyntaxKind[] kind) where T : MemberDeclarationSyntax
 		=> (T)syntax.AddModifiers(kind.Select(Token).ToArray());
 
+	public static NullableTypeSyntax AsNullable(this TypeSyntax type)
+		=> NullableType(type);
+
 	public static AccessorDeclarationSyntax WithSemicolonToken(this AccessorDeclarationSyntax syntax)
 		=> syntax.WithSemicolonToken(semicolon);
 

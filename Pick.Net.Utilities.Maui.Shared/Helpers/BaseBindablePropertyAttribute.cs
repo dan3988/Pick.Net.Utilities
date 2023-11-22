@@ -13,6 +13,8 @@ public abstract class BaseBindablePropertyAttribute : Attribute
 
 	public object? DefaultValue => GetDefaultValue();
 
+	public bool IsNullable { get; init; }
+
 	public BindingMode DefaultMode { get; init; } = BindingMode.OneWay;
 
 	public bool DefaultValueFactory { get; init; }
@@ -23,12 +25,12 @@ public abstract class BaseBindablePropertyAttribute : Attribute
 
 	public PropertyVisibility Visibility { get; init; }
 
-	private PropertyVisibility? _writeVisibility;
+	private readonly PropertyVisibility? _writeVisibility;
 
 	public PropertyVisibility WriteVisibility
 	{
 		get => _writeVisibility ?? Visibility;
-		set => _writeVisibility = value;
+		init => _writeVisibility = value;
 	}
 
 	private protected BaseBindablePropertyAttribute(string name)
@@ -46,6 +48,7 @@ public abstract class BaseBindablePropertyAttribute : Attribute
 }
 
 public abstract class BaseBindablePropertyAttribute<TValue> : BaseBindablePropertyAttribute
+	where TValue : notnull
 {
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	public override Type PropertyType => typeof(TValue);

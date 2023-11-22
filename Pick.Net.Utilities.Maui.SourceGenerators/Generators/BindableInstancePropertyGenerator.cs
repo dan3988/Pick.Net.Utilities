@@ -21,7 +21,7 @@ public sealed class BindableInstancePropertyGenerator : BaseBindablePropertyGene
 			=> BindableInstancePropertySyntaxGenerator.Create(CreateParameters(), GetterAccessors, SetterAccessors);
 	}
 
-	private static bool TryParseAttributeGenericArgs(AttributeData attribute, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
+	private static bool TryParseAttributeGenericArgs(AttributeData attribute, DiagnosticsBuilder diagnostics, [MaybeNullWhen(false)] out INamedTypeSymbol typeSymbol)
 	{
 		var attrType = attribute.AttributeClass;
 		if (attrType is { IsGenericType: true })
@@ -30,6 +30,7 @@ public sealed class BindableInstancePropertyGenerator : BaseBindablePropertyGene
 			if (args.Length >= 1)
 			{
 				typeSymbol = (INamedTypeSymbol)args[0];
+				CheckPropertyTypeNullability(attribute, diagnostics, ref typeSymbol);
 				return true;
 			}
 		}
@@ -42,7 +43,7 @@ public sealed class BindableInstancePropertyGenerator : BaseBindablePropertyGene
 
 	public override AttributeParser? CreateParser(INamedTypeSymbol declaringType, AttributeData data, DiagnosticsBuilder diagnostics)
 	{
-		if (TryParseAttributePositionalArgs(data, diagnostics, out var name) && TryParseAttributeGenericArgs(data, out var propertyType))
+		if (TryParseAttributePositionalArgs(data, diagnostics, out var name) && TryParseAttributeGenericArgs(data, diagnostics, out var propertyType))
 			return new InstanceAttributeParser(declaringType, data, name, propertyType);
 
 		return null;

@@ -6,8 +6,8 @@ using static SyntaxFactory;
 
 internal static class SymbolHelper
 {
-	private static readonly SymbolDisplayFormat fullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
-	private static readonly SymbolDisplayFormat fullNamespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
+	private static readonly SymbolDisplayFormat FullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+	private static readonly SymbolDisplayFormat FullNamespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
 	private static readonly Dictionary<SpecialType, TypeCode> specialTypesMap = new()
 	{
@@ -29,19 +29,48 @@ internal static class SymbolHelper
 		[SpecialType.System_DateTime] = TypeCode.DateTime
 	};
 
+	public static readonly SyntaxTokenList TokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
+	public static readonly SyntaxTokenList TokensProtected = CreateTokenList(SyntaxKind.ProtectedKeyword);
+	public static readonly SyntaxTokenList TokensInternal = CreateTokenList(SyntaxKind.InternalKeyword);
+	public static readonly SyntaxTokenList TokensPrivate = CreateTokenList(SyntaxKind.PrivateKeyword);
+	public static readonly SyntaxTokenList TokensProtectedInternal = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword);
+	public static readonly SyntaxTokenList TokensProtectedPrivate = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword);
+
+	private static readonly Dictionary<Accessibility, SyntaxTokenList> VisibilityTokens = new()
+	{
+		[Accessibility.Public] = TokensPublic,
+		[Accessibility.Protected] = TokensProtected,
+		[Accessibility.Internal] = TokensInternal,
+		[Accessibility.Private] = TokensPrivate,
+		[Accessibility.ProtectedOrInternal] = TokensProtectedInternal,
+		[Accessibility.ProtectedAndInternal] = TokensProtectedPrivate,
+	};
+
+	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
+		=> new(Token(kind));
+
+	private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
+		=> new(kinds.Select(Token));
+
 	public static bool TryGetTypeCode(this SpecialType type, out TypeCode typeCode)
 		=> specialTypesMap.TryGetValue(type, out typeCode);
 
 	public static string GetFullTypeName(this ITypeSymbol symbol)
-		=> symbol.ToDisplayString(fullTypeNameFormat);
+		=> symbol.ToDisplayString(FullTypeNameFormat);
 
 	public static string GetFullName(this INamespaceSymbol symbol)
-		=> symbol.ToDisplayString(fullNamespaceFormat);
+		=> symbol.ToDisplayString(FullNamespaceFormat);
 
 	public static IdentifierNameSyntax ToIdentifier(this ITypeSymbol type)
 	{
 		var name = GetFullTypeName(type);
 		return IdentifierName(name);
+	}
+
+	public static SyntaxTokenList ToSyntaxList(this Accessibility accessibility)
+	{
+		VisibilityTokens.TryGetValue(accessibility, out var list);
+		return list;
 	}
 
 	public static ImmutableArray<string> GetContainingTypeNames(this ISymbol type)

@@ -5,7 +5,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
 internal sealed class ClassInfo
 {
-	public static ClassInfo Create(INamedTypeSymbol type, string? fileNameSuffix = null)
+	public static ClassInfo Create(ITypeSymbol type, string? fileNameSuffix = null)
 	{
 		var parentTypes = type.GetContainingTypeNames();
 		var ns = type.ContainingNamespace.GetFullName();

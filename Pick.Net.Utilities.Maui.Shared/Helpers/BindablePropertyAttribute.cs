@@ -1,17 +1,19 @@
-﻿using System.ComponentModel;
+﻿namespace Pick.Net.Utilities.Maui.Helpers;
 
-namespace Pick.Net.Utilities.Maui.Helpers;
-
-public sealed class BindablePropertyAttribute<TValue> : BaseBindablePropertyAttribute<TValue>
-	where TValue : notnull
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+public sealed class BindablePropertyAttribute : Attribute
 {
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	public override Type? AttachedType => null;
+	public object? DefaultValue { get; init; }
 
-	public BindablePropertyAttribute(string name) : base(name)
+	public BindingMode DefaultMode { get; init; } = BindingMode.OneWay;
+
+	public bool DefaultValueFactory { get; init; }
+
+	public bool CoerceValueCallback { get; init; }
+
+	public bool ValidateValueCallback { get; init; }
+
+	public BindablePropertyAttribute()
 	{
 	}
-
-	private protected override object? GetDefaultValue()
-		=> DefaultValue;
 }

@@ -25,5 +25,9 @@
     <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generators\" />
+  </ItemGroup>
+
   <Import Project="..\Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems" Label="Shared" />
 </Project>

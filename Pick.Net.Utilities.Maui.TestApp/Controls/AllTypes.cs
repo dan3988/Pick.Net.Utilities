@@ -4,23 +4,124 @@ using Pick.Net.Utilities.Maui.Helpers;
 
 namespace Pick.Net.Utilities.Maui.TestApp.Controls;
 
-[BindableProperty<object>("ObjectProp", DefaultValue = 5)]
-[BindableProperty<bool>("BooleanProp", DefaultValue = true)]
-[BindableProperty<char>("CharProp", DefaultValue = 'A')]
-[BindableProperty<sbyte>("SByteProp", DefaultValue = 1)]
-[BindableProperty<byte>("ByteProp", DefaultValue = 1)]
-[BindableProperty<short>("Int16Prop", DefaultValue = 1)]
-[BindableProperty<ushort>("UInt16Prop", DefaultValue = 1)]
-[BindableProperty<int>("Int32Prop", DefaultValue = 1)]
-[BindableProperty<uint>("UInt32Prop", DefaultValue = 1)]
-[BindableProperty<long>("Int64Prop", DefaultValue = 1)]
-[BindableProperty<ulong>("UInt64Prop", DefaultValue = 1)]
-[BindableProperty<float>("SingleProp", DefaultValue = 1)]
-[BindableProperty<double>("DoubleProp", DefaultValue = 1)]
-[BindableProperty<double>("DecimalProp")]
-[BindableProperty<string>("StringProp", DefaultValue = "text")]
-[BindableProperty<ConsoleColor>("EnumProp", DefaultValue = ConsoleColor.Red)]
-[BindableProperty<BindingFlags>("FlagEnumProp", DefaultValue = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)]
 internal partial class AllTypes : BindableObject
 {
+	[BindableProperty(DefaultValue = 5)]
+	public object Object
+	{
+		get => (object)GetValue(ObjectProperty);
+		set => SetValue(ObjectProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = true)]
+	public bool Boolean
+	{
+		get => (bool)GetValue(BooleanProperty);
+		set => SetValue(BooleanProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 'A')]
+	public char Char
+	{
+		get => (char)GetValue(CharProperty);
+		set => SetValue(CharProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public sbyte SByte
+	{
+		get => (sbyte)GetValue(SByteProperty);
+		set => SetValue(SByteProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public byte Byte
+	{
+		get => (byte)GetValue(ByteProperty);
+		set => SetValue(ByteProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public short Int16
+	{
+		get => (short)GetValue(Int16Property);
+		set => SetValue(Int16Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public ushort UInt16
+	{
+		get => (ushort)GetValue(UInt16Property);
+		set => SetValue(UInt16Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public int Int32
+	{
+		get => (int)GetValue(Int32Property);
+		set => SetValue(Int32Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public uint UInt32
+	{
+		get => (uint)GetValue(UInt32Property);
+		set => SetValue(UInt32Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public long Int64
+	{
+		get => (long)GetValue(Int64Property);
+		set => SetValue(Int64Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public ulong UInt64
+	{
+		get => (ulong)GetValue(UInt64Property);
+		set => SetValue(UInt64Property, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public float Single
+	{
+		get => (float)GetValue(SingleProperty);
+		set => SetValue(SingleProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public double Double
+	{
+		get => (double)GetValue(DoubleProperty);
+		set => SetValue(DoubleProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = 1)]
+	public decimal Decimal
+	{
+		get => (decimal)GetValue(DecimalProperty);
+		set => SetValue(DecimalProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = "text")]
+	public string String
+	{
+		get => (string)GetValue(StringProperty);
+		set => SetValue(StringProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = ConsoleColor.Red)]
+	public ConsoleColor Enum
+	{
+		get => (ConsoleColor)GetValue(EnumProperty);
+		set => SetValue(EnumProperty, value);
+	}
+
+	[BindableProperty(DefaultValue = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)]
+	public BindingFlags FlagEnum
+	{
+		get => (BindingFlags)GetValue(FlagEnumProperty);
+		set => SetValue(FlagEnumProperty, value);
+	}
 }

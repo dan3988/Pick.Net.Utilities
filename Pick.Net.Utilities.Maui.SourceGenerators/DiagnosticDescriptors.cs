@@ -81,8 +81,17 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
 
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
 		Prefix + "0006",
+		"DefaultValue not supported for given property type",
+		"Cannot specify DefaultValue for property type {0}",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		"Cannot specify DefaultValue on for properties with types not supported by attributes.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
+		Prefix + "0007",
 		"Value of DefaultValue will not be used",
 		"Setting DefaultValue will have no effect when DefaultValueFactory is true",
 		Category,
@@ -91,7 +100,7 @@ internal static class DiagnosticDescriptors
 		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
-		Prefix + "0007",
+		Prefix + "0008",
 		"No default value or value generator for non-nullable property",
 		"The default value of non-nullable property {0} will be null",
 		Category,

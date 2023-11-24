@@ -1,6 +1,4 @@
-﻿using Pick.Net.Utilities.Maui.Helpers;
-
-namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 internal abstract class BindablePropertySyntaxGenerator
 {
@@ -9,32 +7,6 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private static readonly IdentifierNameSyntax NameBindablePropertyKeyProperty = SyntaxFactory.IdentifierName("BindableProperty");
 
-	public SyntaxReference? Owner { get; }
-
-	public INamedTypeSymbol DeclaringType { get; }
-
-	public string PropertyName { get; }
-
-	public ITypeSymbol PropertyType { get; }
-
-	public Accessibility Accessibility { get; }
-
-	public Accessibility WriteAccessibility { get; }
-
-	public BindingMode DefaultMode { get; }
-
-	public object DefaultValue { get; }
-
-	public bool DefaultValueFactory { get; }
-
-	public bool CoerceValueCallback { get; }
-
-	public bool ValidateValueCallback { get; }
-
-	private protected BindablePropertySyntaxGenerator(SyntaxGeneratorSharedProperties properties)
-	{
-		(Owner, DeclaringType, PropertyName, PropertyType, Accessibility, WriteAccessibility, DefaultMode, DefaultValue, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
-	}
 	private static ExpressionSyntax GetTypeOfExpression(ITypeSymbol typeSymbol)
 	{
 		var name = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -53,51 +25,84 @@ internal abstract class BindablePropertySyntaxGenerator
 		members.Add(field);
 	}
 
+	public SyntaxReference? Owner { get; }
+
+	public INamedTypeSymbol DeclaringType { get; }
+
+	public string PropertyName { get; }
+
+	public ITypeSymbol PropertyType { get; }
+
+	public Accessibility Accessibility { get; }
+
+	public Accessibility WriteAccessibility { get; }
+
+	public ExpressionSyntax DefaultValueSyntax { get; }
+
+	public ExpressionSyntax DefaultModeSyntax { get; }
+
+	public bool DefaultValueFactory { get; }
+
+	public bool CoerceValueCallback { get; }
+
+	public bool ValidateValueCallback { get; }
+
+	protected abstract string CreateMethod { get; }
+
+	protected abstract string CreateReadOnlyMethod { get; }
+
+	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
+	{
+		(Owner, DeclaringType, PropertyName, PropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
+	}
+
 	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
 	{
-		var arguments = new ExpressionSyntax[4];
+		var arguments = new ExpressionSyntax[10];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
 		arguments[1] = GetTypeOfExpression(PropertyType);
 		arguments[2] = GetTypeOfExpression(DeclaringType);
-		arguments[3] = SyntaxHelper.Null;
-		//arguments[3] = DefaultValueExpression;
-		//arguments[4] = DefaultModeExpression;
+		arguments[3] = DefaultValueSyntax;
+		arguments[4] = DefaultModeSyntax;
 
-		//if (ValidateValueCallback)
-		//{
-		//	arguments[5] = CreateValidateValueHandler(out var method);
-		//	members.Add(method);
-		//}
-		//else
-		//{
-		//	arguments[5] = SyntaxHelper.Null;
-		//}
+		var propertyType = PropertyType.ToIdentifier();
+		var declaringType = DeclaringType.ToIdentifier();
 
-		//arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
-		//arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
+		if (ValidateValueCallback)
+		{
+			arguments[5] = CreateValidateValueHandler(propertyType, declaringType, out var method);
+			members.Add(method);
+		}
+		else
+		{
+			arguments[5] = SyntaxHelper.Null;
+		}
 
-		//members.Add(onChanging);
-		//members.Add(onChanged);
+		arguments[6] = CreateChangeHandler(propertyType, declaringType, $"On{PropertyName}Changing", out var onChanging);
+		arguments[7] = CreateChangeHandler(propertyType, declaringType, $"On{PropertyName}Changed", out var onChanged);
 
-		//if (CoerceValueCallback)
-		//{
-		//	arguments[8] = CreateCoerceValueHandler(out var method);
-		//	members.Add(method);
-		//}
-		//else
-		//{
-		//	arguments[8] = SyntaxHelper.Null;
-		//}
+		members.Add(onChanging);
+		members.Add(onChanged);
 
-		//if (DefaultValueFactory)
-		//{
-		//	arguments[9] = CreateDefaultValueGenerator(out var method);
-		//	members.Add(method);
-		//}
-		//else
-		//{
-		//	arguments[9] = SyntaxHelper.Null;
-		//}
+		if (CoerceValueCallback)
+		{
+			arguments[8] = CreateCoerceValueHandler(propertyType, declaringType, out var method);
+			members.Add(method);
+		}
+		else
+		{
+			arguments[8] = SyntaxHelper.Null;
+		}
+
+		if (DefaultValueFactory)
+		{
+			arguments[9] = CreateDefaultValueGenerator(propertyType, declaringType, out var method);
+			members.Add(method);
+		}
+		else
+		{
+			arguments[9] = SyntaxHelper.Null;
+		}
 
 		var create = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindableProperty, SyntaxFactory.IdentifierName(createMethod));
 		var propertyInitializer = SyntaxFactory.InvocationExpression(create, SyntaxHelper.ArgumentList(arguments));
@@ -109,9 +114,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		members.Add(field);
 	}
 
-	protected abstract string CreateMethod { get; }
+	protected abstract LambdaExpressionSyntax CreateChangeHandler(TypeSyntax propertyType, TypeSyntax declaringType, string name, out MethodDeclarationSyntax method);
 
-	protected abstract string CreateReadOnlyMethod { get; }
+	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
+
+	protected abstract LambdaExpressionSyntax CreateCoerceValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
+
+	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
 
 	public void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 	{

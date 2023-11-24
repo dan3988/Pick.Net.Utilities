@@ -1,6 +1,4 @@
-﻿using Pick.Net.Utilities.Maui.Helpers;
-
-namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 internal readonly record struct SyntaxGeneratorSharedProperties(
 	SyntaxReference? Owner,
@@ -9,8 +7,8 @@ internal readonly record struct SyntaxGeneratorSharedProperties(
 	ITypeSymbol PropertyType,
 	Accessibility Accessibility,
 	Accessibility WriteAccessibility,
-	BindingMode DefaultMode,
-	object? DefaultValue,
+	ExpressionSyntax DefaultValueSyntax,
+	ExpressionSyntax DefaultModeSyntax,
 	bool DefaultValueFactory,
 	bool CoerceValueCallback,
 	bool ValidateValueCallback);

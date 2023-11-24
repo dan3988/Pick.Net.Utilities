@@ -6,19 +6,123 @@ using Pick.Net.Utilities.Maui.Helpers;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 using static SyntaxFactory;
+using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 [Generator]
 public class BindablePropertyGenerator : IIncrementalGenerator
 {
 	private static readonly Type AttributeType = typeof(BindablePropertyAttribute);
 
+	private static readonly IdentifierNameSyntax NameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
+	private static readonly IdentifierNameSyntax NameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
+
+	private static readonly ExpressionSyntax DefaultDefaultModeSyntax = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindingMode, NameBindingModeOneWay);
+
+	private static ExpressionSyntax ParseDefaultBindingMode(AttributeData attribute, object? value, DiagnosticsBuilder diagnostics)
+	{
+		var enumValue = value == null ? 0 : Enum.ToObject(typeof(BindingMode), value);
+		if (!Enum.IsDefined(typeof(BindingMode), enumValue))
+		{
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, attribute.ApplicationSyntaxReference, enumValue);
+			return CastExpression(NameBindingMode, LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((int)enumValue)));
+		}
+		else
+		{
+			return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindingMode, IdentifierName(enumValue.ToString()));
+		}
+	}
+
+	private static ExpressionSyntax ParseDefaultValue(AttributeData attribute, DiagnosticsBuilder diagnostics, ITypeSymbol? propertyType, object? value)
+	{
+		static bool TryParseCore(AttributeData attribute, DiagnosticsBuilder diagnostics, ITypeSymbol propertyType, ITypeSymbol realPropertyType, object? value, out ExpressionSyntax expression)
+		{
+			if (propertyType.SpecialType.TryGetTypeCode(out var target))
+			{
+				expression = SyntaxHelper.Literal(value, target);
+				return true;
+			}
+
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNotSupported, attribute.ApplicationSyntaxReference, realPropertyType);
+			expression = SyntaxHelper.Null;
+			return false;
+		}
+
+		if (propertyType == null)
+			return SyntaxHelper.Null;
+
+		if (propertyType.TypeKind == TypeKind.Enum)
+		{
+			if (propertyType is not INamedTypeSymbol namedType)
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNotSupported, attribute.ApplicationSyntaxReference, propertyType);
+				return SyntaxHelper.Null;
+			}
+
+			var typeName = propertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+			var member = propertyType.GetMembers().OfType<IFieldSymbol>().FirstOrDefault(v => Equals(v.ConstantValue, value));
+			if (member != null)
+				return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(typeName), IdentifierName(member.Name));
+
+			var underlyingType = namedType.EnumUnderlyingType!;
+			if (TryParseCore(attribute, diagnostics, underlyingType, namedType, value, out var expression))
+				expression = CastExpression(IdentifierName(typeName), expression);
+
+			return expression;
+		}
+		else
+		{
+			TryParseCore(attribute, diagnostics, propertyType, propertyType, value, out var expression);
+			return expression;
+		}
+	}
+
+	private static void ParseAttribute(AttributeData attribute, INamedTypeSymbol declaringType, string propertyName, ITypeSymbol propertyType, Accessibility accessibility, Accessibility writeAccessibility, out SyntaxGeneratorSharedProperties result, out ImmutableArray<Diagnostic> diagnostics)
+	{
+		var builder = ImmutableArray.CreateBuilder<Diagnostic>();
+
+		var defaultModeSyntax = DefaultDefaultModeSyntax;
+		var defaultValueSyntax = (ExpressionSyntax)SyntaxHelper.Null;
+		var defaultValueFactory = false;
+		var coerceValueCallback = false;
+		var validateValueCallback = false;
+
+		foreach (var (name, constant) in attribute.NamedArguments)
+		{
+			switch (name)
+			{
+				case nameof(BindablePropertyAttribute.DefaultValue):
+					defaultValueSyntax = ParseDefaultValue(attribute, builder, constant.Type, constant.Value);
+					break;
+				case nameof(BindablePropertyAttribute.DefaultMode):
+					defaultModeSyntax = ParseDefaultBindingMode(attribute, constant.Value, builder);
+					break;
+				case nameof(BindablePropertyAttribute.DefaultValueFactory):
+					defaultValueFactory = Equals(constant.Value, true);
+					break;
+				case nameof(BindablePropertyAttribute.CoerceValueCallback):
+					coerceValueCallback = Equals(constant.Value, true);
+					break;
+				case nameof(BindablePropertyAttribute.ValidateValueCallback):
+					validateValueCallback = Equals(constant.Value, true);
+					break;
+			}
+		}
+
+		if (!defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression) && defaultValueFactory)
+			builder.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, attribute.ApplicationSyntaxReference);
+
+		diagnostics = builder.ToImmutable();
+		result = new SyntaxGeneratorSharedProperties(attribute.ApplicationSyntaxReference, declaringType, propertyName, propertyType, accessibility, writeAccessibility,
+			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
+	}
+
 	private static CreateResult CreateForProperty(IPropertySymbol symbol, AttributeData attribute)
 	{
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
-		var props = new SyntaxGeneratorSharedProperties(attribute.ApplicationSyntaxReference, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, BindingMode.OneWay, null, false, false, false);
-		var generator = new BindableInstancePropertySyntaxGenerator(props);
-		return new(generator);
+		ParseAttribute(attribute, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props, out var diagnostics);
+		var generator = new BindableInstancePropertySyntaxGenerator(in props);
+		return new(generator, diagnostics);
 	}
 
 	private static CreateResult CreateForMethod(IMethodSymbol symbol, AttributeData attribute)
@@ -46,9 +150,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		name = name.Substring(3);
 
 		var accessibility = symbol.DeclaredAccessibility;
-		var props = new SyntaxGeneratorSharedProperties(attribute.ApplicationSyntaxReference, symbol.ContainingType, name, symbol.ReturnType, accessibility, accessibility, BindingMode.OneWay, null, false, false, false);
-		var generator = new BindableAttachedPropertySyntaxGenerator(props, arguments[0].Type);
-		return new(generator);
+		ParseAttribute(attribute, symbol.ContainingType, name, symbol.ReturnType, accessibility, accessibility, out var props, out var diagnostics);
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type);
+		return new(generator, diagnostics);
 	}
 
 	private static CreateResult TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)

@@ -4,12 +4,21 @@ namespace Pick.Net.Utilities.Maui.TestApp.Controls;
 
 public partial class TestControl : BindableObject
 {
-	[BindableProperty]
+	[BindableProperty(ValidateValueCallback = true, CoerceValueCallback = true, DefaultValueFactory = true)]
 	public static string GetAttached(Entry entry)
 		=> (string)entry.GetValue(AttachedProperty);
 
 	public static void SetAttached(Entry entry, string value)
 		=> entry.SetValue(AttachedProperty, value);
+
+	private static partial bool ValidateAttachedValue(string? value)
+		=> value != null;
+
+	private static partial string CoerceAttachedValue(string value)
+		=> value;
+
+	private static partial string GenerateAttachedDefaultValue(Entry bindable)
+		=> "default value";
 
 	[BindableProperty(DefaultValue = "", DefaultMode = BindingMode.TwoWay, ValidateValueCallback = true, CoerceValueCallback = true)]
 	public string Text
@@ -24,6 +33,9 @@ public partial class TestControl : BindableObject
 		get => (string)GetValue(TransformedTextProperty);
 		private set => SetValue(TransformedTextPropertyKey, value);
 	}
+
+	private partial string GenerateTransformedTextDefaultValue()
+		=> Text;
 
 	[BindableProperty(DefaultValue = 0)]
 	public int MaxLength
@@ -44,22 +56,6 @@ public partial class TestControl : BindableObject
 	{
 		get => (string)GetValue(SomethingInternalProperty);
 		set => SetValue(SomethingInternalProperty, value);
-	}
-
-	private static partial bool ValidateAttachedValue(BindableObject? value)
-		=> value != null;
-
-	private static partial BindableObject CoerceAttachedValue(BindableObject value)
-		=> value;
-
-	private static partial BindableObject GenerateAttachedDefaultValue(Entry bindable)
-	{
-		return new Label();
-	}
-
-	private partial string GenerateTextDefaultValue()
-	{
-		return "";
 	}
 
 	private partial bool ValidateTextValue(string value)

@@ -43,10 +43,37 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
+		$"placeholder");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodName = new(
+		Prefix + "0002",
+		"placeholder",
+		"Method name does not start with \"Get\": {0}",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"placeholder");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodReturn = new(
+		Prefix + "0003",
+		"placeholder",
+		"Method must have a return type",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"placeholder");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodSignature = new(
+		Prefix + "0004",
+		"placeholder",
+		"Method must have a single parameter",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"placeholder");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
-		Prefix + "0002",
+		Prefix + "0005",
 		"Supplied DefaultMode value is not a known value",
 		"Unknown DefaultMode value: {0}",
 		Category,
@@ -55,7 +82,7 @@ internal static class DiagnosticDescriptors
 		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		Prefix + "0003",
+		Prefix + "0006",
 		"Value of DefaultValue will not be used",
 		"Setting DefaultValue will have no effect when DefaultValueFactory is true",
 		Category,
@@ -64,13 +91,19 @@ internal static class DiagnosticDescriptors
 		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
-		Prefix + "0004",
+		Prefix + "0007",
 		"No default value or value generator for non-nullable property",
 		"The default value of non-nullable property {0} will be null",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
 		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
+
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
+	{
+		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
+		return Diagnostic.Create(descriptor, location, messageArgs);
+	}
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{

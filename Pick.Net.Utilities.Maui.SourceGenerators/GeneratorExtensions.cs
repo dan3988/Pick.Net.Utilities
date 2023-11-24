@@ -59,7 +59,7 @@ internal static class GeneratorExtensions
 	private static bool MatchesTarget(SyntaxNode node, AttributeTargets targets)
 	{
 		var kind = node.Kind();
-		return targets == AttributeTargets.All || (TargetsMap.TryGetValue(kind, out var flag) && (targets & flag) == flag);
+		return targets == AttributeTargets.All || (TargetsMap.TryGetValue(kind, out var flag) && (targets & flag) != 0);
 	}
 
 	private sealed record Grouping<TKey, TValue>(TKey Key, IEnumerable<TValue> Values) : IGrouping<TKey, TValue>

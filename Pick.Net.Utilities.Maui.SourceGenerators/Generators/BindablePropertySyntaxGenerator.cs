@@ -1,14 +1,40 @@
-﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+﻿using Pick.Net.Utilities.Maui.Helpers;
 
-public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringType, ITypeSymbol PropertyType, string PropertyName, SyntaxReference? Owner, Accessibility Accessibility, Accessibility WriteAccessibility) : ISyntaxGenerator
+namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+
+internal abstract class BindablePropertySyntaxGenerator
 {
 	private static readonly IdentifierNameSyntax NameBindableProperty = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 	private static readonly IdentifierNameSyntax NameBindablePropertyKey = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
-	private static readonly IdentifierNameSyntax NameCreate = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.Create");
-	private static readonly IdentifierNameSyntax NameCreateReadOnly = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly");
 
 	private static readonly IdentifierNameSyntax NameBindablePropertyKeyProperty = SyntaxFactory.IdentifierName("BindableProperty");
 
+	public SyntaxReference? Owner { get; }
+
+	public INamedTypeSymbol DeclaringType { get; }
+
+	public string PropertyName { get; }
+
+	public ITypeSymbol PropertyType { get; }
+
+	public Accessibility Accessibility { get; }
+
+	public Accessibility WriteAccessibility { get; }
+
+	public BindingMode DefaultMode { get; }
+
+	public object DefaultValue { get; }
+
+	public bool DefaultValueFactory { get; }
+
+	public bool CoerceValueCallback { get; }
+
+	public bool ValidateValueCallback { get; }
+
+	private protected BindablePropertySyntaxGenerator(SyntaxGeneratorSharedProperties properties)
+	{
+		(Owner, DeclaringType, PropertyName, PropertyType, Accessibility, WriteAccessibility, DefaultMode, DefaultValue, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
+	}
 	private static ExpressionSyntax GetTypeOfExpression(ITypeSymbol typeSymbol)
 	{
 		var name = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -26,7 +52,8 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 
 		members.Add(field);
 	}
-	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
+
+	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
 	{
 		var arguments = new ExpressionSyntax[4];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
@@ -72,7 +99,8 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 		//	arguments[9] = SyntaxHelper.Null;
 		//}
 
-		var propertyInitializer = SyntaxFactory.InvocationExpression(createMethod, SyntaxHelper.ArgumentList(arguments));
+		var create = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, NameBindableProperty, SyntaxFactory.IdentifierName(createMethod));
+		var propertyInitializer = SyntaxFactory.InvocationExpression(create, SyntaxHelper.ArgumentList(arguments));
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(fieldType).AddVariables(declaration))
 			.WithModifiers(modifiers)
@@ -80,6 +108,10 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 
 		members.Add(field);
 	}
+
+	protected abstract string CreateMethod { get; }
+
+	protected abstract string CreateReadOnlyMethod { get; }
 
 	public void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 	{
@@ -89,12 +121,12 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 		{
 			var writeModifiers = WriteAccessibility.ToSyntaxList();
 			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(PropertyName + "PropertyKey");
-			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, NameBindablePropertyKey, NameCreateReadOnly);
+			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, NameBindablePropertyKey, CreateReadOnlyMethod);
 			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField);
 		}
 		else
 		{
-			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, NameBindableProperty, NameCreate);
+			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, NameBindableProperty, CreateMethod);
 		}
 	}
 }

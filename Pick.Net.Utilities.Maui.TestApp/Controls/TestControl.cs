@@ -5,11 +5,10 @@ namespace Pick.Net.Utilities.Maui.TestApp.Controls;
 public partial class TestControl : BindableObject
 {
 	[BindableProperty]
-	public static BindableObject GetAttached(Entry entry)
-		=> entry.GetValue(AttachedProperty);
+	public static string GetAttached(Entry entry)
+		=> (string)entry.GetValue(AttachedProperty);
 
-	[BindableProperty]
-	public static void SetAttached(Entry entry, BindableObject value)
+	public static void SetAttached(Entry entry, string value)
 		=> entry.SetValue(AttachedProperty, value);
 
 	[BindableProperty(DefaultValue = "", DefaultMode = BindingMode.TwoWay, ValidateValueCallback = true, CoerceValueCallback = true)]

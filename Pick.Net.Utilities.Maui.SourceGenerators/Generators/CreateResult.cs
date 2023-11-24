@@ -7,4 +7,12 @@ internal readonly record struct CreateResult(BindablePropertySyntaxGenerator? Re
 	public CreateResult(Diagnostic error) : this(null, ImmutableArray.Create(error))
 	{
 	}
+
+	public CreateResult(ImmutableArray<Diagnostic>.Builder diagnostics) : this(null, diagnostics.ToImmutable())
+	{
+	}
+
+	public CreateResult(BindablePropertySyntaxGenerator? result, ImmutableArray<Diagnostic>.Builder diagnostics) : this(result, diagnostics.ToImmutable())
+	{
+	}
 }

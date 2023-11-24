@@ -38,39 +38,39 @@ internal static class DiagnosticDescriptors
 
 	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
-		"placeholder",
-		"Duplicate BindableProperty: {0}",
+		"Duplicate [BindableProperty] property name",
+		"Duplicate [BindableProperty]: '{0}'",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"placeholder");
+		$"[BindableProperty] attribute cannot be used to generate more than one attached or instance properties with the same name.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodName = new(
 		Prefix + "0002",
-		"placeholder",
-		"Method name does not start with \"Get\": {0}",
+		"Method name should start with 'Get'",
+		"Attached property accessor '{0}' should start with 'Get'",
 		Category,
-		DiagnosticSeverity.Error,
+		DiagnosticSeverity.Warning,
 		true,
-		$"placeholder");
+		$"[BindableProperty] method names should be in the format 'Get<PropertyName>'.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodReturn = new(
 		Prefix + "0003",
-		"placeholder",
 		"Method must have a return type",
+		"Attached property accessor '{0}' does not have a return type",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"placeholder");
+		$"[BindableProperty] methods must have a return type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodSignature = new(
 		Prefix + "0004",
-		"placeholder",
-		"Method must have a single parameter",
+		"Method must have a return type",
+		"Attached property accessor '{0}' must have a single parameter",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"placeholder");
+		$"[BindableProperty] methods must have a single parameter representing the attached type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
 		Prefix + "0005",
@@ -102,17 +102,11 @@ internal static class DiagnosticDescriptors
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
 		Prefix + "0008",
 		"No default value or value generator for non-nullable property",
-		"The default value of non-nullable property {0} will be null",
+		"The default value of non-nullable property '{0}' will be null",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
 		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
-
-	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
-	{
-		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
-		return Diagnostic.Create(descriptor, location, messageArgs);
-	}
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{

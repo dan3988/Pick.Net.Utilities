@@ -1,6 +1,6 @@
 ﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
-public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringType, IPropertySymbol DeclaringProperty) : ISyntaxGenerator
+public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringType, ITypeSymbol PropertyType, string PropertyName, SyntaxReference? Owner, Accessibility Accessibility, Accessibility WriteAccessibility) : ISyntaxGenerator
 {
 	private static readonly IdentifierNameSyntax NameBindableProperty = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 	private static readonly IdentifierNameSyntax NameBindablePropertyKey = SyntaxFactory.IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
@@ -29,8 +29,8 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, TypeSyntax createMethod)
 	{
 		var arguments = new ExpressionSyntax[4];
-		arguments[0] = SyntaxHelper.Literal(DeclaringProperty.Name);
-		arguments[1] = GetTypeOfExpression(DeclaringProperty.Type);
+		arguments[0] = SyntaxHelper.Literal(PropertyName);
+		arguments[1] = GetTypeOfExpression(PropertyType);
 		arguments[2] = GetTypeOfExpression(DeclaringType);
 		arguments[3] = SyntaxHelper.Null;
 		//arguments[3] = DefaultValueExpression;
@@ -83,19 +83,18 @@ public sealed record InstancePropertySyntaxGenerator(INamedTypeSymbol DeclaringT
 
 	public void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 	{
-		var prop = DeclaringProperty;
-		var getModifiers = prop.DeclaredAccessibility.ToSyntaxList();
-		var bindablePropertyField = SyntaxFactory.IdentifierName(prop.Name + "Property");
-		if (prop.SetMethod == null || prop.SetMethod.DeclaredAccessibility != prop.DeclaredAccessibility)
+		var readModifiers = Accessibility.ToSyntaxList();
+		var bindablePropertyField = SyntaxFactory.IdentifierName(PropertyName + "Property");
+		if (Accessibility != WriteAccessibility)
 		{
-			var setModifiers = prop.SetMethod == null ? SymbolHelper.TokensPrivate : prop.SetMethod.DeclaredAccessibility.ToSyntaxList();
-			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(prop.Name + "PropertyKey");
-			GenerateBindablePropertyDeclaration(members, setModifiers, bindablePropertyKeyField, NameBindablePropertyKey, NameCreateReadOnly);
-			GenerateReadOnlyBindablePropertyDeclaration(members, getModifiers, bindablePropertyField, bindablePropertyKeyField);
+			var writeModifiers = WriteAccessibility.ToSyntaxList();
+			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(PropertyName + "PropertyKey");
+			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, NameBindablePropertyKey, NameCreateReadOnly);
+			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField);
 		}
 		else
 		{
-			GenerateBindablePropertyDeclaration(members, getModifiers, bindablePropertyField, NameBindableProperty, NameCreate);
+			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, NameBindableProperty, NameCreate);
 		}
 	}
 }

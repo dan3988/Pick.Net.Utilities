@@ -3,49 +3,27 @@ using System.Text;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
-internal sealed class ClassInfo
+internal sealed record ClassInfo(string Namespace, string TypeName, ImmutableArray<string> ParentTypes)
 {
-	public static ClassInfo Create(ITypeSymbol type, string? fileNameSuffix = null)
+	public static ClassInfo Create(ITypeSymbol type)
 	{
 		var parentTypes = type.GetContainingTypeNames();
 		var ns = type.ContainingNamespace.GetFullName();
-		var fileName = GetFileName(ns, type.Name, parentTypes, fileNameSuffix);
-		return new(ns, type.Name, fileName, parentTypes);
+		return new(ns, type.Name, parentTypes);
 	}
 
-	private static string GetFileName(string @namespace, string typeName, ImmutableArray<string> parentTypes, string? suffix)
+	public string GetFileName(string? suffix = null)
 	{
-		var sb = new StringBuilder(@namespace).Append('.');
+		var sb = new StringBuilder(Namespace).Append('.');
 
-		for (var i = parentTypes.Length; --i >= 0;)
-			sb.Append(parentTypes[i]).Append('+');
+		for (var i = ParentTypes.Length; --i >= 0;)
+			sb.Append(ParentTypes[i]).Append('+');
 
-		sb.Append(typeName);
+		sb.Append(TypeName);
 
 		if (suffix != null)
 			sb.Append('.').Append(suffix);
 
 		return sb.Append(".g.cs").ToString();
-	}
-
-	public readonly string Namespace;
-	public readonly string TypeName;
-	public readonly string FileName;
-	public readonly ImmutableArray<string> ParentTypes;
-
-	private ClassInfo(string @namespace, string typeName, string fileName, ImmutableArray<string> parentTypes)
-	{
-		Namespace = @namespace;
-		TypeName = typeName;
-		FileName = fileName;
-		ParentTypes = parentTypes;
-	}
-
-	public void Deconstruct(out string @namespace, out string typeName, out string fileName, out ImmutableArray<string> parentTypes)
-	{
-		@namespace = Namespace;
-		typeName = TypeName;
-		fileName = FileName;
-		parentTypes = ParentTypes;
 	}
 }

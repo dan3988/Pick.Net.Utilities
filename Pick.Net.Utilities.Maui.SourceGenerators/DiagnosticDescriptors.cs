@@ -36,8 +36,17 @@ internal static class DiagnosticDescriptors
 		}
 	}
 
-	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
+	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
+		"placeholder",
+		"Duplicate BindableProperty: {0}",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
+		Prefix + "0002",
 		"Supplied DefaultMode value is not a known value",
 		"Unknown DefaultMode value: {0}",
 		Category,
@@ -46,7 +55,7 @@ internal static class DiagnosticDescriptors
 		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		Prefix + "0002",
+		Prefix + "0003",
 		"Value of DefaultValue will not be used",
 		"Setting DefaultValue will have no effect when DefaultValueFactory is true",
 		Category,
@@ -55,7 +64,7 @@ internal static class DiagnosticDescriptors
 		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
-		Prefix + "0003",
+		Prefix + "0004",
 		"No default value or value generator for non-nullable property",
 		"The default value of non-nullable property {0} will be null",
 		Category,

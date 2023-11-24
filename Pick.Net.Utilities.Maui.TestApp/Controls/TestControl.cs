@@ -22,8 +22,8 @@ public partial class TestControl : BindableObject
 	[BindableProperty(DefaultValueFactory = true)]
 	public string TransformedText
 	{
-		get => (string)GetValue(TextProperty);
-		private set => SetValue(TextPropertyKey, value);
+		get => (string)GetValue(TransformedTextProperty);
+		private set => SetValue(TransformedTextPropertyKey, value);
 	}
 
 	[BindableProperty(DefaultValue = 0)]

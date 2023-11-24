@@ -1,18 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Reflection;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
 internal static class GeneratorExtensions
 {
-	private sealed record Grouping<TKey, TValue>(TKey Key, IEnumerable<TValue> Values) : IGrouping<TKey, TValue>
+	private static readonly Dictionary<SyntaxKind, AttributeTargets> TargetsMap = new()
 	{
-		public IEnumerator<TValue> GetEnumerator()
-			=> Values.GetEnumerator();
-
-		IEnumerator IEnumerable.GetEnumerator()
-			=> GetEnumerator();
-	}
+		[SyntaxKind.ClassDeclaration]		= AttributeTargets.Class,
+		[SyntaxKind.ConstructorDeclaration] = AttributeTargets.Constructor,
+		[SyntaxKind.DelegateDeclaration]	= AttributeTargets.Delegate,
+		[SyntaxKind.EnumDeclaration]		= AttributeTargets.Enum,
+		[SyntaxKind.EventDeclaration]		= AttributeTargets.Event,
+		[SyntaxKind.FieldDeclaration]		= AttributeTargets.Field,
+		[SyntaxKind.GenericName]			= AttributeTargets.GenericParameter,
+		[SyntaxKind.InterfaceDeclaration]	= AttributeTargets.Interface,
+		[SyntaxKind.MethodDeclaration]		= AttributeTargets.Method | AttributeTargets.ReturnValue,
+		[SyntaxKind.Parameter]				= AttributeTargets.Parameter,
+		[SyntaxKind.PropertyDeclaration]	= AttributeTargets.Property,
+		[SyntaxKind.StructDeclaration]		= AttributeTargets.Struct,
+	};
 
 	public static IncrementalValuesProvider<IGrouping<TKey, T>> GroupBy<T, TKey>(this IncrementalValuesProvider<T> source, Func<T, TKey> keySelector)
 		=> GroupBy(source, keySelector, v => v);
@@ -40,5 +48,26 @@ internal static class GeneratorExtensions
 
 			return builder.ToImmutable();
 		});
+	}
+
+	public static IncrementalValuesProvider<T> ForAttributeWithMetadataType<T>(this SyntaxValueProvider provider, Type attributeType, Func<GeneratorAttributeSyntaxContext, CancellationToken, T> transform)
+	{
+		var usage = attributeType.GetCustomAttribute<AttributeUsageAttribute>(true) ?? throw new ArgumentException("AttributeUsageAttribute is not defined on type " + attributeType.FullName);
+		return provider.ForAttributeWithMetadataName(attributeType.FullName!, (node, _) => MatchesTarget(node, usage.ValidOn), transform);
+	}
+
+	private static bool MatchesTarget(SyntaxNode node, AttributeTargets targets)
+	{
+		var kind = node.Kind();
+		return targets == AttributeTargets.All || (TargetsMap.TryGetValue(kind, out var flag) && (targets & flag) == flag);
+	}
+
+	private sealed record Grouping<TKey, TValue>(TKey Key, IEnumerable<TValue> Values) : IGrouping<TKey, TValue>
+	{
+		public IEnumerator<TValue> GetEnumerator()
+			=> Values.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator()
+			=> GetEnumerator();
 	}
 }

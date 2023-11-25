@@ -108,6 +108,33 @@ internal static class DiagnosticDescriptors
 		true,
 		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
 
+	public static readonly DiagnosticDescriptor BindablePropertyNoGetter = new(
+		Prefix + "0009",
+		"Property must have a getter",
+		"Property '{0}' is write only",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Properties with [BindableProperty] must have a get accessor.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInstanceAccessorBody = new(
+		Prefix + "0010",
+		"Use generated BindableProperty in property accessors",
+		"Property with [BindableProperty] does not use generated BindableProperty",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
+
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
+	{
+		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
+		return Diagnostic.Create(descriptor, location, messageArgs);
+	}
+
+	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
+		=> Add(builder, descriptor, owner.GetReference(), messageArgs);
+
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);

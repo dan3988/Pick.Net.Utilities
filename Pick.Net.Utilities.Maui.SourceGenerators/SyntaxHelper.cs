@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
+
+using static SyntaxFactory;
 
 internal static class SyntaxHelper
 {

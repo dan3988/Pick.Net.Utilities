@@ -123,17 +123,35 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
 	}
 
-	private static CreateResult CreateForProperty(IPropertySymbol symbol, AttributeData attribute)
+	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
 	{
+		if (symbol.GetMethod == null)
+		{
+			var error = DiagnosticDescriptors.BindablePropertyNoGetter.CreateDiagnostic(node.GetReference(), symbol.Name);
+			return new CreateResult(error);
+		}
+
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		var accessibility = symbol.DeclaredAccessibility;
-		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
+		var writeAccessibility = Accessibility.Private;
+		if (symbol.SetMethod != null)
+		{
+			writeAccessibility = symbol.SetMethod.DeclaredAccessibility;
+
+			//check if the property is an auto-property
+			var backingField = symbol.ContainingType.GetMembers().FirstOrDefault(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
+			if (backingField != null)
+			{
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAccessorBody, node.GetReference());
+			}
+		}
+
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
 		return new(generator, diagnostics.ToImmutable());
 	}
 
-	private static CreateResult CreateForMethod(IMethodSymbol symbol, AttributeData attribute)
+	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute)
 	{
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		var name = symbol.Name;
@@ -143,19 +161,19 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 		else
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, attribute.ApplicationSyntaxReference, name);
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, node, name);
 		}
 
 		if (symbol.ReturnsVoid)
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, attribute.ApplicationSyntaxReference, name);
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, node, name);
 			return new(diagnostics);
 		}
 
 		var arguments = symbol.Parameters;
 		if (arguments.Length != 1)
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, attribute.ApplicationSyntaxReference, name);
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, node, name);
 			return new(diagnostics);
 		}
 
@@ -169,8 +187,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		return context.TargetSymbol.Kind switch
 		{
-			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.Attributes[0]),
+			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, (PropertyDeclarationSyntax)context.TargetNode, context.Attributes[0]),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.Attributes[0]),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 	}

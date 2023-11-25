@@ -106,7 +106,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			}
 		}
 
-		var hasDefaultValue = !defaultModeSyntax.IsKind(SyntaxKind.NullLiteralExpression);
+		var hasDefaultValue = !defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression);
 		if (hasDefaultValue)
 		{
 			if (defaultValueFactory)

@@ -61,6 +61,9 @@ internal static class SymbolHelper
 	public static string GetFullName(this INamespaceSymbol symbol)
 		=> symbol.ToDisplayString(FullNamespaceFormat);
 
+	public static bool IsAutoProperty(this IPropertySymbol symbol)
+		=> symbol.ContainingType.GetMembers().Any(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
+
 	public static IdentifierNameSyntax ToIdentifier(this ITypeSymbol type)
 	{
 		var name = GetFullTypeName(type);

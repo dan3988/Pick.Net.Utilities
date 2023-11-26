@@ -144,6 +144,12 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
 
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
+	{
+		var location = Location.Create(owner.SyntaxTree, owner.Span);
+		return Diagnostic.Create(descriptor, location, messageArgs);
+	}
+
 	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
@@ -151,7 +157,11 @@ internal static class DiagnosticDescriptors
 	}
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
-		=> Add(builder, descriptor, owner.GetReference(), messageArgs);
+	{
+		var location = Location.Create(owner.SyntaxTree, owner.Span);
+		var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
+		builder.Add(diagnostic);
+	}
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{

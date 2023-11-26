@@ -127,27 +127,23 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		if (symbol.GetMethod == null)
 		{
-			var error = DiagnosticDescriptors.BindablePropertyNoGetter.CreateDiagnostic(node.GetReference(), symbol.Name);
+			var error = DiagnosticDescriptors.BindablePropertyNoGetter.CreateDiagnostic(node, symbol.Name);
 			return new CreateResult(error);
 		}
 
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		var accessibility = symbol.DeclaredAccessibility;
-		var writeAccessibility = Accessibility.Private;
-		if (symbol.SetMethod != null)
+		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
+		var isAutoProperty = symbol.IsAutoProperty();
+		if (isAutoProperty)
 		{
-			writeAccessibility = symbol.SetMethod.DeclaredAccessibility;
-
-			//check if the property is an auto-property
-			var backingField = symbol.ContainingType.GetMembers().FirstOrDefault(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
-			if (backingField != null)
-			{
-				diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty, node.GetReference());
-			}
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty, node);
 		}
-
-		CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.GetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInGetter);
-		CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.SetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInSetter);
+		else
+		{
+			CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.GetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInGetter);
+			CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.SetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInSetter);
+		}
 
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);

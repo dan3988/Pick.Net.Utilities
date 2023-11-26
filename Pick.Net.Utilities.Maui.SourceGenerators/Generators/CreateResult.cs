@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 internal readonly record struct CreateResult(SyntaxReference? Owner, INamedTypeSymbol DeclaringType, BindablePropertySyntaxGenerator? Result, ImmutableArray<Diagnostic> Diagnostics = default)
 {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
+﻿using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Immutable;
 using System.Reflection;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;

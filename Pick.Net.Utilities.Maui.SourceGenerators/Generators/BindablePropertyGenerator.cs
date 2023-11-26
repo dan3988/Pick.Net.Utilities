@@ -1,11 +1,11 @@
-﻿using System.Collections.Immutable;
-using System.Text;
+﻿using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 using static SyntaxFactory;
+
 using DiagnosticsBuilder = ImmutableArray<Diagnostic>.Builder;
 
 [Generator]

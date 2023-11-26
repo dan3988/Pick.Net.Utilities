@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text;
+﻿using System.Text;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 

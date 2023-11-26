@@ -12,9 +12,9 @@ public abstract class BaseCodeFixProvider : CodeFixProvider
 		FixableDiagnosticIds = ImmutableArray.Create(dignostic.Id);
 	}
 
-	protected BaseCodeFixProvider(params DiagnosticDescriptor[] dignostics)
+	protected BaseCodeFixProvider(DiagnosticDescriptor first, params DiagnosticDescriptor[] rest)
 	{
-		FixableDiagnosticIds = dignostics.Select(v => v.Id).ToImmutableArray();
+		FixableDiagnosticIds = rest.Length == 0 ? ImmutableArray.Create(first.Id) : Enumerable.Repeat(first, 1).Concat(rest).Select(v => v.Id).ToImmutableArray();
 	}
 
 	public override FixAllProvider GetFixAllProvider()
@@ -48,7 +48,7 @@ public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : Syn
 	{
 	}
 
-	protected BaseCodeFixProvider(params DiagnosticDescriptor[] dignostics) : base(dignostics)
+	protected BaseCodeFixProvider(DiagnosticDescriptor first, params DiagnosticDescriptor[] rest) : base(first, rest)
 	{
 	}
 

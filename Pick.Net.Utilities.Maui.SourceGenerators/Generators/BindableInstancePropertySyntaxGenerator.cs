@@ -12,6 +12,10 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 	{
 	}
 
+	protected override void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField)
+	{
+	}
+
 	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method)
 	{
 		method = MethodDeclaration(propertyType, $"Generate{PropertyName}DefaultValue")

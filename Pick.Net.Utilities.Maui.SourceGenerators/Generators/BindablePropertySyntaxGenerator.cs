@@ -122,6 +122,8 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
 
+	protected abstract void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField);
+
 	public void GenerateMembers(ICollection<MemberDeclarationSyntax> members)
 	{
 		var readModifiers = Accessibility.ToSyntaxList();
@@ -132,10 +134,12 @@ internal abstract class BindablePropertySyntaxGenerator
 			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(PropertyName + "PropertyKey");
 			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, NameBindablePropertyKey, CreateReadOnlyMethod);
 			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField);
+			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyKeyField);
 		}
 		else
 		{
 			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, NameBindableProperty, CreateMethod);
+			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyField);
 		}
 	}
 }

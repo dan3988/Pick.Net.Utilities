@@ -195,7 +195,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		var accessibility = symbol.DeclaredAccessibility;
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, symbol.ReturnType, accessibility, accessibility, out var props);
-		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type);
+		var generatedGetterModifiers = symbol.IsPartialDefinition ? node.Modifiers : default;
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type, generatedGetterModifiers, generatedGetterModifiers);
 		return new(generator, diagnostics);
 	}
 

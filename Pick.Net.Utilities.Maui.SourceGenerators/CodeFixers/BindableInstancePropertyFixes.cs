@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
 
-using Microsoft.CodeAnalysis.Formatting;
-
 using Pick.Net.Utilities.Maui.Helpers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
@@ -16,28 +14,20 @@ public static class BindableInstancePropertyFixes
 
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
-	private static AccessorDeclarationSyntax GenerateGetter(TypeSyntax propertyType, TypeSyntax bindablePropertyField)
+	private static AccessorDeclarationSyntax GenerateGetter(AccessorDeclarationSyntax node, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
 		var expression = CastExpression(propertyType, InvocationExpression(NameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
-
-		return AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken()
-			.WithAdditionalAnnotations(Formatter.Annotation);
+		return node.WithExpressionBody(ArrowExpressionClause(expression));
 	}
 
-	private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField, SyntaxTokenList accessors)
+	private static AccessorDeclarationSyntax GenerateSetter(AccessorDeclarationSyntax node, TypeSyntax bindablePropertyField)
 	{
 		var expression = InvocationExpression(NameSetValue)
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
 				Argument(NameValue));
 
-		return AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-			.WithModifiers(accessors)
-			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken()
-			.WithAdditionalAnnotations(Formatter.Annotation);
+		return node.WithExpressionBody(ArrowExpressionClause(expression));
 	}
 
 	internal static AccessorDeclarationSyntax GeneratePropertyGetter(AccessorDeclarationSyntax node)
@@ -45,7 +35,7 @@ public static class BindableInstancePropertyFixes
 		if (node.Parent is AccessorListSyntax { Parent: PropertyDeclarationSyntax prop })
 		{
 			var field = IdentifierName(prop.Identifier.Text + "Property");
-			node = GenerateGetter(prop.Type, field);
+			node = GenerateGetter(node, prop.Type, field);
 		}
 
 		return node;
@@ -57,7 +47,7 @@ public static class BindableInstancePropertyFixes
 		{
 			var suffix = node.Modifiers.Count == 0 ? "Property" : "PropertyKey";
 			var field = IdentifierName(prop.Identifier.Text + suffix);
-			node = GenerateSetter(field, node.Modifiers);
+			node = GenerateSetter(node, field);
 		}
 
 		return node;
@@ -71,7 +61,7 @@ public static class BindableInstancePropertyFixes
 		var getter = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(SyntaxKind.GetAccessorDeclaration));
 		if (getter != null)
 		{
-			var accessor = GenerateGetter(prop.Type, field);
+			var accessor = GenerateGetter(getter, prop.Type, field);
 			accessors.Add(accessor);
 		}
 
@@ -79,13 +69,13 @@ public static class BindableInstancePropertyFixes
 		if (setter != null)
 		{
 			var keyField = setter.Modifiers.Count == 0 ? field : IdentifierName(prop.Identifier.Text + "PropertyKey");
-			var accessor = GenerateSetter(keyField, setter.Modifiers);
+			var accessor = GenerateSetter(setter, keyField);
 			accessors.Add(accessor);
 		}
 
 		MoveInitializerToAttribute(ref prop, model, token);
 
-		return prop.WithAccessorList(AccessorList(new(accessors))).WithTrailingLineBreak().WithAdditionalAnnotations(Formatter.Annotation);
+		return prop.WithAccessorList(AccessorList(new(accessors))).WithTrailingLineBreak();
 	}
 
 	private static void MoveInitializerToAttribute(ref PropertyDeclarationSyntax prop, SemanticModel? model, CancellationToken token)

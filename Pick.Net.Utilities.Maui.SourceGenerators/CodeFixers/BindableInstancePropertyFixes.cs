@@ -17,7 +17,7 @@ public static class BindableInstancePropertyFixes
 	private static AccessorDeclarationSyntax GenerateGetter(AccessorDeclarationSyntax node, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
 		var expression = CastExpression(propertyType, InvocationExpression(NameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
-		return node.WithExpressionBody(ArrowExpressionClause(expression));
+		return node.WithBody(null).WithExpressionBody(ArrowExpressionClause(expression)).WithSemicolonToken();
 	}
 
 	private static AccessorDeclarationSyntax GenerateSetter(AccessorDeclarationSyntax node, TypeSyntax bindablePropertyField)
@@ -27,7 +27,7 @@ public static class BindableInstancePropertyFixes
 				Argument(bindablePropertyField),
 				Argument(NameValue));
 
-		return node.WithExpressionBody(ArrowExpressionClause(expression));
+		return node.WithBody(null).WithExpressionBody(ArrowExpressionClause(expression)).WithSemicolonToken();
 	}
 
 	internal static AccessorDeclarationSyntax GeneratePropertyGetter(AccessorDeclarationSyntax node)

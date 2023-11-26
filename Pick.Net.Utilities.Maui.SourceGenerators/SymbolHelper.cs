@@ -97,4 +97,17 @@ internal static class SymbolHelper
 			return builder.ToImmutable();
 		}
 	}
+
+	public static IEnumerable<IMethodSymbol> SelectMethods(this IEnumerable<ISymbol> source)
+		=> OfType<ISymbol, IMethodSymbol>(source, SymbolKind.Method);
+
+	public static IEnumerable<IPropertySymbol> SelectProperties(this IEnumerable<ISymbol> source)
+		=> OfType<ISymbol, IPropertySymbol>(source, SymbolKind.Property);
+
+	private static IEnumerable<TOut> OfType<TIn, TOut>(IEnumerable<TIn> source, SymbolKind kind)
+		where TIn : class, ISymbol
+		where TOut : TIn
+	{
+		return source.Where(v => v.Kind == kind).Cast<TOut>();
+	}
 }

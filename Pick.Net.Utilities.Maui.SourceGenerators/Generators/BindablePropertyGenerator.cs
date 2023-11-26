@@ -127,6 +127,20 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
 	}
 
+	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
+	{
+		var accessor = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(accessorKind));
+		if (accessor == null)
+			return;
+
+		var suffix = accessor.Modifiers.Count == 0 ? "Property" : "PropertyKey";
+		if (!accessor.SearchRecursive<IdentifierNameSyntax>(v => StringStartsAndEndsWith(v.Identifier.Text, propertyName, suffix)))
+			diagnostics.Add(descriptor, accessor, propertyName);
+	}
+
+	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
+		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
+
 	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
 	{
 		if (symbol.GetMethod == null)
@@ -154,24 +168,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics.ToImmutable());
 	}
 
-	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
-	{
-		var accessor = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(accessorKind));
-		if (accessor == null)
-			return;
-
-		var suffix = accessor.Modifiers.Count == 0 ? "Property" : "PropertyKey";
-		if (!accessor.SearchRecursive<IdentifierNameSyntax>(v => IsBindablePropertyReference(v, propertyName, suffix)))
-			diagnostics.Add(descriptor, accessor, propertyName);
-	}
-
-	private static bool IsBindablePropertyReference(IdentifierNameSyntax syntax, string name, string suffix = "Property")
-	{
-		var text = syntax.Identifier.Text;
-		return text.StartsWith(name) && text.AsSpan(name.Length).Equals(suffix.AsSpan(), StringComparison.Ordinal);
-	}
-
-	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute)
+	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, SemanticModel model, AttributeData attribute, CancellationToken token)
 	{
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		var name = symbol.Name;
@@ -197,11 +194,63 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			return new(node.GetReference(), symbol.ContainingType, diagnostics);
 		}
 
+		var attachedType = arguments[0].Type;
+		var propertyType = symbol.ReturnType;
 		var accessibility = symbol.DeclaredAccessibility;
-		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, symbol.ReturnType, accessibility, accessibility, out var props);
-		var generatedGetterModifiers = symbol.IsPartialDefinition ? node.Modifiers : default;
-		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type.ToIdentifier(), generatedGetterModifiers, generatedGetterModifiers);
+		var writeAccessibility = accessibility;
+		var generatedGetterModifiers = default(SyntaxTokenList);
+		var generatedSetterModifiers = default(SyntaxTokenList);
+
+		if (symbol.IsPartialDefinition)
+		{
+			generatedGetterModifiers = node.Modifiers;
+		}
+
+		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
+		if (setMethod == null)
+		{
+			generatedSetterModifiers = generatedGetterModifiers;
+			var partialIndex = generatedSetterModifiers.IndexOf(SyntaxKind.PartialKeyword);
+			if (partialIndex >= 0)
+				generatedSetterModifiers = generatedSetterModifiers.RemoveAt(partialIndex);
+		}
+		else
+		{
+			writeAccessibility = setMethod.DeclaredAccessibility;
+
+			if (setMethod.IsPartialDefinition)
+			{
+				var location = setMethod.Locations.FirstOrDefault();
+				if (location != null)
+				{
+					var root = location.SourceTree?.GetRoot(token);
+					var setterNode = root?.FindNode(location.SourceSpan) as MethodDeclarationSyntax;
+					if (setterNode != null)
+						generatedSetterModifiers = setterNode.Modifiers;
+				}
+			}
+		}
+
+		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, propertyType, accessibility, writeAccessibility, out var props);
+
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterModifiers, generatedSetterModifiers);
 		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics);
+
+		bool IsSetMethod(IMethodSymbol symbol)
+		{
+			if (!StringStartsAndEndsWith(symbol.Name, "Set", name))
+				return false;
+
+			if (!symbol.ReturnsVoid)
+				return false;
+
+			if (symbol.Parameters.Length != 2)
+				return false;
+
+			var objParam = symbol.Parameters[0];
+			var objValue = symbol.Parameters[1];
+			return SymbolEqualityComparer.Default.Equals(objParam.Type, attachedType) && SymbolEqualityComparer.Default.Equals(objValue.Type, propertyType);
+		}
 	}
 
 	private static CreateResult TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)
@@ -209,7 +258,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return context.TargetSymbol.Kind switch
 		{
 			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, (PropertyDeclarationSyntax)context.TargetNode, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.Attributes[0]),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.SemanticModel, context.Attributes[0], token),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 	}

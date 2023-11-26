@@ -144,6 +144,24 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
 
+	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInGetMethod = new(
+		Prefix + "0013",
+		"Use generated BindableProperty in attached property get method",
+		"Get method for attached property '{0}' does not use generated BindableProperty",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Attached property get methods marked with [BindableProperty] should use the BindableProperty instance that was generated.");
+
+	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInSetMethod = new(
+		Prefix + "0014",
+		"Use generated BindableProperty in attached propert set method",
+		"Set method for attached property '{0}' does not use generated BindableProperty",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Attached property set methods marked with [BindableProperty] should use the BindableProperty instance that was generated.");
+
 	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
 	{
 		var location = Location.Create(owner.SyntaxTree, owner.Span);

@@ -130,12 +130,21 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
 	{
 		var accessor = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(accessorKind));
-		if (accessor == null)
-			return;
+		if (accessor != null)
+			CheckBindablePropertyIsUsed(diagnostics, accessor, accessor, propertyName, accessor.Modifiers.Count != 0, descriptor);
+	}
 
-		var suffix = accessor.Modifiers.Count == 0 ? "Property" : "PropertyKey";
-		if (!accessor.SearchRecursive<IdentifierNameSyntax>(v => StringStartsAndEndsWith(v.Identifier.Text, propertyName, suffix)))
-			diagnostics.Add(descriptor, accessor, propertyName);
+	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, MethodDeclarationSyntax method, string propertyName, bool isReadOnly, DiagnosticDescriptor descriptor)
+	{
+		var syntax = (SyntaxNode?)method.ExpressionBody ?? (SyntaxNode?)method.Body ?? SyntaxHelper.Null;
+		CheckBindablePropertyIsUsed(diagnostics, syntax, method, propertyName, isReadOnly, descriptor);
+	}
+
+	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, SyntaxNode node, SyntaxNode owner, string propertyName, bool isReadOnly, DiagnosticDescriptor descriptor)
+	{
+		var suffix = isReadOnly ? "PropertyKey" : "Property";
+		if (!node.SearchRecursive<IdentifierNameSyntax>(v => StringStartsAndEndsWith(v.Identifier.Text, propertyName, suffix)))
+			diagnostics.Add(descriptor, owner, propertyName);
 	}
 
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
@@ -168,7 +177,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics.ToImmutable());
 	}
 
-	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, SemanticModel model, AttributeData attribute, CancellationToken token)
+	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute, CancellationToken token)
 	{
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		var name = symbol.Name;
@@ -205,6 +214,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		{
 			generatedGetterInfo = new(node.ParameterList, node.Modifiers);
 		}
+		else
+		{
+			CheckBindablePropertyIsUsed(diagnostics, node, name, false, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInGetMethod);
+		}
 
 		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
 		if (setMethod == null)
@@ -220,15 +233,16 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		{
 			writeAccessibility = setMethod.DeclaredAccessibility;
 
-			if (setMethod.IsPartialDefinition)
+			var setterNode = TryGetNode<MethodDeclarationSyntax>(setMethod, token);
+			if (setterNode != null)
 			{
-				var location = setMethod.Locations.FirstOrDefault();
-				if (location != null)
+				if (setMethod.IsPartialDefinition)
 				{
-					var root = location.SourceTree?.GetRoot(token);
-					var setterNode = root?.FindNode(location.SourceSpan) as MethodDeclarationSyntax;
-					if (setterNode != null)
-						generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
+					generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
+				}
+				else
+				{
+					CheckBindablePropertyIsUsed(diagnostics, setterNode, name, writeAccessibility != accessibility, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInSetMethod);
 				}
 			}
 		}
@@ -255,12 +269,24 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
+	private static T? TryGetNode<T>(ISymbol symbol, CancellationToken token) where T : SyntaxNode
+	{
+		foreach (var location in symbol.Locations)
+		{
+			var root = location.SourceTree?.GetRoot(token);
+			if (root?.FindNode(location.SourceSpan) is T node)
+				return node;
+		}
+
+		return null;
+	}
+
 	private static CreateResult TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		return context.TargetSymbol.Kind switch
 		{
 			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, (PropertyDeclarationSyntax)context.TargetNode, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.SemanticModel, context.Attributes[0], token),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.Attributes[0], token),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 	}
@@ -271,7 +297,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var diagnosticsBuilder = ImmutableArray.CreateBuilder<Diagnostic>();
 		var map = new Dictionary<INamedTypeSymbol, Dictionary<string, BindablePropertySyntaxGenerator>>(SymbolEqualityComparer.Default);
 
-		//foreach (var value in values)
 		foreach (var (owner, declaringType, generator, diagnostics) in values)
 		{
 			if (!diagnostics.IsDefaultOrEmpty)

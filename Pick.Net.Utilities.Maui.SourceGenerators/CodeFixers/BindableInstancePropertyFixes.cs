@@ -8,7 +8,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 using static SyntaxFactory;
 
-public static class BindableInstancePropertyAccessorFixerExecute
+public static class BindableInstancePropertyFixes
 {
 	private static readonly IdentifierNameSyntax NameValue = IdentifierName("value");
 	private static readonly IdentifierNameSyntax NameGetValue = IdentifierName("GetValue");
@@ -22,7 +22,8 @@ public static class BindableInstancePropertyAccessorFixerExecute
 
 		return AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
 			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken();
+			.WithSemicolonToken()
+			.WithAdditionalAnnotations(Formatter.Annotation);
 	}
 
 	private static AccessorDeclarationSyntax GenerateSetter(TypeSyntax bindablePropertyField, SyntaxTokenList accessors)
@@ -35,10 +36,34 @@ public static class BindableInstancePropertyAccessorFixerExecute
 		return AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
 			.WithModifiers(accessors)
 			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken();
+			.WithSemicolonToken()
+			.WithAdditionalAnnotations(Formatter.Annotation);
 	}
 
-	internal static PropertyDeclarationSyntax FixProperty(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
+	internal static AccessorDeclarationSyntax GeneratePropertyGetter(AccessorDeclarationSyntax node)
+	{
+		if (node.Parent is AccessorListSyntax { Parent: PropertyDeclarationSyntax prop })
+		{
+			var field = IdentifierName(prop.Identifier.Text + "Property");
+			node = GenerateGetter(prop.Type, field);
+		}
+
+		return node;
+	}
+
+	internal static AccessorDeclarationSyntax GeneratePropertySetter(AccessorDeclarationSyntax node)
+	{
+		if (node.Parent is AccessorListSyntax { Parent: PropertyDeclarationSyntax prop })
+		{
+			var suffix = node.Modifiers.Count == 0 ? "Property" : "PropertyKey";
+			var field = IdentifierName(prop.Identifier.Text + suffix);
+			node = GenerateSetter(field, node.Modifiers);
+		}
+
+		return node;
+	}
+
+	internal static PropertyDeclarationSyntax GeneratePropertyAccessors(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
 	{
 		var field = IdentifierName(prop.Identifier.Text + "Property");
 		var accessors = new List<AccessorDeclarationSyntax>(2);

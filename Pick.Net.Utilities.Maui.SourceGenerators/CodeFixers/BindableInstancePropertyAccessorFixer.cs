@@ -6,11 +6,10 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
-[ExportCodeFixProvider(LanguageNames.CSharp)]
-[Shared]
-public sealed class BindableInstancePropertyAccessorFixer : CodeFixProvider
+[Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
+public sealed class BindableInstancePropertyAutoPropertyFixer : CodeFixProvider
 {
-	public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyInstanceAccessorBody.Id);
+	public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty.Id);
 
 	public override FixAllProvider? GetFixAllProvider()
 		=> WellKnownFixAllProviders.BatchFixer;
@@ -27,19 +26,18 @@ public sealed class BindableInstancePropertyAccessorFixer : CodeFixProvider
 			var span = diagnostic.Location.SourceSpan;
 			if (root!.FindNode(span) is PropertyDeclarationSyntax prop)
 			{
-				var action = CodeAction.Create("Use BindableProperty", token => UseBindableProperty(document, root, prop, token));
+				var action = CodeAction.Create("Use BindableProperty in accessors", token => DoFix(document, root, prop, token));
 				context.RegisterCodeFix(action, diagnostic);
 			}
 		}
 	}
 
-	private static async Task<Document> UseBindableProperty(Document document, SyntaxNode root, PropertyDeclarationSyntax prop, CancellationToken token)
+	private static async Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax prop, CancellationToken token)
 	{
 		var model = await document.GetSemanticModelAsync(token);
-		var newProp = BindableInstancePropertyAccessorFixerExecute.FixProperty(model, prop, token);
+		var newProp = BindableInstancePropertyFixes.GeneratePropertyAccessors(model, prop, token);
 
 		root = root.ReplaceNode(prop, newProp);
 		return document.WithSyntaxRoot(root);
 	}
 }
-

@@ -142,13 +142,33 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			var backingField = symbol.ContainingType.GetMembers().FirstOrDefault(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
 			if (backingField != null)
 			{
-				diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAccessorBody, node.GetReference());
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty, node.GetReference());
 			}
 		}
+
+		CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.GetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInGetter);
+		CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.SetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInSetter);
 
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
 		return new(generator, diagnostics.ToImmutable());
+	}
+
+	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
+	{
+		var accessor = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(accessorKind));
+		if (accessor == null)
+			return;
+
+		var suffix = accessor.Modifiers.Count == 0 ? "Property" : "PropertyKey";
+		if (!accessor.SearchRecursive<IdentifierNameSyntax>(v => IsBindablePropertyReference(v, propertyName, suffix)))
+			diagnostics.Add(descriptor, accessor, propertyName);
+	}
+
+	private static bool IsBindablePropertyReference(IdentifierNameSyntax syntax, string name, string suffix = "Property")
+	{
+		var text = syntax.Identifier.Text;
+		return text.StartsWith(name) && text.AsSpan(name.Length).Equals(suffix.AsSpan(), StringComparison.Ordinal);
 	}
 
 	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute)

@@ -117,10 +117,28 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Properties with [BindableProperty] must have a get accessor.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyInstanceAccessorBody = new(
+	public static readonly DiagnosticDescriptor BindablePropertyInstanceAutoProperty = new(
 		Prefix + "0010",
 		"Use generated BindableProperty in property accessors",
 		"Property with [BindableProperty] does not use generated BindableProperty",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInGetter = new(
+		Prefix + "0011",
+		"Use generated BindableProperty in property getters",
+		"Getter for property '{0}' does not use generated BindableProperty",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInSetter = new(
+		Prefix + "0012",
+		"Use generated BindableProperty in property setter",
+		"Setter for property '{0}' does not use generated BindableProperty",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,

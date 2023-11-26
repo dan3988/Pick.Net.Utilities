@@ -46,6 +46,55 @@ internal static class SyntaxHelper
 		return (T)syntax.Accept(visitor)!;
 	}
 
+	public static bool SearchRecursive<T>(this SyntaxNode node, Func<T, bool> predicate, CancellationToken token = default) where T : SyntaxNode
+		=> SearchRecursive(node, v => v is T t && predicate.Invoke(t), token);
+
+	public static bool SearchRecursive(this SyntaxNode node, Func<SyntaxNode, bool> predicate, CancellationToken token = default)
+	{
+		var stack = new Stack<IEnumerator<SyntaxNode>>();
+		var en = node.ChildNodes().GetEnumerator();
+
+		if (!en.MoveNext())
+		{
+			en.Dispose();
+			return false;
+		}
+
+		try
+		{
+			while (true)
+			{
+				if (predicate.Invoke(en.Current))
+					return true;
+
+				var next = en.Current.ChildNodes().GetEnumerator();
+				if (next.MoveNext())
+				{
+					token.ThrowIfCancellationRequested();
+					stack.Push(en);
+					en = next;
+					continue;
+				}
+
+				while (!en.MoveNext())
+				{
+					if (stack.Count == 0)
+						return false;
+
+					en.Dispose();
+					en = stack.Pop();
+				}
+			}
+		}
+		finally
+		{
+			en.Dispose();
+
+			foreach (var enumerator in stack)
+				enumerator.Dispose();
+		}
+	}
+
 	public static void AddSource(this SourceProductionContext context, string hintName, CompilationUnitSyntax unit)
 		=> AddSource(context, hintName, unit, Encoding.UTF8);
 

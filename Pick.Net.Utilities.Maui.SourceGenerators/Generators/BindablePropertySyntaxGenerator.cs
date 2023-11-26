@@ -25,13 +25,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		members.Add(field);
 	}
 
-	public SyntaxReference? Owner { get; }
-
-	public INamedTypeSymbol DeclaringType { get; }
+	public TypeSyntax DeclaringType { get; }
 
 	public string PropertyName { get; }
 
-	public ITypeSymbol PropertyType { get; }
+	public TypeSyntax PropertyType2 { get; }
+
+	public TypeSyntax AnnotatedPropertyType { get; }
 
 	public Accessibility Accessibility { get; }
 
@@ -53,24 +53,21 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
 	{
-		(Owner, DeclaringType, PropertyName, PropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
+		(PropertyName, DeclaringType, PropertyType2, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
 	}
 
 	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
 	{
 		var arguments = new ExpressionSyntax[10];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
-		arguments[1] = GetTypeOfExpression(PropertyType);
-		arguments[2] = GetTypeOfExpression(DeclaringType);
+		arguments[1] = SyntaxFactory.TypeOfExpression(PropertyType2);
+		arguments[2] = SyntaxFactory.TypeOfExpression(DeclaringType);
 		arguments[3] = DefaultValueSyntax;
 		arguments[4] = DefaultModeSyntax;
 
-		var propertyType = PropertyType.ToIdentifier();
-		var declaringType = DeclaringType.ToIdentifier();
-
 		if (ValidateValueCallback)
 		{
-			arguments[5] = CreateValidateValueHandler(propertyType, declaringType, out var method);
+			arguments[5] = CreateValidateValueHandler(out var method);
 			members.Add(method);
 		}
 		else
@@ -78,15 +75,15 @@ internal abstract class BindablePropertySyntaxGenerator
 			arguments[5] = SyntaxHelper.Null;
 		}
 
-		arguments[6] = CreateChangeHandler(propertyType, declaringType, $"On{PropertyName}Changing", out var onChanging);
-		arguments[7] = CreateChangeHandler(propertyType, declaringType, $"On{PropertyName}Changed", out var onChanged);
+		arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
+		arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
 
 		members.Add(onChanging);
 		members.Add(onChanged);
 
 		if (CoerceValueCallback)
 		{
-			arguments[8] = CreateCoerceValueHandler(propertyType, declaringType, out var method);
+			arguments[8] = CreateCoerceValueHandler(out var method);
 			members.Add(method);
 		}
 		else
@@ -96,7 +93,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 		if (DefaultValueFactory)
 		{
-			arguments[9] = CreateDefaultValueGenerator(propertyType, declaringType, out var method);
+			arguments[9] = CreateDefaultValueGenerator(out var method);
 			members.Add(method);
 		}
 		else
@@ -114,13 +111,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		members.Add(field);
 	}
 
-	protected abstract LambdaExpressionSyntax CreateChangeHandler(TypeSyntax propertyType, TypeSyntax declaringType, string name, out MethodDeclarationSyntax method);
+	protected abstract LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method);
 
-	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
+	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method);
 
-	protected abstract LambdaExpressionSyntax CreateCoerceValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
+	protected abstract LambdaExpressionSyntax CreateCoerceValueHandler(out MethodDeclarationSyntax method);
 
-	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method);
+	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method);
 
 	protected abstract void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField);
 

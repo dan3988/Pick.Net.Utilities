@@ -119,7 +119,11 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNull, attribute.ApplicationSyntaxReference);
 		}
 
-		result = new SyntaxGeneratorSharedProperties(attribute.ApplicationSyntaxReference, declaringType, propertyName, propertyType, accessibility, writeAccessibility,
+		var declaringTypeSyntax = declaringType.ToIdentifier();
+		var annotatedPropertyTypeSyntax = propertyType.ToIdentifier(true);
+		var propertyTypeSyntax = propertyType.ToIdentifier();
+
+		result = new SyntaxGeneratorSharedProperties(propertyName, declaringTypeSyntax, propertyTypeSyntax, annotatedPropertyTypeSyntax, accessibility, writeAccessibility,
 			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
 	}
 
@@ -128,7 +132,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		if (symbol.GetMethod == null)
 		{
 			var error = DiagnosticDescriptors.BindablePropertyNoGetter.CreateDiagnostic(node, symbol.Name);
-			return new CreateResult(error);
+			return new(node.GetReference(), symbol.ContainingType, error);
 		}
 
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
@@ -147,7 +151,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
-		return new(generator, diagnostics.ToImmutable());
+		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics.ToImmutable());
 	}
 
 	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
@@ -183,21 +187,21 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		if (symbol.ReturnsVoid)
 		{
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, node, name);
-			return new(diagnostics);
+			return new(node.GetReference(), symbol.ContainingType, diagnostics);
 		}
 
 		var arguments = symbol.Parameters;
 		if (arguments.Length != 1)
 		{
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, node, name);
-			return new(diagnostics);
+			return new(node.GetReference(), symbol.ContainingType, diagnostics);
 		}
 
 		var accessibility = symbol.DeclaredAccessibility;
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, symbol.ReturnType, accessibility, accessibility, out var props);
 		var generatedGetterModifiers = symbol.IsPartialDefinition ? node.Modifiers : default;
-		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type, generatedGetterModifiers, generatedGetterModifiers);
-		return new(generator, diagnostics);
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, arguments[0].Type.ToIdentifier(), generatedGetterModifiers, generatedGetterModifiers);
+		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics);
 	}
 
 	private static CreateResult TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)
@@ -217,7 +221,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var map = new Dictionary<INamedTypeSymbol, Dictionary<string, BindablePropertySyntaxGenerator>>(SymbolEqualityComparer.Default);
 
 		//foreach (var value in values)
-		foreach (var (generator, diagnostics) in values)
+		foreach (var (owner, declaringType, generator, diagnostics) in values)
 		{
 			if (!diagnostics.IsDefaultOrEmpty)
 				diagnosticsBuilder.AddRange(diagnostics);
@@ -225,14 +229,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			if (generator == null)
 				continue;
 
-			if (!map.TryGetValue(generator.DeclaringType, out var namedProperties))
+			if (!map.TryGetValue(declaringType, out var namedProperties))
 			{
-				map[generator.DeclaringType] = namedProperties = new();
-				types.Add(new(generator.DeclaringType, namedProperties.Values));
+				map[declaringType] = namedProperties = new();
+				types.Add(new(declaringType, namedProperties.Values));
 			}
 			else if (namedProperties.ContainsKey(generator.PropertyName))
 			{
-				diagnosticsBuilder.Add(DiagnosticDescriptors.BindablePropertyDuplicateName, generator.Owner);
+				diagnosticsBuilder.Add(DiagnosticDescriptors.BindablePropertyDuplicateName, owner);
 				continue;
 			}
 

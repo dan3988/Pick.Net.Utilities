@@ -16,65 +16,65 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 	{
 	}
 
-	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method)
+	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method)
 	{
-		method = MethodDeclaration(propertyType, $"Generate{PropertyName}DefaultValue")
+		method = MethodDeclaration(AnnotatedPropertyType, $"Generate{PropertyName}DefaultValue")
 			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
 			.WithSemicolonToken();
 
 		var paramBindable = Parameter(Identifier("bindable"));
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable }));
 		var body = InvocationExpression(
-				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)));
+				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)));
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 
-	protected override LambdaExpressionSyntax CreateValidateValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method)
+	protected override LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));
 		var paramValue = Parameter(Identifier("value"));
 
 		method = MethodDeclaration(SyntaxHelper.TypeBoolean, $"Validate{PropertyName}Value")
 			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
-			.AddParameterListParameters(paramValue.WithType(propertyType))
+			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramValue }));
 		var methodReference = MemberAccessExpression(
 			SyntaxKind.SimpleMemberAccessExpression,
-			CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
+			CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
 			IdentifierName(method.Identifier));
 
-		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(propertyType, IdentifierName(paramValue.Identifier)));
+		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(AnnotatedPropertyType, IdentifierName(paramValue.Identifier)));
 		var body = InvocationExpression(methodReference, methodArguments);
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 
-	protected override LambdaExpressionSyntax CreateCoerceValueHandler(TypeSyntax propertyType, TypeSyntax declaringType, out MethodDeclarationSyntax method)
+	protected override LambdaExpressionSyntax CreateCoerceValueHandler(out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));
 		var paramValue = Parameter(Identifier("value"));
 
-		method = MethodDeclaration(propertyType, $"Coerce{PropertyName}Value")
+		method = MethodDeclaration(AnnotatedPropertyType, $"Coerce{PropertyName}Value")
 			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
-			.AddParameterListParameters(paramValue.WithType(propertyType))
+			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramValue }));
 		var methodReference = MemberAccessExpression(
 			SyntaxKind.SimpleMemberAccessExpression,
-			CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
+			CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(),
 			IdentifierName(method.Identifier));
 
-		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(propertyType, IdentifierName(paramValue.Identifier)));
+		var methodArguments = SyntaxHelper.ArgumentList(CastExpression(AnnotatedPropertyType, IdentifierName(paramValue.Identifier)));
 		var body = InvocationExpression(methodReference, methodArguments);
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 
-	protected override LambdaExpressionSyntax CreateChangeHandler(TypeSyntax propertyType, TypeSyntax declaringType, string name, out MethodDeclarationSyntax method)
+	protected override LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));
 		var paramOldValue = Parameter(Identifier("oldValue"));
@@ -83,16 +83,16 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 		method = MethodDeclaration(SyntaxHelper.TypeVoid, name)
 			.AddModifier(SyntaxKind.PartialKeyword)
 			.AddParameterListParameters(
-				paramOldValue.WithType(propertyType),
-				paramNewValue.WithType(propertyType))
+				paramOldValue.WithType(AnnotatedPropertyType),
+				paramNewValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramOldValue, paramNewValue }));
 		var body = InvocationExpression(
-				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)))
+				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)))
 			.AddArgumentListArguments(
-				Argument(CastExpression(propertyType, IdentifierName(paramOldValue.Identifier))),
-				Argument(CastExpression(propertyType, IdentifierName(paramNewValue.Identifier))));
+				Argument(CastExpression(AnnotatedPropertyType, IdentifierName(paramOldValue.Identifier))),
+				Argument(CastExpression(AnnotatedPropertyType, IdentifierName(paramNewValue.Identifier))));
 
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}

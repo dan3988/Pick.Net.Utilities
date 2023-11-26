@@ -55,8 +55,8 @@ internal static class SymbolHelper
 	public static bool TryGetTypeCode(this SpecialType type, out TypeCode typeCode)
 		=> specialTypesMap.TryGetValue(type, out typeCode);
 
-	public static string GetFullTypeName(this ITypeSymbol symbol)
-		=> symbol.ToDisplayString(FullTypeNameFormat);
+	public static string GetFullTypeName(this ITypeSymbol symbol, bool incluceNullableAnnotation)
+		=> symbol.ToDisplayString(incluceNullableAnnotation ? FullTypeNameFormat : SymbolDisplayFormat.FullyQualifiedFormat);
 
 	public static string GetFullName(this INamespaceSymbol symbol)
 		=> symbol.ToDisplayString(FullNamespaceFormat);
@@ -64,9 +64,9 @@ internal static class SymbolHelper
 	public static bool IsAutoProperty(this IPropertySymbol symbol)
 		=> symbol.ContainingType.GetMembers().Any(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
 
-	public static IdentifierNameSyntax ToIdentifier(this ITypeSymbol type)
+	public static IdentifierNameSyntax ToIdentifier(this ITypeSymbol type, bool incluceNullableAnnotation = false)
 	{
-		var name = GetFullTypeName(type);
+		var name = GetFullTypeName(type, incluceNullableAnnotation);
 		return IdentifierName(name);
 	}
 

@@ -1,10 +1,10 @@
 ﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 internal readonly record struct SyntaxGeneratorSharedProperties(
-	SyntaxReference? Owner,
-	INamedTypeSymbol DeclaringType,
 	string PropertyName,
-	ITypeSymbol PropertyType,
+	TypeSyntax DeclaringType,
+	TypeSyntax PropertyType,
+	TypeSyntax AnnotatedPropertyType,
 	Accessibility Accessibility,
 	Accessibility WriteAccessibility,
 	ExpressionSyntax DefaultValueSyntax,

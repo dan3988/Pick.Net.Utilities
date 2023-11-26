@@ -198,21 +198,23 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var propertyType = symbol.ReturnType;
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = accessibility;
-		var generatedGetterModifiers = default(SyntaxTokenList);
-		var generatedSetterModifiers = default(SyntaxTokenList);
+		var generatedGetterInfo = default(AttachedPropertyGetterInfo);
+		var generatedSetterInfo = default(AttachedPropertySetterInfo);
 
 		if (symbol.IsPartialDefinition)
 		{
-			generatedGetterModifiers = node.Modifiers;
+			generatedGetterInfo = new(node.ParameterList, node.Modifiers);
 		}
 
 		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
 		if (setMethod == null)
 		{
-			generatedSetterModifiers = generatedGetterModifiers;
-			var partialIndex = generatedSetterModifiers.IndexOf(SyntaxKind.PartialKeyword);
+			var modifiers = node.Modifiers;
+			var partialIndex = modifiers.IndexOf(SyntaxKind.PartialKeyword);
 			if (partialIndex >= 0)
-				generatedSetterModifiers = generatedSetterModifiers.RemoveAt(partialIndex);
+				modifiers = modifiers.RemoveAt(partialIndex);
+
+			generatedSetterInfo = new(node.ParameterList, modifiers);
 		}
 		else
 		{
@@ -226,14 +228,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					var root = location.SourceTree?.GetRoot(token);
 					var setterNode = root?.FindNode(location.SourceSpan) as MethodDeclarationSyntax;
 					if (setterNode != null)
-						generatedSetterModifiers = setterNode.Modifiers;
+						generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
 				}
 			}
 		}
 
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, propertyType, accessibility, writeAccessibility, out var props);
 
-		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterModifiers, generatedSetterModifiers);
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterInfo, generatedSetterInfo);
 		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics);
 
 		bool IsSetMethod(IMethodSymbol symbol)

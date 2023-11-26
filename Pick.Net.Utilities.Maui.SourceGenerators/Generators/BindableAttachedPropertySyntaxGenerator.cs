@@ -4,33 +4,33 @@ using static SyntaxFactory;
 
 internal sealed class BindableAttachedPropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(SyntaxTokenList modifiers, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
+	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(AttachedPropertyGetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var paramObj = Parameter(Identifier("obj")).WithType(attachedType);
+		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var expression = CastExpression(propertyType,
-				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), BindablePropertyNames.GetValue))
+				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), BindablePropertyNames.GetValue))
 					.AddArgumentListArguments(Argument(bindablePropertyField)));
 
 		return MethodDeclaration(propertyType, "Get" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj })))
 			.WithReturnType(propertyType)
-			.WithModifiers(modifiers)
+			.WithModifiers(info.Modifiers)
 			.WithExpressionBody(ArrowExpressionClause(expression))
 			.WithSemicolonToken();
 	}
 
-	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(SyntaxTokenList modifiers, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
+	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(AttachedPropertySetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var paramObj = Parameter(Identifier("obj")).WithType(attachedType);
-		var paramValue = Parameter(BindablePropertyNames.Value.Identifier).WithType(propertyType);
-		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), BindablePropertyNames.SetValue))
+		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
+		var paramValue = Parameter(info.ValueParamName).WithType(propertyType);
+		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), BindablePropertyNames.SetValue))
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(BindablePropertyNames.Value));
+				Argument(IdentifierName(info.ValueParamName)));
 
 		return MethodDeclaration(SyntaxHelper.TypeVoid, "Set" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))
-			.WithModifiers(modifiers)
+			.WithModifiers(info.Modifiers)
 			.WithExpressionBody(ArrowExpressionClause(expression))
 			.WithSemicolonToken();
 	}
@@ -41,24 +41,24 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 
 	public TypeSyntax AttachedType { get; }
 
-	public SyntaxTokenList GetMethodModifiers { get; }
+	public AttachedPropertyGetterInfo? GetMethodGeneration { get; }
 
-	public SyntaxTokenList SetMethodModifiers { get; }
+	public AttachedPropertySetterInfo? SetMethodGeneration { get; }
 
-	internal BindableAttachedPropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties, TypeSyntax attachedType, SyntaxTokenList getMethodModifiers, SyntaxTokenList setMethodModifiers) : base(in properties)
+	internal BindableAttachedPropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties, TypeSyntax attachedType, AttachedPropertyGetterInfo? getMethodGeneration, AttachedPropertySetterInfo? setMethodGeneration) : base(in properties)
 	{
 		AttachedType = attachedType;
-		GetMethodModifiers = getMethodModifiers;
-		SetMethodModifiers = setMethodModifiers;
+		GetMethodGeneration = getMethodGeneration;
+		SetMethodGeneration = setMethodGeneration;
 	}
 
 	protected override void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField)
 	{
-		if (GetMethodModifiers.Count > 0)
-			members.Add(GenerateAttachedBindablePropertyGetMethod(GetMethodModifiers, AnnotatedPropertyType, PropertyName, AttachedType, propertyField));
+		if (GetMethodGeneration != null)
+			members.Add(GenerateAttachedBindablePropertyGetMethod(GetMethodGeneration, AnnotatedPropertyType, PropertyName, AttachedType, propertyField));
 
-		if (SetMethodModifiers.Count > 0)
-			members.Add(GenerateAttachedBindablePropertySetMethod(SetMethodModifiers, AnnotatedPropertyType, PropertyName, AttachedType, propertyKeyField));
+		if (SetMethodGeneration != null)
+			members.Add(GenerateAttachedBindablePropertySetMethod(SetMethodGeneration, AnnotatedPropertyType, PropertyName, AttachedType, propertyKeyField));
 	}
 
 	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method)

@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Composition;
+﻿using System.Composition;
 
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -7,30 +6,14 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyAutoPropertyFixer : CodeFixProvider
+public sealed class BindableInstancePropertyAutoPropertyFixer : BaseCodeFixProvider<PropertyDeclarationSyntax>
 {
-	public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty.Id);
-
-	public override FixAllProvider? GetFixAllProvider()
-		=> WellKnownFixAllProviders.BatchFixer;
-
-	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+	public BindableInstancePropertyAutoPropertyFixer() : base(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty)
 	{
-		var document = context.Document;
-		var root = await document.GetSyntaxRootAsync(context.CancellationToken);
-		if (root == null)
-			return;
-
-		foreach (var diagnostic in context.Diagnostics)
-		{
-			var span = diagnostic.Location.SourceSpan;
-			if (root!.FindNode(span) is PropertyDeclarationSyntax prop)
-			{
-				var action = CodeAction.Create("Use BindableProperty in accessors", token => DoFix(document, root, prop, token));
-				context.RegisterCodeFix(action, diagnostic);
-			}
-		}
 	}
+
+	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
+		=> CodeAction.Create("Use BindableProperty in accessors", token => DoFix(document, root, node, token));
 
 	private static async Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax prop, CancellationToken token)
 	{

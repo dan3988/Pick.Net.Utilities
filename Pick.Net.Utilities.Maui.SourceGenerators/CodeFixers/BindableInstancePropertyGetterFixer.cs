@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Composition;
+﻿using System.Composition;
 
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -7,30 +6,14 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyGetterFixer : CodeFixProvider
+public sealed class BindableInstancePropertyGetterFixer : BaseCodeFixProvider<AccessorDeclarationSyntax>
 {
-	public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyNotReferencedInGetter.Id);
-
-	public override FixAllProvider? GetFixAllProvider()
-		=> WellKnownFixAllProviders.BatchFixer;
-
-	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+	public BindableInstancePropertyGetterFixer() : base(DiagnosticDescriptors.BindablePropertyNotReferencedInGetter)
 	{
-		var document = context.Document;
-		var root = await document.GetSyntaxRootAsync(context.CancellationToken);
-		if (root == null)
-			return;
-
-		foreach (var diagnostic in context.Diagnostics)
-		{
-			var span = diagnostic.Location.SourceSpan;
-			if (root!.FindNode(span) is AccessorDeclarationSyntax prop)
-			{
-				var action = CodeAction.Create("Generate BindableProperty getter", _ => DoFix(document, root, prop));
-				context.RegisterCodeFix(action, diagnostic);
-			}
-		}
 	}
+
+	protected override CodeAction? CreateAction(Document document, SyntaxNode root, AccessorDeclarationSyntax node, Diagnostic diagnostic)
+		=> CodeAction.Create("Generate BindableProperty getter", _ => DoFix(document, root, node));
 
 	private static Task<Document> DoFix(Document document, SyntaxNode root, AccessorDeclarationSyntax node)
 	{

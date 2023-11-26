@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Composition;
+﻿using System.Composition;
 
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -7,30 +6,14 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableAttachedPropertyMethodFixer : CodeFixProvider
+public sealed class BindableAttachedPropertyMethodFixer : BaseCodeFixProvider<MethodDeclarationSyntax>
 {
-	public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInGetMethod.Id, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInSetMethod.Id);
-
-	public override FixAllProvider? GetFixAllProvider()
-		=> WellKnownFixAllProviders.BatchFixer;
-
-	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+	public BindableAttachedPropertyMethodFixer() : base(DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInGetMethod, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInSetMethod)
 	{
-		var document = context.Document;
-		var root = await document.GetSyntaxRootAsync(context.CancellationToken);
-		if (root == null)
-			return;
-
-		foreach (var diagnostic in context.Diagnostics)
-		{
-			var span = diagnostic.Location.SourceSpan;
-			if (root!.FindNode(span) is MethodDeclarationSyntax method)
-			{
-				var action = CodeAction.Create("Generate partial method", token => DoFix(document, root, method));
-				context.RegisterCodeFix(action, diagnostic);
-			}
-		}
 	}
+
+	protected override CodeAction? CreateAction(Document document, SyntaxNode root, MethodDeclarationSyntax node, Diagnostic diagnostic)
+		=> CodeAction.Create("Generate partial method", token => DoFix(document, root, node));
 
 	private static Task<Document> DoFix(Document document, SyntaxNode root, MethodDeclarationSyntax node)
 	{

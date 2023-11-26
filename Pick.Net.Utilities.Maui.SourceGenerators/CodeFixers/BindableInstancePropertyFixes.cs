@@ -14,10 +14,35 @@ public static class BindableInstancePropertyFixes
 
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
+	private static AccessorDeclarationSyntax ReplaceAccessor(AccessorDeclarationSyntax node, ExpressionSyntax body)
+	{
+		var leading = SyntaxTriviaList.Empty;
+		var trailing = SyntaxTriviaList.Empty;
+
+		if (node.Body != null)
+		{
+			leading = node.Body.GetLeadingTrivia();
+			trailing = node.Body.GetTrailingTrivia();
+			node = node.WithBody(null);
+		}
+		else if (node.ExpressionBody != null)
+		{
+			leading = node.ExpressionBody.GetLeadingTrivia();
+			trailing = node.ExpressionBody.GetTrailingTrivia();
+		}
+
+		body = body.WithLeadingTrivia(leading).WithTrailingTrivia(trailing);
+
+		var arrow = ArrowExpressionClause(body);
+		var semicolon = Token(SyntaxKind.SemicolonToken);
+
+		return node.WithExpressionBody(arrow).WithSemicolonToken(semicolon);
+	}
+
 	private static AccessorDeclarationSyntax GenerateGetter(AccessorDeclarationSyntax node, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
 		var expression = CastExpression(propertyType, InvocationExpression(NameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
-		return node.WithBody(null).WithExpressionBody(ArrowExpressionClause(expression)).WithSemicolonToken();
+		return ReplaceAccessor(node, expression);
 	}
 
 	private static AccessorDeclarationSyntax GenerateSetter(AccessorDeclarationSyntax node, TypeSyntax bindablePropertyField)
@@ -27,7 +52,7 @@ public static class BindableInstancePropertyFixes
 				Argument(bindablePropertyField),
 				Argument(NameValue));
 
-		return node.WithBody(null).WithExpressionBody(ArrowExpressionClause(expression)).WithSemicolonToken();
+		return ReplaceAccessor(node, expression);
 	}
 
 	internal static AccessorDeclarationSyntax GeneratePropertyGetter(AccessorDeclarationSyntax node)
@@ -55,17 +80,20 @@ public static class BindableInstancePropertyFixes
 
 	internal static PropertyDeclarationSyntax GeneratePropertyAccessors(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
 	{
+		if (prop.AccessorList == null)
+			return prop;
+
 		var field = IdentifierName(prop.Identifier.Text + "Property");
 		var accessors = new List<AccessorDeclarationSyntax>(2);
 
-		var getter = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(SyntaxKind.GetAccessorDeclaration));
+		var getter = prop.AccessorList.Accessors.FirstOrDefault(v => v.IsKind(SyntaxKind.GetAccessorDeclaration));
 		if (getter != null)
 		{
 			var accessor = GenerateGetter(getter, prop.Type, field);
 			accessors.Add(accessor);
 		}
 
-		var setter = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(SyntaxKind.SetAccessorDeclaration));
+		var setter = prop.AccessorList.Accessors.FirstOrDefault(v => v.IsKind(SyntaxKind.SetAccessorDeclaration));
 		if (setter != null)
 		{
 			var keyField = setter.Modifiers.Count == 0 ? field : IdentifierName(prop.Identifier.Text + "PropertyKey");
@@ -73,9 +101,11 @@ public static class BindableInstancePropertyFixes
 			accessors.Add(accessor);
 		}
 
+		var accessorList = prop.AccessorList.WithAccessors(List(accessors));
+
 		MoveInitializerToAttribute(ref prop, model, token);
 
-		return prop.WithAccessorList(AccessorList(new(accessors))).WithTrailingLineBreak();
+		return prop.WithAccessorList(accessorList);
 	}
 
 	private static void MoveInitializerToAttribute(ref PropertyDeclarationSyntax prop, SemanticModel? model, CancellationToken token)

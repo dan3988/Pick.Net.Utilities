@@ -4,15 +4,11 @@ using static SyntaxFactory;
 
 internal sealed class BindableAttachedPropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private static readonly IdentifierNameSyntax NameValue = IdentifierName("value");
-	private static readonly IdentifierNameSyntax NameGetValue = IdentifierName("GetValue");
-	private static readonly IdentifierNameSyntax NameSetValue = IdentifierName("SetValue");
-
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(SyntaxTokenList modifiers, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
 		var paramObj = Parameter(Identifier("obj")).WithType(attachedType);
 		var expression = CastExpression(propertyType,
-				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), NameGetValue))
+				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), BindablePropertyNames.GetValue))
 					.AddArgumentListArguments(Argument(bindablePropertyField)));
 
 		return MethodDeclaration(propertyType, "Get" + propertyName)
@@ -26,11 +22,11 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(SyntaxTokenList modifiers, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
 		var paramObj = Parameter(Identifier("obj")).WithType(attachedType);
-		var paramValue = Parameter(NameValue.Identifier).WithType(propertyType);
-		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), NameSetValue))
+		var paramValue = Parameter(BindablePropertyNames.Value.Identifier).WithType(propertyType);
+		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(paramObj.Identifier), BindablePropertyNames.SetValue))
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(NameValue));
+				Argument(BindablePropertyNames.Value));
 
 		return MethodDeclaration(SyntaxHelper.TypeVoid, "Set" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))

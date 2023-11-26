@@ -8,10 +8,6 @@ using static SyntaxFactory;
 
 public static class BindableInstancePropertyFixes
 {
-	private static readonly IdentifierNameSyntax NameValue = IdentifierName("value");
-	private static readonly IdentifierNameSyntax NameGetValue = IdentifierName("GetValue");
-	private static readonly IdentifierNameSyntax NameSetValue = IdentifierName("SetValue");
-
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
 	private static AccessorDeclarationSyntax ReplaceAccessor(AccessorDeclarationSyntax node, ExpressionSyntax body)
@@ -41,16 +37,16 @@ public static class BindableInstancePropertyFixes
 
 	private static AccessorDeclarationSyntax GenerateGetter(AccessorDeclarationSyntax node, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
-		var expression = CastExpression(propertyType, InvocationExpression(NameGetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
+		var expression = CastExpression(propertyType, InvocationExpression(BindablePropertyNames.GetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
 		return ReplaceAccessor(node, expression);
 	}
 
 	private static AccessorDeclarationSyntax GenerateSetter(AccessorDeclarationSyntax node, TypeSyntax bindablePropertyField)
 	{
-		var expression = InvocationExpression(NameSetValue)
+		var expression = InvocationExpression(BindablePropertyNames.SetValue)
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(NameValue));
+				Argument(BindablePropertyNames.Value));
 
 		return ReplaceAccessor(node, expression);
 	}

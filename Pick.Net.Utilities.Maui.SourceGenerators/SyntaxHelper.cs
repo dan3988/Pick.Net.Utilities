@@ -110,6 +110,18 @@ internal static class SyntaxHelper
 	public static T AddModifiers<T>(this T syntax, params SyntaxKind[] kind) where T : MemberDeclarationSyntax
 		=> (T)syntax.AddModifiers(kind.Select(Token).ToArray());
 
+	public static SyntaxTokenList Add(this SyntaxTokenList list, SyntaxKind kind)
+		=> list.Add(Token(kind));
+
+	public static bool Contains(this SyntaxTokenList list, SyntaxKind kind)
+		=> list.IndexOf(kind) >= 0;
+
+	public static SyntaxTokenList Remove(this SyntaxTokenList list, SyntaxKind kind)
+	{
+		var index = list.IndexOf(kind);
+		return index < 0 ? list : list.RemoveAt(index);
+	}
+
 	public static NullableTypeSyntax AsNullable(this TypeSyntax type)
 		=> NullableType(type);
 

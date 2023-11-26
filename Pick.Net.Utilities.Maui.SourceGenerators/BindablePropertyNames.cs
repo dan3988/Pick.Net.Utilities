@@ -8,6 +8,7 @@ internal static class BindablePropertyNames
 	public static readonly IdentifierNameSyntax GetValue = IdentifierName("GetValue");
 	public static readonly IdentifierNameSyntax SetValue = IdentifierName("SetValue");
 
+	public static readonly IdentifierNameSyntax BindableObject = IdentifierName("global::Microsoft.Maui.Controls.BindableObject");
 	public static readonly IdentifierNameSyntax BindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 	public static readonly IdentifierNameSyntax BindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
 

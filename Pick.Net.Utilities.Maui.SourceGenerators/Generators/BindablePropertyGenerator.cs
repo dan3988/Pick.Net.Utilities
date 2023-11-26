@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
 
@@ -150,15 +151,29 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
 
-	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
+	private static DiagnosticsBuilder CreateDiagnosticBuilder(DiagnosticDescriptor identifierDescriptor, SyntaxNode node)
 	{
-		if (symbol.GetMethod == null)
-		{
-			var error = DiagnosticDescriptors.BindablePropertyNoGetter.CreateDiagnostic(node, symbol.Name);
-			return new(node.GetReference(), symbol.ContainingType, error);
-		}
+		Debug.Assert(identifierDescriptor.DefaultSeverity == DiagnosticSeverity.Hidden);
 
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+		diagnostics.Add(identifierDescriptor, node);
+		return diagnostics;
+	}
+
+	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
+	{
+		var diagnostics = CreateDiagnosticBuilder(DiagnosticDescriptors.BindablePropertyInstanceToAttached, node);
+		if (symbol.IsStatic)
+		{
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyStaticProperty, node);
+		}
+
+		if (symbol.GetMethod == null)
+		{
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyNoGetter, node, symbol.Name);
+			return new(node.GetReference(), symbol.ContainingType, diagnostics);
+		}
+
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 		var isAutoProperty = symbol.IsAutoProperty();
@@ -179,7 +194,12 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute, CancellationToken token)
 	{
-		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+		var diagnostics = CreateDiagnosticBuilder(DiagnosticDescriptors.BindablePropertyAttachedToInstance, node);
+		if (!symbol.IsStatic)
+		{
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceMethod, node);
+		}
+
 		var name = symbol.Name;
 		if (name.StartsWith("Get"))
 		{
@@ -222,12 +242,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
 		if (setMethod == null)
 		{
-			var modifiers = node.Modifiers;
-			var partialIndex = modifiers.IndexOf(SyntaxKind.PartialKeyword);
-			if (partialIndex >= 0)
-				modifiers = modifiers.RemoveAt(partialIndex);
-
-			generatedSetterInfo = new(node.ParameterList, modifiers);
+			var modifiers = node.Modifiers.Remove(SyntaxKind.PartialKeyword);
+			generatedSetterInfo = new(node.ParameterList.Parameters[0].Identifier, Identifier("value"), modifiers);
 		}
 		else
 		{

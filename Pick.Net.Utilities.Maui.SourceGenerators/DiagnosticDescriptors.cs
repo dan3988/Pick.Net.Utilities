@@ -1,13 +1,15 @@
 ﻿using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors
 {
 	private const string Prefix = "PNUM";
-	private const string Category = "Pick.Net.Utilities.Maui.SourceGenerators.BindablePropertyGenerator";
+
+	private static readonly string Category = typeof(BindablePropertyGenerator).FullName;
 
 	private static string EnumText<T>() where T : unmanaged, Enum
 	{
@@ -35,6 +37,22 @@ internal static class DiagnosticDescriptors
 		}
 	}
 
+	public static readonly DiagnosticDescriptor BindablePropertyInstanceToAttached = new(
+		Prefix + "1001",
+		"Convert instance property to an attached property",
+		"Convert instance property to an attached property",
+		Category,
+		DiagnosticSeverity.Hidden,
+		true);
+
+	public static readonly DiagnosticDescriptor BindablePropertyAttachedToInstance = new(
+		Prefix + "1002",
+		"Convert attached property to an instance property",
+		"Convert attached property to an instance property",
+		Category,
+		DiagnosticSeverity.Hidden,
+		true);
+
 	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
 		"Duplicate [BindableProperty] property name",
@@ -60,7 +78,7 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"[BindableProperty] methods must have a return type.");
+		$"Methods annotated with [BindableProperty] must have a return type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodSignature = new(
 		Prefix + "0004",
@@ -69,10 +87,28 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"[BindableProperty] methods must have a single parameter representing the attached type.");
+		$"Methods annotated with [BindableProperty] must have a single parameter representing the attached type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyStaticProperty = new(
+		Prefix + "0005",
+		"Property cannot be static",
+		"Property with [BindableProperty] must be an instance property",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"Properties annotated with [BindableProperty] cannot be static.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInstanceMethod = new(
+		Prefix + "0006",
+		"Methods must be static",
+		"Methods with [BindableProperty] must be a static",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"Methods annotated with [BindableProperty] must be static.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
-		Prefix + "0005",
+		Prefix + "0007",
 		"Supplied DefaultMode value is not a known value",
 		"Unknown DefaultMode value: {0}",
 		Category,
@@ -81,7 +117,7 @@ internal static class DiagnosticDescriptors
 		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNotSupported = new(
-		Prefix + "0006",
+		Prefix + "0008",
 		"DefaultValue not supported for given property type",
 		"Cannot specify DefaultValue for property type {0}",
 		Category,
@@ -90,7 +126,7 @@ internal static class DiagnosticDescriptors
 		"Cannot specify DefaultValue on for properties with types not supported by attributes.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		Prefix + "0007",
+		Prefix + "0009",
 		"Value of DefaultValue will not be used",
 		"Setting DefaultValue will have no effect when DefaultValueFactory is true",
 		Category,
@@ -99,7 +135,7 @@ internal static class DiagnosticDescriptors
 		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
-		Prefix + "0008",
+		Prefix + "0010",
 		"No default value or value generator for non-nullable property",
 		"The default value of non-nullable property '{0}' will be null",
 		Category,
@@ -108,7 +144,7 @@ internal static class DiagnosticDescriptors
 		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyNoGetter = new(
-		Prefix + "0009",
+		Prefix + "0011",
 		"Property must have a getter",
 		"Property '{0}' is write only",
 		Category,
@@ -117,7 +153,7 @@ internal static class DiagnosticDescriptors
 		$"Properties with [BindableProperty] must have a get accessor.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInstanceAutoProperty = new(
-		Prefix + "0010",
+		Prefix + "0012",
 		"Use generated BindableProperty in property accessors",
 		"Property with [BindableProperty] does not use generated BindableProperty",
 		Category,
@@ -126,7 +162,7 @@ internal static class DiagnosticDescriptors
 		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInGetter = new(
-		Prefix + "0011",
+		Prefix + "0013",
 		"Use generated BindableProperty in property getters",
 		"Getter for property '{0}' does not use generated BindableProperty",
 		Category,
@@ -135,7 +171,7 @@ internal static class DiagnosticDescriptors
 		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInSetter = new(
-		Prefix + "0012",
+		Prefix + "0014",
 		"Use generated BindableProperty in property setter",
 		"Setter for property '{0}' does not use generated BindableProperty",
 		Category,
@@ -144,7 +180,7 @@ internal static class DiagnosticDescriptors
 		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInGetMethod = new(
-		Prefix + "0013",
+		Prefix + "0015",
 		"Use generated BindableProperty in attached property get method",
 		"Get method for attached property '{0}' does not use generated BindableProperty",
 		Category,
@@ -153,7 +189,7 @@ internal static class DiagnosticDescriptors
 		$"Attached property get methods marked with [BindableProperty] should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInSetMethod = new(
-		Prefix + "0014",
+		Prefix + "0016",
 		"Use generated BindableProperty in attached propert set method",
 		"Set method for attached property '{0}' does not use generated BindableProperty",
 		Category,

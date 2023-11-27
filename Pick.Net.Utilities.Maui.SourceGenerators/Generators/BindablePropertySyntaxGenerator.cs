@@ -17,7 +17,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	public string PropertyName { get; }
 
-	public TypeSyntax PropertyType2 { get; }
+	public TypeSyntax PropertyType { get; }
 
 	public TypeSyntax AnnotatedPropertyType { get; }
 
@@ -41,14 +41,14 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
 	{
-		(PropertyName, DeclaringType, PropertyType2, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
+		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
 	}
 
 	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
 	{
 		var arguments = new ExpressionSyntax[10];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
-		arguments[1] = SyntaxFactory.TypeOfExpression(PropertyType2);
+		arguments[1] = SyntaxFactory.TypeOfExpression(PropertyType);
 		arguments[2] = SyntaxFactory.TypeOfExpression(DeclaringType);
 		arguments[3] = DefaultValueSyntax;
 		arguments[4] = DefaultModeSyntax;

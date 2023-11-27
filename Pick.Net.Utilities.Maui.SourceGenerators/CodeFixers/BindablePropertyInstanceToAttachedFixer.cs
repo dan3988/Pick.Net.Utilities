@@ -47,7 +47,7 @@ public sealed class BindablePropertyInstanceToAttachedFixer : BaseCodeFixProvide
 		var propertyName = node.Identifier.Text;
 		var members = new List<SyntaxNode>();
 		var generator = SyntaxGenerator.GetGenerator(document);
-		var attachedType = await GetTypeIdentifierAsync(document, generator, BindablePropertyNames.BindableObject, token);
+		var attachedType = await GetTypeIdentifierAsync(document, generator, Identifiers.BindableObject, token);
 		var getMethod = ((MethodDeclarationSyntax)generator.MethodDeclaration("Get" + propertyName))
 			.WithSemicolonToken()
 			.WithBody(null)

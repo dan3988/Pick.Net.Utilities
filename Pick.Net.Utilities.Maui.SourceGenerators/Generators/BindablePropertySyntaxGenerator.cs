@@ -4,9 +4,9 @@ internal abstract class BindablePropertySyntaxGenerator
 {
 	private static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField)
 	{
-		var propertyInitializer = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, BindablePropertyNames.BindablePropertyKeyProperty);
+		var propertyInitializer = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, Identifiers.BindablePropertyKeyProperty);
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
-		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(BindablePropertyNames.BindableProperty).AddVariables(declaration))
+		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(Identifiers.BindableProperty).AddVariables(declaration))
 			.WithModifiers(modifiers)
 			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
 
@@ -89,7 +89,7 @@ internal abstract class BindablePropertySyntaxGenerator
 			arguments[9] = SyntaxHelper.Null;
 		}
 
-		var create = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, BindablePropertyNames.BindableProperty, SyntaxFactory.IdentifierName(createMethod));
+		var create = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Identifiers.BindableProperty, SyntaxFactory.IdentifierName(createMethod));
 		var propertyInitializer = SyntaxFactory.InvocationExpression(create, SyntaxHelper.ArgumentList(arguments));
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(fieldType).AddVariables(declaration))
@@ -117,13 +117,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		{
 			var writeModifiers = WriteAccessibility.ToSyntaxList();
 			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(PropertyName + "PropertyKey");
-			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, BindablePropertyNames.BindablePropertyKey, CreateReadOnlyMethod);
+			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, Identifiers.BindablePropertyKey, CreateReadOnlyMethod);
 			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField);
 			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyKeyField);
 		}
 		else
 		{
-			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, BindablePropertyNames.BindableProperty, CreateMethod);
+			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, Identifiers.BindableProperty, CreateMethod);
 			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyField);
 		}
 	}

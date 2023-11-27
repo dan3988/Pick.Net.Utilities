@@ -8,7 +8,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 	{
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var expression = CastExpression(propertyType,
-				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), BindablePropertyNames.GetValue))
+				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.GetValue))
 					.AddArgumentListArguments(Argument(bindablePropertyField)));
 
 		return MethodDeclaration(propertyType, "Get" + propertyName)
@@ -23,7 +23,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 	{
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var paramValue = Parameter(info.ValueParamName).WithType(propertyType);
-		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), BindablePropertyNames.SetValue))
+		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.SetValue))
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
 				Argument(IdentifierName(info.ValueParamName)));

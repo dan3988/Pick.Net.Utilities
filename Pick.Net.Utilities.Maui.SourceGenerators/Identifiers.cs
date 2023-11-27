@@ -2,7 +2,7 @@
 
 using static SyntaxFactory;
 
-internal static class BindablePropertyNames
+internal static class Identifiers
 {
 	public static readonly IdentifierNameSyntax Value = IdentifierName("value");
 	public static readonly IdentifierNameSyntax GetValue = IdentifierName("GetValue");

@@ -37,16 +37,16 @@ public static class BindableInstancePropertyFixes
 
 	private static AccessorDeclarationSyntax GenerateGetter(AccessorDeclarationSyntax node, TypeSyntax propertyType, TypeSyntax bindablePropertyField)
 	{
-		var expression = CastExpression(propertyType, InvocationExpression(BindablePropertyNames.GetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
+		var expression = CastExpression(propertyType, InvocationExpression(Identifiers.GetValue).AddArgumentListArguments(Argument(bindablePropertyField)));
 		return ReplaceAccessor(node, expression);
 	}
 
 	private static AccessorDeclarationSyntax GenerateSetter(AccessorDeclarationSyntax node, TypeSyntax bindablePropertyField)
 	{
-		var expression = InvocationExpression(BindablePropertyNames.SetValue)
+		var expression = InvocationExpression(Identifiers.SetValue)
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(BindablePropertyNames.Value));
+				Argument(Identifiers.Value));
 
 		return ReplaceAccessor(node, expression);
 	}

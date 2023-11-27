@@ -151,18 +151,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
 
-	private static DiagnosticsBuilder CreateDiagnosticBuilder(DiagnosticDescriptor identifierDescriptor, SyntaxNode node)
-	{
-		Debug.Assert(identifierDescriptor.DefaultSeverity == DiagnosticSeverity.Hidden);
-
-		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-		diagnostics.Add(identifierDescriptor, node);
-		return diagnostics;
-	}
-
 	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
 	{
-		var diagnostics = CreateDiagnosticBuilder(DiagnosticDescriptors.BindablePropertyInstanceToAttached, node);
+		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+		diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceToAttached, node);
 		if (symbol.IsStatic)
 		{
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyStaticProperty, node);
@@ -194,11 +186,13 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute, CancellationToken token)
 	{
-		var diagnostics = CreateDiagnosticBuilder(DiagnosticDescriptors.BindablePropertyAttachedToInstance, node);
+		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+
+		if (!symbol.ContainingType.IsStatic)
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedToInstance, node);
+
 		if (!symbol.IsStatic)
-		{
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceMethod, node);
-		}
 
 		var name = symbol.Name;
 		if (name.StartsWith("Get"))

@@ -13,14 +13,20 @@ public sealed class BindableAttachedPropertyMethodFixer : BaseCodeFixProvider<Me
 	}
 
 	protected override CodeAction? CreateAction(Document document, SyntaxNode root, MethodDeclarationSyntax node, Diagnostic diagnostic)
-		=> CodeAction.Create("Generate partial method", token => DoFix(document, root, node));
+		=> CodeAction.Create("To partial method", token => DoFix(document, root, node));
 
 	private static Task<Document> DoFix(Document document, SyntaxNode root, MethodDeclarationSyntax node)
 	{
+		var semicolon = node.SemicolonToken.IsKind(SyntaxKind.SemicolonToken) ? node.SemicolonToken.WithLeadingTrivia(SyntaxTriviaList.Empty) : SyntaxHelper.Semicolon;
+		if (node.Body != null)
+			semicolon = semicolon.WithTrailingTrivia(node.Body.GetTrailingTrivia());
+
+		var parameterList = node.ParameterList.WithoutTrailingTrivia();
 		var fixedNode = node
+			.WithParameterList(parameterList)
 			.WithBody(null)
 			.WithExpressionBody(null)
-			.WithSemicolonToken();
+			.WithSemicolonToken(semicolon);
 
 		if (fixedNode.Modifiers.IndexOf(SyntaxKind.PartialKeyword) < 0)
 			fixedNode = fixedNode.AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword).WithTrailingTrivia(SyntaxFactory.Space));

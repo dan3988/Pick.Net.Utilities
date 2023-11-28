@@ -29,7 +29,8 @@ internal static class SyntaxHelper
 	public static readonly LiteralExpressionSyntax False = LiteralExpression(SyntaxKind.FalseLiteralExpression);
 	public static readonly SyntaxTriviaList EmptyTriviaList = TriviaList();
 
-	private static readonly SyntaxToken semicolon = Token(SyntaxKind.SemicolonToken);
+	public static readonly SyntaxToken Semicolon = Token(SyntaxKind.SemicolonToken);
+
 	private static readonly SyntaxToken nameof = Identifier(EmptyTriviaList, SyntaxKind.NameOfKeyword, "nameof", "nameof", EmptyTriviaList);
 	private static readonly IdentifierNameSyntax nameofSyntax = IdentifierName(nameof);
 
@@ -126,10 +127,10 @@ internal static class SyntaxHelper
 		=> NullableType(type);
 
 	public static AccessorDeclarationSyntax WithSemicolonToken(this AccessorDeclarationSyntax syntax)
-		=> syntax.WithSemicolonToken(semicolon);
+		=> syntax.WithSemicolonToken(Semicolon);
 
 	public static MethodDeclarationSyntax WithSemicolonToken(this MethodDeclarationSyntax syntax)
-		=> syntax.WithSemicolonToken(semicolon);
+		=> syntax.WithSemicolonToken(Semicolon);
 
 	private static SyntaxTrivia[] CreateIndentTriviaList(int indentCount, SyntaxTriviaList keepTrivia = default)
 	{

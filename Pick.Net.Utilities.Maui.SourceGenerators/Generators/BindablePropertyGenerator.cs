@@ -114,9 +114,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, attribute.ApplicationSyntaxReference);
 			}
 		}
-		else if (!defaultValueFactory && propertyType is { IsValueType: false, NullableAnnotation: NullableAnnotation.Annotated })
+		else if (!defaultValueFactory && propertyType is { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated })
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNull, attribute.ApplicationSyntaxReference);
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNull, attribute.ApplicationSyntaxReference, propertyName);
 		}
 
 		var declaringTypeSyntax = declaringType.ToIdentifier();

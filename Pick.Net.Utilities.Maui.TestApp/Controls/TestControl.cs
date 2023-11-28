@@ -11,7 +11,7 @@ public partial class TestControl : BindableObject
 	public static void SetAttached(Entry entry, string value)
 		=> entry.SetValue(AttachedProperty, value);
 
-	private static partial bool ValidateAttachedValue(string? value)
+	private static partial bool ValidateAttachedValue(string value)
 		=> value != null;
 
 	private static partial string CoerceAttachedValue(string value)

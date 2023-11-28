@@ -51,14 +51,14 @@ internal static class SyntaxHelper
 
 	public static bool SearchRecursive(this SyntaxNode node, Func<SyntaxNode, bool> predicate, CancellationToken token = default)
 	{
-		var stack = new Stack<IEnumerator<SyntaxNode>>();
 		var en = node.ChildNodes().GetEnumerator();
-
 		if (!en.MoveNext())
 		{
 			en.Dispose();
 			return false;
 		}
+
+		var stack = new Stack<IEnumerator<SyntaxNode>>();
 
 		try
 		{

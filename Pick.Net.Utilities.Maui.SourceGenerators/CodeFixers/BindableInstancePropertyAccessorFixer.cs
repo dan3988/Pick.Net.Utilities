@@ -8,7 +8,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
 public sealed class BindableInstancePropertyAutoPropertyFixer : BaseCodeFixProvider<PropertyDeclarationSyntax>
 {
-	public BindableInstancePropertyAutoPropertyFixer() : base(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty)
+	public BindableInstancePropertyAutoPropertyFixer() : base(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
 	{
 	}
 

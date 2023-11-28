@@ -8,7 +8,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
 public sealed class BindableAttachedPropertyMethodFixer : BaseCodeFixProvider<MethodDeclarationSyntax>
 {
-	public BindableAttachedPropertyMethodFixer() : base(DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInGetMethod, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInSetMethod)
+	public BindableAttachedPropertyMethodFixer() : base(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed)
 	{
 	}
 

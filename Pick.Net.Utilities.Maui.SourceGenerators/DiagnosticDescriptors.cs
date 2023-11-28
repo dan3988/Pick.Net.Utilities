@@ -53,6 +53,15 @@ internal static class DiagnosticDescriptors
 		DiagnosticSeverity.Hidden,
 		true);
 
+	public static readonly DiagnosticDescriptor BindablePropertyAttachedMethodToPartial = new(
+		Prefix + "1003",
+		"Use partial methods for attached property accessors",
+		"Attached property accessor method '{0}' can be auto-implemented",
+		Category,
+		DiagnosticSeverity.Hidden,
+		true,
+		$"Methods with [BindableProperty] attribute can be declared as partial methods.");
+
 	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
 		"Duplicate [BindableProperty] property name",
@@ -150,52 +159,25 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
-		$"Properties with [BindableProperty] must have a get accessor.");
+		$"Properties with [BindableProperty] attribute must have a get accessor.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyInstanceAutoProperty = new(
+	public static readonly DiagnosticDescriptor BindablePropertyInstancePropertyNotUsed = new(
 		Prefix + "0012",
 		"Use generated BindableProperty in property accessors",
-		"Property with [BindableProperty] does not use generated BindableProperty",
+		"Bindable property '{0}' does not use generated BindableProperty",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
-		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
+		$"Properties with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInGetter = new(
+	public static readonly DiagnosticDescriptor BindablePropertyAttachedPropertyNotUsed = new(
 		Prefix + "0013",
-		"Use generated BindableProperty in property getters",
-		"Getter for property '{0}' does not use generated BindableProperty",
+		"Use generated BindableProperty in attached property accessor",
+		"Attached property accessor method '{0}' does not use generated BindableProperty",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
-		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
-
-	public static readonly DiagnosticDescriptor BindablePropertyNotReferencedInSetter = new(
-		Prefix + "0014",
-		"Use generated BindableProperty in property setter",
-		"Setter for property '{0}' does not use generated BindableProperty",
-		Category,
-		DiagnosticSeverity.Warning,
-		true,
-		$"Properties with [BindableProperty] should use the BindableProperty instance that was generated.");
-
-	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInGetMethod = new(
-		Prefix + "0015",
-		"Use generated BindableProperty in attached property get method",
-		"Get method for attached property '{0}' does not use generated BindableProperty",
-		Category,
-		DiagnosticSeverity.Warning,
-		true,
-		$"Attached property get methods marked with [BindableProperty] should use the BindableProperty instance that was generated.");
-
-	public static readonly DiagnosticDescriptor BindableAttachedPropertyNotReferencedInSetMethod = new(
-		Prefix + "0016",
-		"Use generated BindableProperty in attached propert set method",
-		"Set method for attached property '{0}' does not use generated BindableProperty",
-		Category,
-		DiagnosticSeverity.Warning,
-		true,
-		$"Attached property set methods marked with [BindableProperty] should use the BindableProperty instance that was generated.");
+		$"Methods with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
 	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
 	{

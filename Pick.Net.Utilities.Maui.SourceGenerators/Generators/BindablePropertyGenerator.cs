@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
 
@@ -128,25 +127,41 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
 	}
 
-	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, PropertyDeclarationSyntax prop, SyntaxKind accessorKind, string propertyName, DiagnosticDescriptor descriptor)
-	{
-		var accessor = prop.AccessorList?.Accessors.FirstOrDefault(v => v.IsKind(accessorKind));
-		if (accessor != null)
-			CheckBindablePropertyIsUsed(diagnostics, accessor, accessor, propertyName, accessor.Modifiers.Count != 0, descriptor);
-	}
+	private static bool IsBindablePropertyIsUsedInMethod(BaseMethodDeclarationSyntax node, string propertyName, bool isReadOnly)
+		=> IsBindablePropertyIsUsed(node.ExpressionBody, node.Body, propertyName, isReadOnly);
 
-	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, MethodDeclarationSyntax method, string propertyName, bool isReadOnly, DiagnosticDescriptor descriptor)
-	{
-		var syntax = (SyntaxNode?)method.ExpressionBody ?? (SyntaxNode?)method.Body ?? SyntaxHelper.Null;
-		CheckBindablePropertyIsUsed(diagnostics, syntax, method, propertyName, isReadOnly, descriptor);
-	}
+	private static bool IsBindablePropertyIsUsedInAccessor(AccessorDeclarationSyntax node, string propertyName)
+		=> IsBindablePropertyIsUsed(node.ExpressionBody, node.Body, propertyName, !node.IsKind(SyntaxKind.GetAccessorDeclaration) && node.Modifiers.Count > 0);
 
-	private static void CheckBindablePropertyIsUsed(DiagnosticsBuilder diagnostics, SyntaxNode node, SyntaxNode owner, string propertyName, bool isReadOnly, DiagnosticDescriptor descriptor)
+	private static bool IsBindablePropertyIsUsed(ArrowExpressionClauseSyntax? expressionBody, BlockSyntax? body, string propertyName, bool isReadOnly)
 	{
 		var suffix = isReadOnly ? "PropertyKey" : "Property";
-		if (!node.SearchRecursive<IdentifierNameSyntax>(v => StringStartsAndEndsWith(v.Identifier.Text, propertyName, suffix)))
-			diagnostics.Add(descriptor, owner, propertyName);
+		if (expressionBody != null && IsBindablePropertyIsUsed(expressionBody, propertyName, suffix))
+			return true;
+
+		if (body != null && IsBindablePropertyIsUsed(body, propertyName, suffix))
+			return true;
+
+		return false;
 	}
+
+	private static bool IsBindablePropertyIsUsedInProperty(PropertyDeclarationSyntax node, string propertyName)
+	{
+		if (node.AccessorList == null)
+			return false;
+
+		foreach (var accessor in node.AccessorList.Accessors)
+			if (!IsBindablePropertyIsUsedInAccessor(accessor, propertyName))
+				return false;
+
+		return true;
+	}
+
+	private static bool IsBindablePropertyIsUsed(SyntaxNode node, string propertyName, bool isReadOnly)
+		=> IsBindablePropertyIsUsed(node, propertyName, isReadOnly ? "PropertyKey" : "Property");
+
+	private static bool IsBindablePropertyIsUsed(SyntaxNode node, string propertyName, string suffix)
+		=> node.SearchRecursive<IdentifierNameSyntax>(v => StringStartsAndEndsWith(v.Identifier.Text, propertyName, suffix));
 
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
@@ -169,15 +184,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 		var isAutoProperty = symbol.IsAutoProperty();
-		if (isAutoProperty)
-		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceAutoProperty, node);
-		}
-		else
-		{
-			CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.GetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInGetter);
-			CheckBindablePropertyIsUsed(diagnostics, node, SyntaxKind.SetAccessorDeclaration, symbol.Name, DiagnosticDescriptors.BindablePropertyNotReferencedInSetter);
-		}
+		if (isAutoProperty || !IsBindablePropertyIsUsedInProperty(node, symbol.Name))
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed, node, symbol.Name);
 
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
@@ -230,7 +238,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 		else
 		{
-			CheckBindablePropertyIsUsed(diagnostics, node, name, false, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInGetMethod);
+			diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, node, symbol.Name);
+
+			if (!IsBindablePropertyIsUsedInMethod(node, name, false))
+				diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, node, symbol.Name);
 		}
 
 		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
@@ -252,7 +263,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				}
 				else
 				{
-					CheckBindablePropertyIsUsed(diagnostics, setterNode, name, writeAccessibility != accessibility, DiagnosticDescriptors.BindableAttachedPropertyNotReferencedInSetMethod);
+					diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, setterNode, setMethod.Name);
+
+					if (!IsBindablePropertyIsUsedInMethod(setterNode, name, false))
+						diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, setterNode, symbol.Name);
 				}
 			}
 		}
@@ -337,8 +351,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		foreach (var diagnostic in generationOutput.Diagnostics)
 			context.ReportDiagnostic(diagnostic);
 
-		//var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-
 		foreach (var type in generationOutput.Types)
 		{
 			var classInfo = ClassInfo.Create(type.DeclaringType);
@@ -348,7 +360,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			foreach (var generator in type.Properties)
 				generator.GenerateMembers(members);
 
-			declaration = declaration.AddMembers(members.ToArray());
+			declaration = declaration.AddMembers([.. members]);
 			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
 
 			var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);

@@ -3,7 +3,6 @@
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Simplification;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
@@ -26,14 +25,7 @@ public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvi
 	private static async Task<TypeSyntax> GetTypeIdentifierAsync(Document document, SyntaxGenerator generator, string fullName, CancellationToken token)
 	{
 		var model = await document.GetSemanticModelAsync(token);
-		if (model == null)
-			return IdentifierName("global::" + fullName);
-
-		var typeInfo = model.Compilation.GetTypeByMetadataName(fullName);
-		if (typeInfo == null)
-			return IdentifierName("global::" + fullName);
-
-		return (TypeSyntax)generator.TypeExpression(typeInfo).WithAdditionalAnnotations(Simplifier.AddImportsAnnotation);
+		return BindablePropertyFixHelper.GetTypeIdentifier(model, generator, fullName);
 
 	}
 

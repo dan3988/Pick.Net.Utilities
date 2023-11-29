@@ -1,12 +1,15 @@
 ﻿using System.Reflection;
 
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Simplification;
+
 using Pick.Net.Utilities.Maui.Helpers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 using static SyntaxFactory;
 
-public static class BindableInstancePropertyFixes
+public static class BindablePropertyFixHelper
 {
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
@@ -136,7 +139,19 @@ public static class BindableInstancePropertyFixes
 			.WithSemicolonToken(default);
 	}
 
-	private static (AttributeListSyntax, AttributeSyntax)? GetAttribute(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
+	public static TypeSyntax GetTypeIdentifier(SemanticModel? model, SyntaxGenerator generator, string fullName)
+	{
+		if (model == null)
+			return IdentifierName("global::" + fullName);
+
+		var typeInfo = model.Compilation.GetTypeByMetadataName(fullName);
+		if (typeInfo == null)
+			return IdentifierName("global::" + fullName);
+
+		return (TypeSyntax)generator.TypeExpression(typeInfo).WithAdditionalAnnotations(Simplifier.AddImportsAnnotation);
+	}
+
+	public static (AttributeListSyntax, AttributeSyntax)? GetAttribute(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
 	{
 		if (model == null)
 			return null;
@@ -153,6 +168,12 @@ public static class BindableInstancePropertyFixes
 		}
 
 		return null;
+	}
+
+	public static void RewriteNode(this DocumentEditor editor, CSharpSyntaxRewriter rewriter, SyntaxNode node)
+	{
+		var changed = rewriter.Visit(node);
+		editor.ReplaceNode(node, changed);
 	}
 }
 

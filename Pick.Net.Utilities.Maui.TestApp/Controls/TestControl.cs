@@ -20,7 +20,7 @@ public partial class TestControl : BindableObject
 	private static partial string GenerateAttachedDefaultValue(Entry bindable)
 		=> "default value";
 
-	[BindableProperty(DefaultValue = "", DefaultMode = BindingMode.TwoWay, ValidateValueCallback = true, CoerceValueCallback = true)]
+	[BindableProperty(DefaultMode = BindingMode.TwoWay, ValidateValueCallback = true, CoerceValueCallback = true)]
 	public string Text
 	{
 		get => (string)GetValue(TextProperty);

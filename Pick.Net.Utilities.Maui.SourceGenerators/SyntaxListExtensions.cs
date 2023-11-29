@@ -17,4 +17,9 @@ internal static class SyntaxListExtensions
 		var selected = Enumerable.Select(list, selector);
 		return SyntaxFactory.SeparatedList(selected);
 	}
+
+	public static SyntaxList<T> OfKind<T>(this SyntaxList<T> list, SyntaxKind kind) where T : SyntaxNode
+	{
+		return SyntaxFactory.List(list.Where(v => v.IsKind(kind)));
+	}
 }

@@ -23,5 +23,5 @@
     <ProjectReference Include="..\Pick.Net.Utilities\Pick.Net.Utilities.csproj" />
     <None Include="..\Pick.Net.Utilities.Maui.SourceGenerators\bin\$(Configuration)\netstandard2.0\Pick.Net.Utilities.Maui.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.0\cs" Pack="true" Visible="false" />
   </ItemGroup>
-  <Import Condition="'$(TargetFramework)' == 'net7.0'" Project="..\Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems" Label="Shared" />
+  <Import Project="..\Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems" Label="Shared" />
 </Project>

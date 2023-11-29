@@ -106,19 +106,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			}
 		}
 
-		var hasDefaultValue = !defaultValueSyntax.IsKind(SyntaxKind.NullLiteralExpression);
-		if (hasDefaultValue)
-		{
-			if (defaultValueFactory)
-			{
-				diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, attribute.ApplicationSyntaxReference);
-			}
-		}
-		else if (!defaultValueFactory && propertyType is { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated })
-		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyDefaultValueNull, attribute.ApplicationSyntaxReference, propertyName);
-		}
-
 		var declaringTypeSyntax = declaringType.ToIdentifier();
 		var annotatedPropertyTypeSyntax = propertyType.ToIdentifier(true);
 		var propertyTypeSyntax = propertyType.ToIdentifier();
@@ -202,15 +189,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		if (!symbol.IsStatic)
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceMethod, node);
 
-		var name = symbol.Name;
-		if (name.StartsWith("Get"))
-		{
-			name = name.Substring(3);
-		}
-		else
-		{
+		if (!Identifiers.GetAttachedPropertyName(symbol.Name, out var name))
 			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, node, name);
-		}
 
 		if (symbol.ReturnsVoid)
 		{
@@ -244,7 +224,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, node, symbol.Name);
 		}
 
-		var setMethod = symbol.ContainingType.GetMembers().SelectMethods().Where(IsSetMethod).FirstOrDefault();
+		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
 		if (setMethod == null)
 		{
 			var modifiers = node.Modifiers.Remove(SyntaxKind.PartialKeyword);
@@ -275,22 +255,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterInfo, generatedSetterInfo);
 		return new(node.GetReference(), symbol.ContainingType, generator, diagnostics);
-
-		bool IsSetMethod(IMethodSymbol symbol)
-		{
-			if (!StringStartsAndEndsWith(symbol.Name, "Set", name))
-				return false;
-
-			if (!symbol.ReturnsVoid)
-				return false;
-
-			if (symbol.Parameters.Length != 2)
-				return false;
-
-			var objParam = symbol.Parameters[0];
-			var objValue = symbol.Parameters[1];
-			return SymbolEqualityComparer.Default.Equals(objParam.Type, attachedType) && SymbolEqualityComparer.Default.Equals(objValue.Type, propertyType);
-		}
 	}
 
 	private static T? TryGetNode<T>(ISymbol symbol, CancellationToken token) where T : SyntaxNode

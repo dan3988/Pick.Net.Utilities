@@ -14,7 +14,7 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 	private static async Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax prop, CancellationToken token)
 	{
 		var model = await document.GetSemanticModelAsync(token);
-		var newProp = BindableInstancePropertyFixes.GeneratePropertyAccessors(model, prop, token);
+		var newProp = BindablePropertyFixHelper.GeneratePropertyAccessors(model, prop, token);
 
 		root = root.ReplaceNode(prop, newProp);
 		return document.WithSyntaxRoot(root);

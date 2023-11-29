@@ -6,12 +6,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyAutoPropertyFixer : BaseCodeFixProvider<PropertyDeclarationSyntax>
+public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
 {
-	public BindableInstancePropertyAutoPropertyFixer() : base(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
-	{
-	}
-
 	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
 		=> CodeAction.Create("Use BindableProperty in accessors", token => DoFix(document, root, node, token));
 

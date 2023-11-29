@@ -6,12 +6,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyRemoveStaticModifierFixer : BaseCodeFixProvider<PropertyDeclarationSyntax>
+public sealed class BindablePropertyRemoveStaticModifierFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyStaticProperty)
 {
-	public BindablePropertyRemoveStaticModifierFixer() : base(DiagnosticDescriptors.BindablePropertyStaticProperty)
-	{
-	}
-
 	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
 		=> CodeAction.Create("Remove static modifier", _ => DoFix(document, root, node));
 

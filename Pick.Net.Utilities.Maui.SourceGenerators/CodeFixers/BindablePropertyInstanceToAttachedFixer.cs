@@ -10,12 +10,8 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 using static SyntaxFactory;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyInstanceToAttachedFixer : BaseCodeFixProvider<PropertyDeclarationSyntax>
+public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyInstanceToAttached)
 {
-	public BindablePropertyInstanceToAttachedFixer() : base(DiagnosticDescriptors.BindablePropertyInstanceToAttached)
-	{
-	}
-
 	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
 		=> CodeAction.Create("To attached property", token => DoFix(document, root, node, token));
 

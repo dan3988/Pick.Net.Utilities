@@ -6,12 +6,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableAttachedPropertyMethodFixer : BaseCodeFixProvider<MethodDeclarationSyntax>
+public sealed class BindableAttachedPropertyMethodFixer() : BaseCodeFixProvider<MethodDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed)
 {
-	public BindableAttachedPropertyMethodFixer() : base(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed)
-	{
-	}
-
 	protected override CodeAction? CreateAction(Document document, SyntaxNode root, MethodDeclarationSyntax node, Diagnostic diagnostic)
 		=> CodeAction.Create("To partial method", token => DoFix(document, root, node));
 

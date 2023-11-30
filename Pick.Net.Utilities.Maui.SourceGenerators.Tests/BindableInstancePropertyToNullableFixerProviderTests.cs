@@ -19,11 +19,11 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	#nullable enable
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
-
+	
+	namespace Test;
+	
 	partial class TestClass : BindableObject
 	{
-		public static readonly BindableProperty ValueProperty;
-	
 		[BindableProperty]
 		public string Value
 		{
@@ -37,11 +37,11 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	#nullable enable
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
-
+	
+	namespace Test;
+	
 	partial class TestClass : BindableObject
 	{
-		public static readonly BindableProperty ValueProperty;
-
 		[BindableProperty]
 		public string? Value
 		{
@@ -56,6 +56,10 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 			TestCode = original,
 			FixedCode = expected,
 			ReferenceAssemblies = TestHelper.Net80,
+			SolutionTransforms =
+			{
+				TestHelper.AddAnalyzerToSolution
+			},
 			TestState =
 			{
 				AdditionalReferences =
@@ -80,11 +84,11 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	#nullable enable
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
-
+	
+	namespace Test;
+	
 	partial class TestClass : BindableObject
 	{
-		public static readonly BindableProperty ValueProperty;
-	
 		[BindableProperty]
 		public static string GetValue(BindableObject obj)
 		{
@@ -104,10 +108,10 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
 
+	namespace Test;
+
 	partial class TestClass : BindableObject
 	{
-		public static readonly BindableProperty ValueProperty;
-	
 		[BindableProperty]
 		public static string? GetValue(BindableObject obj)
 		{
@@ -127,6 +131,10 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 			TestCode = original,
 			FixedCode = expected,
 			ReferenceAssemblies = TestHelper.Net80,
+			SolutionTransforms =
+			{
+				TestHelper.AddAnalyzerToSolution
+			},
 			TestState =
 			{
 				AdditionalReferences =

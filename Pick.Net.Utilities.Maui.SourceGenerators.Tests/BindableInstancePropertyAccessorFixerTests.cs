@@ -80,6 +80,69 @@ public class BindableInstancePropertyAccessorFixerTests
     }
 
     [TestMethod]
+    public async Task FixReadOnlyPropertyAccessors()
+    {
+        const string original = """
+    using Pick.Net.Utilities.Maui.Helpers;
+    using Microsoft.Maui.Controls;
+    
+    namespace Test;
+    
+    partial class TestClass : BindableObject
+    {
+        [BindableProperty]
+        public string Value
+        {
+            get => (string)GetValue(ValueProperty);
+            private set => SetValue(ValueProperty, value);
+        }
+    }
+    """;
+
+        const string expected = """
+    using Pick.Net.Utilities.Maui.Helpers;
+    using Microsoft.Maui.Controls;
+    
+    namespace Test;
+    
+    partial class TestClass : BindableObject
+    {
+        [BindableProperty]
+        public string Value
+        {
+            get => (string)GetValue(ValueProperty);
+            private set => SetValue(ValuePropertyKey, value);
+        }
+    }
+    """;
+
+        var test = new CodeFixTest
+        {
+            TestCode = original,
+            FixedCode = expected,
+            ReferenceAssemblies = TestHelper.Net80,
+            SolutionTransforms =
+            {
+                TestHelper.AddAnalyzerToSolution
+            },
+            TestState =
+            {
+                AdditionalReferences =
+                {
+                    TestHelper.MauiAssembly,
+                    TestHelper.UtilitiesMauiAssembly
+                }
+            },
+            ExpectedDiagnostics =
+            {
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(9, 19, 9, 24).WithArguments("Value")
+            }
+        };
+
+        await test.RunAsync();
+    }
+
+    [TestMethod]
     public async Task FixAutoProperty()
     {
         const string original = """

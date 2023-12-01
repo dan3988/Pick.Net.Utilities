@@ -1,12 +1,20 @@
 ﻿using Microsoft.CodeAnalysis.Diagnostics;
+
 using Pick.Net.Utilities.Maui.Helpers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class BindablePropertyDefaultValueAnalyzer : DiagnosticAnalyzer
+public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyDefaultValueNull);
+	private static readonly ImmutableArray<DiagnosticDescriptor> Diagnostics = ImmutableArray.Create(
+	[
+		DiagnosticDescriptors.BindablePropertyDefaultValueNull,
+		DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory,
+		DiagnosticDescriptors.BindablePropertyInvalidDefaultMode
+	]);
+
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => Diagnostics;
 
 	public override void Initialize(AnalysisContext context)
 	{
@@ -31,22 +39,9 @@ public class BindablePropertyDefaultValueAnalyzer : DiagnosticAnalyzer
 		if (attr == null)
 			return;
 
-		var hasDefault = false;
-		var hasGenerator = false;
 		var dictionary = attr.NamedArguments.ToDictionary(v => v.Key, v => v.Value);
-
-		foreach (var (name, value) in attr.NamedArguments)
-		{
-			switch (name)
-			{
-				case nameof(BindablePropertyAttribute.DefaultValue):
-					hasDefault = !value.IsNull;
-					break;
-				case nameof(BindablePropertyAttribute.DefaultValueFactory):
-					hasGenerator = ((bool?)value.Value).GetValueOrDefault();
-					break;
-			}
-		}
+		var hasDefault = dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defalutValueProp) && !defalutValueProp.IsNull;
+		var hasGenerator = dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValueFactory), out var defalutValueGeneratorProp) && defalutValueGeneratorProp is { Value: true };
 
 		var hasNonNullDefault = hasDefault || hasGenerator;
 		if (hasDefault && hasGenerator)
@@ -64,5 +59,8 @@ public class BindablePropertyDefaultValueAnalyzer : DiagnosticAnalyzer
 				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, Identifiers.GetAttachedPropertyName(m.Name));
 				break;
 		}
+
+		if (dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultMode), out var value) && (value is not { Value: int intValue } || !Enum.IsDefined(typeof(BindingMode), intValue)))
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, symbol, value.Value);
 	}
 }

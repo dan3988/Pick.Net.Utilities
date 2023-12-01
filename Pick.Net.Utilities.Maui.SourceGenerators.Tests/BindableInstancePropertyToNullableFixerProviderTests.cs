@@ -6,8 +6,8 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-using CodeFixTest = CSharpCodeFixTest<BindablePropertyDefaultValueAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
-using CodeFixVerifier = CSharpCodeFixVerifier<BindablePropertyDefaultValueAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
+using CodeFixTest = CSharpCodeFixTest<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
+using CodeFixVerifier = CSharpCodeFixVerifier<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
 
 [TestClass]
 public class BindableInstancePropertyToNullableFixerProviderTests

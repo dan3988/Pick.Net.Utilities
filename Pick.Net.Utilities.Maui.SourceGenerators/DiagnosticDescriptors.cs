@@ -179,11 +179,17 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Methods with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
-	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
-	{
-		var location = Location.Create(owner.SyntaxTree, owner.Span);
-		return Diagnostic.Create(descriptor, location, messageArgs);
-	}
+	public static Location ToLocation(this SyntaxNode node)
+		=> Location.Create(node.SyntaxTree, node.Span);
+
+	public static Location ToLocation(this SyntaxReference node)
+		=> Location.Create(node.SyntaxTree, node.Span);
+
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxNode? owner, params object?[] messageArgs)
+		=> Diagnostic.Create(descriptor, owner?.ToLocation(), messageArgs);
+
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
+		=> Diagnostic.Create(descriptor, owner?.ToLocation(), messageArgs);
 
 	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, ISymbol owner, params object?[] messageArgs)
 	{
@@ -191,25 +197,11 @@ internal static class DiagnosticDescriptors
 		return Diagnostic.Create(descriptor, location, messageArgs);
 	}
 
-	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
-	{
-		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
-		return Diagnostic.Create(descriptor, location, messageArgs);
-	}
-
-	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxNode owner, params object?[] messageArgs)
-	{
-		var location = Location.Create(owner.SyntaxTree, owner.Span);
-		var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-		builder.Add(diagnostic);
-	}
+	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxNode? owner, params object?[] messageArgs)
+		=> Add(builder, descriptor, owner?.ToLocation(), messageArgs);
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
-	{
-		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);
-		var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
-		builder.Add(diagnostic);
-	}
+		=> Add(builder, descriptor, owner?.ToLocation(), messageArgs);
 
 	public static void Add(this ImmutableArray<Diagnostic>.Builder builder, DiagnosticDescriptor descriptor, Location? location, params object?[] messageArgs)
 	{

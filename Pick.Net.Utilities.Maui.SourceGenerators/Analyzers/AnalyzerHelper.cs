@@ -5,22 +5,28 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 internal static class AnalyzerHelper
 {
 	public static void ReportDiagnostic(this SymbolAnalysisContext context, DiagnosticDescriptor descriptor, ISymbol symbol, params object?[] messageArgs)
-	{
-		var location = symbol.Locations.FirstOrDefault();
-		ReportDiagnostic(context, descriptor, location, messageArgs);
-	}
+		=> ReportDiagnostic(context, descriptor, symbol.Locations.FirstOrDefault(), messageArgs);
+
+	public static void ReportDiagnostic(this SymbolAnalysisContext context, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
+		=> ReportDiagnostic(context, descriptor, owner?.ToLocation(), messageArgs);
+
+	public static void ReportDiagnostic(this SymbolAnalysisContext context, DiagnosticDescriptor descriptor, SyntaxNode? owner, params object?[] messageArgs)
+		=> ReportDiagnostic(context, descriptor, owner?.ToLocation(), messageArgs);
 
 	public static void ReportDiagnostic(this SymbolAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object?[] messageArgs)
 	{
 		var diagnostic = Diagnostic.Create(descriptor, location, messageArgs);
 		context.ReportDiagnostic(diagnostic);
 	}
-	
+
 	public static void ReportDiagnostic(this SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, ISymbol symbol, params object?[] messageArgs)
-	{
-		var location = symbol.Locations.FirstOrDefault();
-		ReportDiagnostic(context, descriptor, location, messageArgs);
-	}
+		=> ReportDiagnostic(context, descriptor, symbol.Locations.FirstOrDefault(), messageArgs);
+
+	public static void ReportDiagnostic(this SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
+		=> ReportDiagnostic(context, descriptor, owner?.ToLocation(), messageArgs);
+
+	public static void ReportDiagnostic(this SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, SyntaxNode? owner, params object?[] messageArgs)
+		=> ReportDiagnostic(context, descriptor, owner?.ToLocation(), messageArgs);
 
 	public static void ReportDiagnostic(this SyntaxNodeAnalysisContext context, DiagnosticDescriptor descriptor, Location? location, params object?[] messageArgs)
 	{

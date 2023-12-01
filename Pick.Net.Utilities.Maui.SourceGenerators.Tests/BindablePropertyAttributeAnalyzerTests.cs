@@ -1,17 +1,14 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
+﻿using Microsoft.CodeAnalysis.Testing;
 
 using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-using CodeFixTest = CSharpAnalyzerTest<BindablePropertyAttributeAnalyzer, MSTestVerifier>;
-using CodeFixVerifier = CSharpAnalyzerVerifier<BindablePropertyAttributeAnalyzer, MSTestVerifier>;
-
 [TestClass]
 public class BindablePropertyAttributeAnalyzerTests
 {
+	private static readonly AnalyzerTestFactory<BindablePropertyAttributeAnalyzer> Factory = new();
+
 	[TestMethod]
 	public async Task ReportUndefinedBindngMode()
 	{
@@ -32,30 +29,11 @@ public class BindablePropertyAttributeAnalyzerTests
 	}
 	""";
 
-		var test = new CodeFixTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode).WithSpan(9, 16, 9, 21).WithArguments("66")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, (object)66)
+			.RunAsync();
 	}
+
 	[TestMethod]
 	public async Task ReportDefaultValueAndGenerator()
 	{
@@ -78,28 +56,8 @@ public class BindablePropertyAttributeAnalyzerTests
 	}
 	""";
 
-		var test = new CodeFixTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory).WithSpan(9, 16, 9, 21).WithArguments("66")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, 9, 16, 5, "Value")
+			.RunAsync();
 	}
 }

@@ -19,6 +19,15 @@ internal static class TestHelper
 	public static readonly Assembly UtilitiesMauiSourceGeneratorsAssembly = typeof(BindablePropertyGenerator).Assembly;
 	public static readonly Assembly ThisAssembly = typeof(TestHelper).Assembly;
 
+	public static void SetUpReferences<TAnalyzer>(this AnalyzerTest<TAnalyzer> test)
+		where TAnalyzer : IVerifier, new()
+	{
+		test.SolutionTransforms.Add(AddAnalyzerToSolution);
+		test.TestState.AdditionalReferences.Add(MauiAssembly);
+		test.TestState.AdditionalReferences.Add(UtilitiesMauiAssembly);
+		test.ReferenceAssemblies = Net80;
+	}
+
 	public static void AddAnalyzerToSolution<T>(this AnalyzerTest<T> test) where T : IVerifier, new()
 		=> AddAnalyzerToSolution(test.SolutionTransforms);
 

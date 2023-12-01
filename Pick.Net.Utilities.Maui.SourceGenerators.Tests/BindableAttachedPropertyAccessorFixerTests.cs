@@ -1,17 +1,13 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
-
-using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
+﻿using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-using CodeFixTest = CSharpCodeFixTest<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider, MSTestVerifier>;
-using CodeFixVerifier = CSharpCodeFixVerifier<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider, MSTestVerifier>;
-
 [TestClass]
 public class BindableAttachedPropertyAccessorFixerTests
 {
+	private static readonly FixTestFactory<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider> Factory = new();
+
 	[TestMethod]
 	public async Task ConvertPropertyGetMethod()
 	{
@@ -51,37 +47,10 @@ public class BindableAttachedPropertyAccessorFixerTests
 	}
 	""";
 
-		var test = new CodeFixTest
-		{
-			TestCode = original,
-			FixedCode = expected,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				},
-				ExpectedDiagnostics =
-				{
-					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed).WithSpan(11, 23, 11, 31).WithArguments("Value"),
-					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance).WithSpan(11, 23, 11, 31).WithArguments("Value")
-				}
-			},
-			FixedState =
-			{
-				ExpectedDiagnostics =
-				{
-					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance).WithSpan(11, 31, 11, 39).WithArguments("Value")
-				}
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(original, expected)
+			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, 11, 23, 8, "Value")
+			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 23, 8, "Value")
+			.ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 31, 8, "Value")
+			.RunAsync();
 	}
 }

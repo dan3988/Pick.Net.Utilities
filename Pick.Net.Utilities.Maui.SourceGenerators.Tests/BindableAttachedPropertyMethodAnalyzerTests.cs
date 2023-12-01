@@ -1,16 +1,12 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
-
-using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
+﻿using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
-
-using AnalyzerTest = CSharpAnalyzerTest<BindableAttachedPropertyMethodAnalyzer, MSTestVerifier>;
-using AnalyzerVerifier = CSharpAnalyzerVerifier<BindableAttachedPropertyMethodAnalyzer, MSTestVerifier>;
 
 [TestClass]
 public class BindableAttachedPropertyMethodAnalyzerTests
 {
+	private static readonly AnalyzerTestFactory<BindableAttachedPropertyMethodAnalyzer> Factory = new();
+
 	[TestMethod]
 	public async Task MethodNameDiagnosticTest()
 	{
@@ -27,30 +23,10 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		var test = new AnalyzerTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				AnalyzerVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance).WithSpan(9, 31, 9, 42).WithArguments("Test"),
-				AnalyzerVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName).WithSpan(9, 31, 9, 42).WithArguments("NoGetPrefix")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 9, 31, 11, "Test")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, 9, 31, 11, "NoGetPrefix")
+			.RunAsync();
 	}
 
 	[TestMethod]
@@ -71,29 +47,9 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		var test = new AnalyzerTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				AnalyzerVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn).WithSpan(9, 21, 9, 28).WithArguments("Test")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, 9, 21, 7, "Test")
+			.RunAsync();
 	}
 
 	[TestMethod]
@@ -112,29 +68,9 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		var test = new AnalyzerTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				AnalyzerVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature).WithSpan(9, 23, 9, 30).WithArguments("Test")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, 9, 23, 7, "Test")
+			.RunAsync();
 	}
 
 	[TestMethod]
@@ -154,28 +90,8 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		var test = new AnalyzerTest
-		{
-			TestCode = code,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				AnalyzerVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature).WithSpan(9, 23, 9, 30).WithArguments("Test")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, 9, 23, 7, "Test")
+			.RunAsync();
 	}
 }

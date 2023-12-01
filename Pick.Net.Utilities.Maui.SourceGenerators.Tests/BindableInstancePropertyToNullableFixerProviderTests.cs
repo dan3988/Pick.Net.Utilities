@@ -1,17 +1,13 @@
-using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
-
 using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-using CodeFixTest = CSharpCodeFixTest<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
-using CodeFixVerifier = CSharpCodeFixVerifier<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider, MSTestVerifier>;
-
 [TestClass]
 public class BindableInstancePropertyToNullableFixerProviderTests
 {
+	private static readonly FixTestFactory<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider> Factory = new();
+
 	[TestMethod]
 	public async Task MakePropertyNullable()
 	{
@@ -51,30 +47,9 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	}
 	""";
 
-		var test = new CodeFixTest
-		{
-			TestCode = original,
-			FixedCode = expected,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull).WithSpan(10, 16, 10, 21).WithArguments("Value")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(original, expected)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 16, 5, "Value")
+			.RunAsync();
 	}
 
 	[TestMethod]
@@ -126,29 +101,8 @@ public class BindableInstancePropertyToNullableFixerProviderTests
 	}
 	""";
 
-		var test = new CodeFixTest
-		{
-			TestCode = original,
-			FixedCode = expected,
-			ReferenceAssemblies = TestHelper.Net80,
-			SolutionTransforms =
-			{
-				TestHelper.AddAnalyzerToSolution
-			},
-			TestState =
-			{
-				AdditionalReferences =
-				{
-					TestHelper.MauiAssembly,
-					TestHelper.UtilitiesMauiAssembly
-				}
-			},
-			ExpectedDiagnostics =
-			{
-				CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull).WithSpan(10, 23, 10, 31).WithArguments("Value")
-			}
-		};
-
-		await test.RunAsync();
+		await Factory.CreateTest(original, expected)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 23, 8, "Value")
+			.RunAsync();
 	}
 }

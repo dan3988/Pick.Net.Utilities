@@ -7,7 +7,14 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 {
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed);
+	private static readonly DiagnosticDescriptor[] Diagnostics =
+	[
+		DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed,
+		DiagnosticDescriptors.BindablePropertyInstanceToAttached,
+		DiagnosticDescriptors.BindablePropertyStaticProperty
+	];
+
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Diagnostics);
 
 	public override void Initialize(AnalysisContext context)
 	{
@@ -36,7 +43,16 @@ public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 		if (attr == null)
 			return;
 
+		//prevent null warnings
 		symbol!.GetType();
+
+		context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached, symbol);
+		
+		if (symbol.IsStatic)
+		{
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyStaticProperty, symbol);
+			return;
+		}
 
 		if (symbol.IsAutoProperty())
 		{

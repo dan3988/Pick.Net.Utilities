@@ -72,7 +72,8 @@ public class BindableInstancePropertyAccessorFixerTests
             },
             ExpectedDiagnostics =
             {
-                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(11, 19, 11, 24).WithArguments("Value")
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(11, 19, 11, 24).WithArguments("Value"),
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached).WithSpan(11, 19, 11, 24).WithArguments("Value")
             }
         };
 
@@ -135,7 +136,8 @@ public class BindableInstancePropertyAccessorFixerTests
             },
             ExpectedDiagnostics =
             {
-                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(9, 19, 9, 24).WithArguments("Value")
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(9, 19, 9, 24).WithArguments("Value"),
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached).WithSpan(9, 19, 9, 24).WithArguments("Value")
             }
         };
 
@@ -194,7 +196,8 @@ public class BindableInstancePropertyAccessorFixerTests
             },
             ExpectedDiagnostics =
             {
-                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(9, 19, 9, 24).WithArguments("Value")
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed).WithSpan(9, 19, 9, 24).WithArguments("Value"),
+                CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached).WithSpan(9, 19, 9, 24).WithArguments("Value")
             }
         };
 

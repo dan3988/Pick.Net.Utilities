@@ -121,18 +121,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static CreateResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
 	{
 		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-		diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceToAttached, node);
-		if (symbol.IsStatic)
-		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyStaticProperty, node);
-		}
-
-		if (symbol.GetMethod == null)
-		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyNoGetter, node, symbol.Name);
-			return new(node.GetReference(), symbol.ContainingType, diagnostics);
-		}
-
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 

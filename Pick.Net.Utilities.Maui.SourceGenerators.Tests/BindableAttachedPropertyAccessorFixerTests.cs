@@ -66,11 +66,19 @@ public class BindableAttachedPropertyAccessorFixerTests
 				{
 					TestHelper.MauiAssembly,
 					TestHelper.UtilitiesMauiAssembly
+				},
+				ExpectedDiagnostics =
+				{
+					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed).WithSpan(11, 23, 11, 31).WithArguments("Value"),
+					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance).WithSpan(11, 23, 11, 31).WithArguments("Value")
 				}
 			},
-			ExpectedDiagnostics =
+			FixedState =
 			{
-				CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed).WithSpan(11, 23, 11, 31).WithArguments("Value")
+				ExpectedDiagnostics =
+				{
+					CodeFixVerifier.Diagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance).WithSpan(11, 31, 11, 39).WithArguments("Value")
+				}
 			}
 		};
 

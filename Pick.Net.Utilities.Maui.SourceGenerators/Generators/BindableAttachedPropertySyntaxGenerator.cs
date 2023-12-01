@@ -11,7 +11,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.GetValue))
 					.AddArgumentListArguments(Argument(bindablePropertyField)));
 
-		return MethodDeclaration(propertyType, "Get" + propertyName)
+		return MethodDeclaration(propertyType, info.MethodName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj })))
 			.WithReturnType(propertyType)
 			.WithModifiers(info.Modifiers)

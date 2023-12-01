@@ -185,6 +185,12 @@ internal static class DiagnosticDescriptors
 		return Diagnostic.Create(descriptor, location, messageArgs);
 	}
 
+	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, ISymbol owner, params object?[] messageArgs)
+	{
+		var location = owner.Locations.FirstOrDefault();
+		return Diagnostic.Create(descriptor, location, messageArgs);
+	}
+
 	public static Diagnostic CreateDiagnostic(this DiagnosticDescriptor descriptor, SyntaxReference? owner, params object?[] messageArgs)
 	{
 		var location = owner == null ? null : Location.Create(owner.SyntaxTree, owner.Span);

@@ -143,28 +143,19 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 	private static CreateResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute, CancellationToken token)
 	{
-		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
-
-		if (!symbol.ContainingType.IsStatic)
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedToInstance, node);
-
-		if (!symbol.IsStatic)
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInstanceMethod, node);
-
-		if (!Identifiers.GetAttachedPropertyName(symbol.Name, out var name))
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, node, name);
+		var name = Identifiers.GetAttachedPropertyName(symbol.Name);
 
 		if (symbol.ReturnsVoid)
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, node, name);
-			return new(node.GetReference(), symbol.ContainingType, diagnostics);
+			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn.CreateDiagnostic(node, symbol, name);
+			return new(node.GetReference(), symbol.ContainingType, error);
 		}
 
 		var arguments = symbol.Parameters;
-		if (arguments.Length != 1)
+		if (arguments.Length == 0)
 		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, node, name);
-			return new(node.GetReference(), symbol.ContainingType, diagnostics);
+			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature.CreateDiagnostic(node, symbol, name);
+			return new(node.GetReference(), symbol.ContainingType, error);
 		}
 
 		var attachedType = arguments[0].Type;
@@ -176,11 +167,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		if (symbol.IsPartialDefinition)
 		{
-			generatedGetterInfo = new(node.ParameterList, node.Modifiers);
-		}
-		else
-		{
-			diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, node, symbol.Name);
+			generatedGetterInfo = new(symbol.Name, node.ParameterList, node.Modifiers);
 		}
 
 		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
@@ -194,19 +181,11 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			writeAccessibility = setMethod.DeclaredAccessibility;
 
 			var setterNode = TryGetNode<MethodDeclarationSyntax>(setMethod, token);
-			if (setterNode != null)
-			{
-				if (setMethod.IsPartialDefinition)
-				{
-					generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
-				}
-				else
-				{
-					diagnostics.Add(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, setterNode, setMethod.Name);
-				}
-			}
+			if (setterNode != null && setMethod.IsPartialDefinition)
+				generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
 		}
 
+		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 		ParseAttribute(attribute, diagnostics, symbol.ContainingType, name, propertyType, accessibility, writeAccessibility, out var props);
 
 		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterInfo, generatedSetterInfo);

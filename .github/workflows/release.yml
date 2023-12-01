@@ -3,8 +3,16 @@ on:
   push:
     tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 jobs:
+  test:
+    runs-on: ubuntu-latesst
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Test
+      run: dotnet test -c Release "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
   build:
     runs-on: windows-latest
+    needs: test
     strategy:
       matrix:
         package: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]

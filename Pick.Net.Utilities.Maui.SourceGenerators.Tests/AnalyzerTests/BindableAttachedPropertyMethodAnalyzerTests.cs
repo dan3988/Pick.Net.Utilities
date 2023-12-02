@@ -2,10 +2,8 @@
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
-using Factory = AnalyzerTestFactory<BindableAttachedPropertyMethodAnalyzer>;
-
 [TestClass]
-public class BindableAttachedPropertyMethodAnalyzerTests
+public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<BindableAttachedPropertyMethodAnalyzer>
 {
 	[TestMethod]
 	public async Task MethodNameDiagnosticTest()
@@ -23,7 +21,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		await Factory.CreateTest(code)
+		await CreateTest(code)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 9, 31, 11, "Test")
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, 9, 31, 11, "NoGetPrefix")
 			.RunAsync();
@@ -47,7 +45,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		await Factory.CreateTest(code)
+		await CreateTest(code)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, 9, 21, 7, "Test")
 			.RunAsync();
 	}
@@ -68,7 +66,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		await Factory.CreateTest(code)
+		await CreateTest(code)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, 9, 23, 7, "Test")
 			.RunAsync();
 	}
@@ -90,7 +88,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests
 	}
 	""";
 
-		await Factory.CreateTest(code)
+		await CreateTest(code)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, 9, 23, 7, "Test")
 			.RunAsync();
 	}

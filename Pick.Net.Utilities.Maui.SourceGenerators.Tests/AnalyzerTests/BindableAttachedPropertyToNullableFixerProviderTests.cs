@@ -3,15 +3,13 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
-using Factory = FixTestFactory<BindablePropertyAttributeAnalyzer, BindableAttachedPropertyToNullableFixerProvider>;
-
 [TestClass]
-public class BindableAttachedPropertyToNullableFixerProviderTests
+public class BindableAttachedPropertyToNullableFixerProviderTests : CodeFixTests<BindablePropertyAttributeAnalyzer, BindableAttachedPropertyToNullableFixerProvider>
 {
-    [TestMethod]
-    public async Task MakeAttachedPropertyNullable()
-    {
-        const string original = """
+	[TestMethod]
+	public async Task MakeAttachedPropertyNullable()
+	{
+		const string original = """
 	#nullable enable
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
@@ -34,7 +32,7 @@ public class BindableAttachedPropertyToNullableFixerProviderTests
 	}
 	""";
 
-        const string expected = """
+		const string expected = """
 	#nullable enable
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
@@ -57,8 +55,8 @@ public class BindableAttachedPropertyToNullableFixerProviderTests
 	}
 	""";
 
-        await Factory.CreateTest(original, expected)
-            .ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 23, 8, "Value")
-            .RunAsync();
-    }
+		await CreateTest(original, expected)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 23, 8, "Value")
+			.RunAsync();
+	}
 }

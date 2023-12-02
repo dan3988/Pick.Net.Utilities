@@ -2,15 +2,13 @@
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
-using Factory = AnalyzerTestFactory<BindablePropertyAttributeAnalyzer>;
-
 [TestClass]
-public class BindablePropertyAttributeAnalyzerTests
+public class BindablePropertyAttributeAnalyzerTests : CodeAnalyzerTests<BindablePropertyAttributeAnalyzer>
 {
-    [TestMethod]
-    public async Task ReportUndefinedBindngMode()
-    {
-        const string code = """
+	[TestMethod]
+	public async Task ReportUndefinedBindngMode()
+	{
+		const string code = """
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
 	
@@ -27,15 +25,15 @@ public class BindablePropertyAttributeAnalyzerTests
 	}
 	""";
 
-        await Factory.CreateTest(code)
-            .ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, (object)66)
-            .RunAsync();
-    }
+		await CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, (object)66)
+			.RunAsync();
+	}
 
-    [TestMethod]
-    public async Task ReportDefaultValueAndGenerator()
-    {
-        const string code = """
+	[TestMethod]
+	public async Task ReportDefaultValueAndGenerator()
+	{
+		const string code = """
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
 	
@@ -54,8 +52,8 @@ public class BindablePropertyAttributeAnalyzerTests
 	}
 	""";
 
-        await Factory.CreateTest(code)
-            .ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, 9, 16, 5, "Value")
-            .RunAsync();
-    }
+		await CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, 9, 16, 5, "Value")
+			.RunAsync();
+	}
 }

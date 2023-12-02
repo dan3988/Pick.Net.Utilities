@@ -4,10 +4,10 @@ using Microsoft.CodeAnalysis.Testing.Verifiers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-internal static class AnalyzerTestFactory<TAnalyzer>
+public abstract class CodeAnalyzerTests<TAnalyzer>
 	where TAnalyzer : DiagnosticAnalyzer, new()
 {
-	public static CSharpAnalyzerTest<TAnalyzer, MSTestVerifier> CreateTest(string code)
+	protected static CSharpAnalyzerTest<TAnalyzer, MSTestVerifier> CreateTest(string code)
 	{
 		var test = new CSharpAnalyzerTest<TAnalyzer, MSTestVerifier>
 		{

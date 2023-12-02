@@ -3,15 +3,13 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
-using Factory = FixTestFactory<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider>;
-
 [TestClass]
-public class BindableAttachedPropertyAccessorFixerTests
+public class BindableAttachedPropertyAccessorFixerTests : CodeFixTests<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider>
 {
-    [TestMethod]
-    public async Task ConvertPropertyGetMethod()
-    {
-        const string original = """
+	[TestMethod]
+	public async Task ConvertPropertyGetMethod()
+	{
+		const string original = """
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
 	
@@ -30,7 +28,7 @@ public class BindableAttachedPropertyAccessorFixerTests
 	}
 	""";
 
-        const string expected = """
+		const string expected = """
 	using Pick.Net.Utilities.Maui.Helpers;
 	using Microsoft.Maui.Controls;
 
@@ -47,10 +45,10 @@ public class BindableAttachedPropertyAccessorFixerTests
 	}
 	""";
 
-        await Factory.CreateTest(original, expected)
-            .ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, 11, 23, 8, "Value")
-            .ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 23, 8, "Value")
-            .ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 31, 8, "Value")
-            .RunAsync();
-    }
+		await CreateTest(original, expected)
+			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, 11, 23, 8, "Value")
+			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 23, 8, "Value")
+			.ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 31, 8, "Value")
+			.RunAsync();
+	}
 }

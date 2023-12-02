@@ -115,7 +115,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
 
-	private static CreateGeneratorResult CreateForProperty(IPropertySymbol symbol, PropertyDeclarationSyntax node, AttributeData attribute)
+	private static CreateGeneratorResult CreateForProperty(IPropertySymbol symbol, AttributeData attribute)
 	{
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
@@ -125,20 +125,20 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return new(generator);
 	}
 
-	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, MethodDeclarationSyntax node, AttributeData attribute, CancellationToken token)
+	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, AttributeData attribute, CancellationToken token)
 	{
 		var name = Identifiers.GetAttachedPropertyName(symbol.Name);
 
 		if (symbol.ReturnsVoid)
 		{
-			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn.CreateDiagnostic(node, symbol, name);
+			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn.CreateDiagnostic(symbol, name);
 			return new(error);
 		}
 
 		var arguments = symbol.Parameters;
 		if (arguments.Length == 0)
 		{
-			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature.CreateDiagnostic(node, symbol, name);
+			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature.CreateDiagnostic(symbol, name);
 			return new(error);
 		}
 
@@ -151,22 +151,20 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		if (symbol.IsPartialDefinition)
 		{
-			generatedGetterInfo = new(symbol.Name, node.ParameterList, node.Modifiers);
+			generatedGetterInfo = new(symbol);
 		}
 
 		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
 		if (setMethod == null)
 		{
-			var modifiers = node.Modifiers.Remove(SyntaxKind.PartialKeyword);
-			generatedSetterInfo = new(node.ParameterList.Parameters[0].Identifier, Identifier("value"), modifiers);
+			generatedSetterInfo = new(false, symbol.Parameters[0].Name, "value", symbol.DeclaredAccessibility);
 		}
 		else
 		{
 			writeAccessibility = setMethod.DeclaredAccessibility;
 
-			var setterNode = TryGetNode<MethodDeclarationSyntax>(setMethod, token);
-			if (setterNode != null && setMethod.IsPartialDefinition)
-				generatedSetterInfo = new(setterNode.ParameterList, setterNode.Modifiers);
+			if (setMethod.IsPartialDefinition)
+				generatedSetterInfo = new(setMethod);
 		}
 
 		ParseAttribute(attribute, symbol.ContainingType, name, propertyType, accessibility, writeAccessibility, out var props);
@@ -191,8 +189,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		var result = context.TargetSymbol.Kind switch
 		{
-			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, (PropertyDeclarationSyntax)context.TargetNode, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, (MethodDeclarationSyntax)context.TargetNode, context.Attributes[0], token),
+			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.Attributes[0]),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.Attributes[0], token),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 

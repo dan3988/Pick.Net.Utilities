@@ -6,6 +6,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 {
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(AttachedPropertyGetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
+		var modifiers = info.Accessibility.ToSyntaxList().Add(SyntaxKind.StaticKeyword).Add(SyntaxKind.PartialKeyword);
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var expression = CastExpression(propertyType,
 				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.GetValue))
@@ -14,13 +15,17 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 		return MethodDeclaration(propertyType, info.MethodName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj })))
 			.WithReturnType(propertyType)
-			.WithModifiers(info.Modifiers)
+			.WithModifiers(modifiers)
 			.WithExpressionBody(ArrowExpressionClause(expression))
 			.WithSemicolonToken();
 	}
 
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(AttachedPropertySetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
+		var modifiers = info.Accessibility.ToSyntaxList().Add(SyntaxKind.StaticKeyword);
+		if (info.Partial)
+			modifiers = modifiers.Add(SyntaxKind.PartialKeyword);
+
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var paramValue = Parameter(info.ValueParamName).WithType(propertyType);
 		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.SetValue))
@@ -30,7 +35,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 
 		return MethodDeclaration(SyntaxHelper.TypeVoid, "Set" + propertyName)
 			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))
-			.WithModifiers(info.Modifiers)
+			.WithModifiers(modifiers)
 			.WithExpressionBody(ArrowExpressionClause(expression))
 			.WithSemicolonToken();
 	}

@@ -92,4 +92,52 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, 9, 23, 7, "Test")
 			.RunAsync();
 	}
+
+	[TestMethod]
+	public async Task MethodMismatchedGetNullablility()
+	{
+		const string code = """
+	using Pick.Net.Utilities.Maui.Helpers;
+	using Microsoft.Maui.Controls;
+	
+	namespace Test;
+	
+	partial class TestClass : BindableObject
+	{
+		[BindableProperty]
+		public static partial string GetTest(BindableObject obj);
+
+		public static partial void SetTest(BindableObject obj, string? value);
+	}
+	""";
+
+		await CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNullabilityMismatch, 9, 31, 7, "Test")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 9, 31, 7, "Test")
+			.RunAsync();
+	}
+
+	[TestMethod]
+	public async Task MethodMismatchedSetNullablility()
+	{
+		const string code = """
+	using Pick.Net.Utilities.Maui.Helpers;
+	using Microsoft.Maui.Controls;
+	
+	namespace Test;
+	
+	partial class TestClass : BindableObject
+	{
+		[BindableProperty]
+		public static partial string? GetTest(BindableObject obj);
+
+		private static partial void SetTest(BindableObject obj, string value);
+	}
+	""";
+
+		await CreateTest(code)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNullabilityMismatch, 9, 32, 7, "Test")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 9, 32, 7, "Test")
+			.RunAsync();
+	}
 }

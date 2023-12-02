@@ -179,6 +179,15 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Methods with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
+	public static readonly DiagnosticDescriptor BindablePropertyAttachedPropertyNullabilityMismatch = new(
+		Prefix + "0014",
+		"Nullability of attached property get and set methods do not match",
+		"Nullability get and set methods for attached property '{0}' do not match",
+		Category,
+		DiagnosticSeverity.Warning,
+		true,
+		$"The nullability of the value parameter of set methods for attached properties should match the return value of the get method.");
+
 	public static Location ToLocation(this SyntaxNode node)
 		=> Location.Create(node.SyntaxTree, node.Span);
 

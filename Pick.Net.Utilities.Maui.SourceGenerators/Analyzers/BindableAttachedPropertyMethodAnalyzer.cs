@@ -12,6 +12,7 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 		DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed,
 		DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial,
 		DiagnosticDescriptors.BindablePropertyAttachedToInstance,
+		DiagnosticDescriptors.BindablePropertyAttachedPropertyNullabilityMismatch,
 		DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName,
 		DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn,
 		DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature,
@@ -36,21 +37,21 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 		context.RegisterSyntaxNodeAction(c => AnalyzeNode(c, type), SyntaxKind.MethodDeclaration);
 	}
 
-	private static bool CheckSetMethod(MethodDeclarationSyntax node, IMethodSymbol getterSymbol, string name)
+	private static (MethodDeclarationSyntax? Node, IMethodSymbol? Symbol) FindSetMethod(MethodDeclarationSyntax node, IMethodSymbol getterSymbol, string name)
 	{
 		if (getterSymbol.Parameters.Length == 0)
-			return false;
+			return default;
 
-		var setter = getterSymbol.ContainingType.GetAttachedSetMethod(getterSymbol.ReturnType, getterSymbol.Parameters[0].Type, name);
-		if (setter == null)
-			return false;
+		var setterSymbol = getterSymbol.ContainingType.GetAttachedSetMethod(getterSymbol.ReturnType, getterSymbol.Parameters[0].Type, name);
+		if (setterSymbol == null)
+			return default;
 
-		var location = setter.Locations.FirstOrDefault(v => v.SourceTree == node.SyntaxTree);
+		var location = setterSymbol.Locations.FirstOrDefault(v => v.SourceTree == node.SyntaxTree);
 		if (location == null)
-			return false;
+			return default;
 
 		var setterNode = node.Parent?.FindNode(location.SourceSpan) as MethodDeclarationSyntax;
-		return setterNode != null && !node.IsBindablePropertyUsed(name, false);
+		return (setterNode, setterSymbol);
 	}
 
 	private static void AnalyzeNode(SyntaxNodeAnalysisContext context, INamedTypeSymbol attributeType)
@@ -96,16 +97,23 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstanceMethod, symbol);
 		}
 
-		if (!validSignature || symbol.IsPartialDefinition)
+		if (!validSignature)
 			return;
 
-		if (node.IsBindablePropertyUsed(propertyName, false) && CheckSetMethod(node, symbol, propertyName))
+		var (setterNode, setterSymbol) = FindSetMethod(node, symbol, propertyName);
+
+		if (!symbol.IsPartialDefinition)
 		{
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, symbol, propertyName);
+
+			if (!node.IsBindablePropertyUsed(propertyName, false) || (setterNode != null && setterNode.IsBindablePropertyUsed(propertyName, symbol.DeclaredAccessibility != setterSymbol!.DeclaredAccessibility)))
+				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, symbol, propertyName);
+
 		}
-		else
+
+		if (setterSymbol != null && symbol.ReturnType.NullableAnnotation != setterSymbol.Parameters[1].Type.NullableAnnotation)
 		{
-			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, symbol, propertyName);
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNullabilityMismatch, symbol, propertyName);
 		}
 	}
 }

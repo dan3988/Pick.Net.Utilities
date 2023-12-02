@@ -3,7 +3,7 @@
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.GeneratorTests;
 
 [TestClass]
-public class ClassHeirachyTests : CodeGeneratorTest<BindablePropertyGenerator>
+public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 {
 	[TestMethod]
 	public void TestRootLevelClass()
@@ -46,13 +46,9 @@ public class ClassHeirachyTests : CodeGeneratorTest<BindablePropertyGenerator>
 			}
 			""";
 
-		var compilation = CreateCompilation(code, out var tree);
-		var driver = CreateDriver(tree.Options);
-
-		driver.RunGeneratorsAndUpdateCompilation(compilation, out var generatorCompilation, out var generatorDiagnostics);
-
-		CheckDiagnostics(generatorDiagnostics);
-		CheckGeneratedCode(generatorCompilation, "RootLevelClass", output);
+		CreateTest(code)
+			.ExpectOutput("RootLevelClass", output)
+			.Run();
 	}
 
 	[TestMethod]
@@ -149,13 +145,9 @@ public class ClassHeirachyTests : CodeGeneratorTest<BindablePropertyGenerator>
 			}
 			""";
 
-		var compilation = CreateCompilation(code, out var tree);
-		var driver = CreateDriver(tree.Options);
-
-		driver.RunGeneratorsAndUpdateCompilation(compilation, out var generatorCompilation, out var generatorDiagnostics);
-
-		CheckDiagnostics(generatorDiagnostics);
-		CheckGeneratedCode(generatorCompilation, "Test.RootClass+FirstNestedClass", firstOutput);
-		CheckGeneratedCode(generatorCompilation, "Test.RootClass+FirstNestedClass+SecondNestedClass", secondOutput);
+		CreateTest(code)
+			.ExpectOutput("Test.RootClass+FirstNestedClass", firstOutput)
+			.ExpectOutput("Test.RootClass+FirstNestedClass+SecondNestedClass", secondOutput)
+			.Run();
 	}
 }

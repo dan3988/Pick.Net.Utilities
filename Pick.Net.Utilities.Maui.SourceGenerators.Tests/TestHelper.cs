@@ -45,6 +45,11 @@ internal static class TestHelper
 	{
 		var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp12);
 		tree = (CSharpSyntaxTree)CSharpSyntaxTree.ParseText(code, options, filePath);
+		return CreateCompilation(tree, assemblyName);
+	}
+
+	public static CSharpCompilation CreateCompilation(CSharpSyntaxTree tree, string assemblyName)
+	{
 		var references = new MetadataReference[]
 		{
 			MetadataReference.CreateFromFile(MauiAssembly.Location),

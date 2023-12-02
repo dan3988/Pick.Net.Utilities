@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,37 +7,44 @@ using Microsoft.CodeAnalysis.Testing.Verifiers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-public abstract class CodeGeneratorTest<TGenerator> where TGenerator : IIncrementalGenerator, new()
+public sealed class CodeGeneratorTest<TGenerator> where TGenerator : IIncrementalGenerator, new()
 {
-	private static readonly MSTestVerifier Verifier = new();
 	private static readonly AssemblyName AssemblyName = typeof(TGenerator).Assembly.GetName();
 	private static readonly string FileNamePrefix = AssemblyName.Name + "\\" + typeof(TGenerator) + "\\";
 
-	protected void AssertCodeEqual(string expected, string actual, string? message = null)
-		=> Verifier.EqualOrDiff(expected, actual, message);
+	public required Type TestsType { get; set; }
 
-	protected void CheckGeneratedCode(Compilation compilation, string fullTypeName, string expectedCode)
+	public required string TestName { get; set; }
+
+	public required string Input { get; set; }
+
+	public CSharpParseOptions Options { get; set; } = CSharpParseOptions.Default;
+
+	public List<CodeGeneratorTestOutput> OutputFiles { get; } = [];
+
+	public CodeGeneratorTest<TGenerator> ExpectOutput(string name, string code)
 	{
-		var fileName = FileNamePrefix + fullTypeName + ".g.cs";
-		var file = compilation.SyntaxTrees.FirstOrDefault(v => v.FilePath == fileName);
-		Assert.IsNotNull(file, "Generated file \"{0}\" was not found in compilation", fileName);
-		Verifier.EqualOrDiff(expectedCode, file.ToString());
+		OutputFiles.Add(new(name, code));
+		return this;
 	}
 
-	protected void CheckDiagnostics(ImmutableArray<Diagnostic> diagnostics)
+	public void Run()
 	{
-		Verifier.Empty("Diagnostics", diagnostics);
-	}
+		var verifier = new MSTestVerifier();
+		var type = TestsType;
+		var tree = (CSharpSyntaxTree)CSharpSyntaxTree.ParseText(Input, Options, $"{type.Namespace}\\{type.Name}\\{TestName}.cs");
+		var compilation = TestHelper.CreateCompilation(tree, type.Namespace!);
+		var driver = (CSharpGeneratorDriver)CSharpGeneratorDriver.Create(new TGenerator()).WithUpdatedParseOptions(Options);
 
-	protected CSharpCompilation CreateCompilation(string code, out CSharpSyntaxTree tree, [CallerMemberName] string test = null!)
-	{
-		var type = GetType();
-		var fullName = $"{type.Namespace}\\{type.Name}\\{test}";
-		return TestHelper.CreateCompilation(code, type.Namespace!, fullName + ".cs", out tree);
-	}
+		driver.RunGeneratorsAndUpdateCompilation(compilation, out var generatedCompilation, out var diagnostics);
+		verifier.Empty("Diagnostics", diagnostics);
 
-	protected CSharpGeneratorDriver CreateDriver(CSharpParseOptions options)
-	{
-		return (CSharpGeneratorDriver)CSharpGeneratorDriver.Create(new TGenerator()).WithUpdatedParseOptions(options);
+		foreach (var (fileName, code) in OutputFiles)
+		{
+			var fullName = FileNamePrefix + fileName + ".g.cs";
+			var file = generatedCompilation.SyntaxTrees.FirstOrDefault(v => v.FilePath == fullName);
+			Assert.IsNotNull(file, "Generated file \"{0}\" was not found in compilation", fileName);
+			verifier.EqualOrDiff(code, file.ToString());
+		}
 	}
 }

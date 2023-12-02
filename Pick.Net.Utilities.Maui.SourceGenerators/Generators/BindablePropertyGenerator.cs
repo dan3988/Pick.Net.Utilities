@@ -243,9 +243,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
 
 			var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);
-			var ns = NamespaceDeclaration(IdentifierName(classInfo.Namespace)).AddMembers(declaration);
+			var root = classInfo.Namespace == "" ? (MemberDeclarationSyntax)declaration : NamespaceDeclaration(IdentifierName(classInfo.Namespace)).AddMembers(declaration);
 			var unit = CompilationUnit()
-				.AddMembers(ns)
+				.AddMembers(root)
 				.WithLeadingTrivia(Trivia(nullableEnable))
 				.AddFormatting();
 

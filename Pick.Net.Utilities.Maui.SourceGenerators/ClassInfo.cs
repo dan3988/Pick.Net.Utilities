@@ -13,7 +13,10 @@ internal sealed record ClassInfo(string Namespace, string TypeName, ImmutableArr
 
 	public string GetFileName(string? suffix = null)
 	{
-		var sb = new StringBuilder(Namespace).Append('.');
+		var sb = new StringBuilder();
+
+		if (Namespace != "")
+			sb.Append(Namespace).Append('.');
 
 		for (var i = ParentTypes.Length; --i >= 0;)
 			sb.Append(ParentTypes[i]).Append('+');

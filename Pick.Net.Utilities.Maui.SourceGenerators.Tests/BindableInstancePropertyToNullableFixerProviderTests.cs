@@ -3,11 +3,11 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
+using Factory = FixTestFactory<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider>;
+
 [TestClass]
 public class BindableInstancePropertyToNullableFixerProviderTests
 {
-	private static readonly FixTestFactory<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider> Factory = new();
-
 	[TestMethod]
 	public async Task MakePropertyNullable()
 	{

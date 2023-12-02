@@ -3,11 +3,11 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
+using Factory = FixTestFactory<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider>;
+
 [TestClass]
 public class BindableAttachedPropertyAccessorFixerTests
 {
-	private static readonly FixTestFactory<BindableAttachedPropertyMethodAnalyzer, BindableAttachedPropertyMethodToPartialFixProvider> Factory = new();
-
 	[TestMethod]
 	public async Task ConvertPropertyGetMethod()
 	{

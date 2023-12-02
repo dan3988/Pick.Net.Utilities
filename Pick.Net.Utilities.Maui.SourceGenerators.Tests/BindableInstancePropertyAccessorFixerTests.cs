@@ -3,11 +3,11 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
+using Factory = FixTestFactory<BindableInstancePropertyAccessorAnalyzer, BindableInstancePropertyAutoPropertyFixer>;
+
 [TestClass]
 public class BindableInstancePropertyAccessorFixerTests
 {
-    private static readonly FixTestFactory<BindableInstancePropertyAccessorAnalyzer, BindableInstancePropertyAutoPropertyFixer> Factory = new();
-
     [TestMethod]
     public async Task FixPropertyAccessors()
     {

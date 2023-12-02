@@ -5,11 +5,11 @@ using Microsoft.CodeAnalysis.Testing.Verifiers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
-internal sealed class FixTestFactory<TAnalyzer, TCodeFix>
+internal static class FixTestFactory<TAnalyzer, TCodeFix>
 	where TAnalyzer : DiagnosticAnalyzer, new()
 	where TCodeFix : CodeFixProvider, new()
 {
-	public CSharpCodeFixTest<TAnalyzer, TCodeFix, MSTestVerifier> CreateTest(string code, string expected)
+	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, MSTestVerifier> CreateTest(string code, string expected)
 	{
 		var test = new CSharpCodeFixTest<TAnalyzer, TCodeFix, MSTestVerifier>
 		{

@@ -2,11 +2,11 @@
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
+using Factory = AnalyzerTestFactory<BindableAttachedPropertyMethodAnalyzer>;
+
 [TestClass]
 public class BindableAttachedPropertyMethodAnalyzerTests
 {
-	private static readonly AnalyzerTestFactory<BindableAttachedPropertyMethodAnalyzer> Factory = new();
-
 	[TestMethod]
 	public async Task MethodNameDiagnosticTest()
 	{

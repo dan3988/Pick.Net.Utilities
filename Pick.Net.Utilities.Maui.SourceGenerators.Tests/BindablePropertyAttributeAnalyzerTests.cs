@@ -1,14 +1,12 @@
-﻿using Microsoft.CodeAnalysis.Testing;
-
-using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
+﻿using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
+
+using Factory = AnalyzerTestFactory<BindablePropertyAttributeAnalyzer>;
 
 [TestClass]
 public class BindablePropertyAttributeAnalyzerTests
 {
-	private static readonly AnalyzerTestFactory<BindablePropertyAttributeAnalyzer> Factory = new();
-
 	[TestMethod]
 	public async Task ReportUndefinedBindngMode()
 	{

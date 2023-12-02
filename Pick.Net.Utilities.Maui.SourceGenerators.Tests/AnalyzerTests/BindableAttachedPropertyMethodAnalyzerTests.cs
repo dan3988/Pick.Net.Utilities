@@ -1,6 +1,6 @@
 ﻿using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
-namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
+namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
 using Factory = AnalyzerTestFactory<BindableAttachedPropertyMethodAnalyzer>;
 

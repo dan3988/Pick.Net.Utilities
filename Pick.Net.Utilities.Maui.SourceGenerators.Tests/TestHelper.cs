@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.Maui.Controls;
@@ -38,6 +39,20 @@ internal static class TestHelper
 	{
 		var reference = new AnalyzerFileReference(UtilitiesMauiSourceGeneratorsAssembly.Location, AnalyzerAssemblyLoader.Instance);
 		return solution.WithProjectAnalyzerReferences(id, [reference]);
+	}
+
+	public static CSharpCompilation CreateCompilation(string code, string assemblyName, string filePath, out CSharpSyntaxTree tree)
+	{
+		var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp12);
+		tree = (CSharpSyntaxTree)CSharpSyntaxTree.ParseText(code, options, filePath);
+		var references = new MetadataReference[]
+		{
+			MetadataReference.CreateFromFile(MauiAssembly.Location),
+			MetadataReference.CreateFromFile(UtilitiesMauiAssembly.Location),
+			MetadataReference.CreateFromFile(UtilitiesMauiSourceGeneratorsAssembly.Location)
+		};
+
+		return CSharpCompilation.Create(assemblyName, [tree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 	}
 
 	private sealed class AnalyzerAssemblyLoader : IAnalyzerAssemblyLoader

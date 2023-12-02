@@ -1,7 +1,7 @@
 ﻿using Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
-namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
+namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
 using Factory = FixTestFactory<BindableInstancePropertyAccessorAnalyzer, BindableInstancePropertyAutoPropertyFixer>;
 

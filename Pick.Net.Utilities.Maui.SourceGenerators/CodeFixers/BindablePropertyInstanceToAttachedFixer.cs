@@ -1,6 +1,5 @@
 ﻿using System.Composition;
 
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 
@@ -9,11 +8,8 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 using static SyntaxFactory;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyInstanceToAttached)
+public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Make property type nullable", DiagnosticDescriptors.BindablePropertyInstanceToAttached)
 {
-	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
-		=> CodeAction.Create("To attached property", token => DoFix(document, root, node, token));
-
 	private static SyntaxTokenList AlterModifiers(SyntaxTokenList modifiers)
 	{
 		if (!modifiers.Contains(SyntaxKind.StaticKeyword))
@@ -22,20 +18,12 @@ public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvi
 		return modifiers.Add(SyntaxKind.PartialKeyword);
 	}
 
-	private static async Task<TypeSyntax> GetTypeIdentifierAsync(Document document, SyntaxGenerator generator, string fullName, CancellationToken token)
-	{
-		var model = await document.GetSemanticModelAsync(token);
-		return BindablePropertyFixHelper.GetTypeIdentifier(model, generator, fullName);
-
-	}
-
-	public static async Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax node, CancellationToken token)
+	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)
 	{
 		var propertyType = node.Type;
 		var propertyName = node.Identifier.Text;
-		var members = new List<SyntaxNode>();
-		var generator = SyntaxGenerator.GetGenerator(document);
-		var attachedType = await GetTypeIdentifierAsync(document, generator, Identifiers.BindableObject, token);
+		var generator = editor.Generator;
+		var attachedType = BindablePropertyFixHelper.GetTypeIdentifier(editor.SemanticModel, generator, Identifiers.BindableObject);
 		var getMethod = ((MethodDeclarationSyntax)generator.MethodDeclaration("Get" + propertyName))
 			.WithSemicolonToken()
 			.WithBody(null)
@@ -45,7 +33,7 @@ public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvi
 			.AddParameterListParameters(
 				Parameter(Identifier("obj")).WithType(attachedType));
 
-		members.Add(getMethod);
+		editor.ReplaceNode(node, getMethod);
 
 		var setAccessor = node.AccessorList?.Accessors.FirstOrDefault(v => v.Kind() is SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration);
 		if (setAccessor != null)
@@ -58,12 +46,9 @@ public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvi
 					Parameter(Identifier("obj")).WithType(attachedType),
 					Parameter(Identifier("value")).WithType(node.Type));
 
-			members.Add(setMethod);
+			editor.InsertAfter(node, setMethod);
 		}
 
-		root = root.ReplaceNode(node, members);
-		document = document.WithSyntaxRoot(root);
-
-		return document;
+		return true;
 	}
 }

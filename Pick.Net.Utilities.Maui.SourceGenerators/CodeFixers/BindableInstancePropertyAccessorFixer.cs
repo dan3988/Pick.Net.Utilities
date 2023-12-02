@@ -1,6 +1,5 @@
 ﻿using System.Composition;
 
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 
@@ -11,11 +10,8 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 using static SyntaxFactory;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
+public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Use BindableProperty in accessors", DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
 {
-	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
-		=> CodeAction.Create("Use BindableProperty in accessors", token => DoFix(document, root, node, token));
-
 	private static AccessorDeclarationSyntax CopyAttributes(AccessorListSyntax? existing, AccessorDeclarationSyntax syntax)
 	{
 		var other = existing?.Accessors.OfKind(existing.Kind()).FirstOrDefault();
@@ -36,16 +32,15 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 		return list;
 	}
 
-	private static async Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax prop, CancellationToken token)
+	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax prop, Diagnostic diagnostic, CancellationToken token)
 	{
 		var list = prop.AccessorList;
 		if (list == null)
-			return document;
+			return false;
 
 		var ogProp = prop;
 		var indent = GetIndentation(prop, out var indentTrivia);
 		var accessorIndent = indent.Add(indentTrivia);
-		var editor = await DocumentEditor.CreateAsync(document, token);
 		var gen = editor.Generator;
 		var name = prop.Identifier.Text;
 		var field = IdentifierName(name + "Property");
@@ -78,7 +73,7 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 
 		editor.ReplaceNode(ogProp, prop);
 
-		return editor.GetChangedDocument();
+		return true;
 	}
 
 	private static void GenerateGetter(List<AccessorDeclarationSyntax> accessors, SyntaxGenerator gen, SyntaxTriviaList leadingTrivia, AccessorDeclarationSyntax existing, TypeSyntax propertyType, TypeSyntax bindablePropertyField)

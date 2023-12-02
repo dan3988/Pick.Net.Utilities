@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
@@ -44,16 +45,34 @@ public abstract class BaseCodeFixProvider : CodeFixProvider
 
 public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : SyntaxNode
 {
-	protected BaseCodeFixProvider(DiagnosticDescriptor dignostic) : base(dignostic)
+	public string Title { get; }
+
+	public virtual string EquivelanceKey => GetType().FullName;
+
+	public virtual CodeActionPriority Priority => CodeActionPriority.Default;
+
+	protected BaseCodeFixProvider(string title, DiagnosticDescriptor dignostic) : base(dignostic)
 	{
+		Title = title;
 	}
 
-	protected BaseCodeFixProvider(DiagnosticDescriptor first, params DiagnosticDescriptor[] rest) : base(first, rest)
+	protected BaseCodeFixProvider(string title, DiagnosticDescriptor first, params DiagnosticDescriptor[] rest) : base(first, rest)
 	{
+		Title = title;
 	}
 
 	protected sealed override CodeAction? CreateAction(Document document, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
-		=> node is T t ? CreateAction(document, root, t, diagnostic) : null;
+	{
+		return node is T t && CanFix(t) ? CodeAction.Create(Title, EditDocument, EquivelanceKey, Priority) : null;
 
-	protected abstract CodeAction? CreateAction(Document document, SyntaxNode root, T node, Diagnostic diagnostic);
+		async Task<Document> EditDocument(CancellationToken token)
+		{
+			var editor = await DocumentEditor.CreateAsync(document, token);
+			return Fix(editor, t, diagnostic, token) ? editor.GetChangedDocument() : document;
+		}
+	}
+
+	protected virtual bool CanFix(T node) => true;
+
+	protected abstract bool Fix(DocumentEditor editor, T node, Diagnostic diagnostic, CancellationToken token);
 }

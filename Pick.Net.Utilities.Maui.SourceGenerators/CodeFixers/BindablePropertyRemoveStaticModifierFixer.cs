@@ -1,24 +1,19 @@
 ﻿using System.Composition;
 
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyRemoveStaticModifierFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyStaticProperty)
+public sealed class BindablePropertyRemoveStaticModifierFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Remove static modifier", DiagnosticDescriptors.BindablePropertyStaticProperty)
 {
-	protected override CodeAction? CreateAction(Document document, SyntaxNode root, PropertyDeclarationSyntax node, Diagnostic diagnostic)
-		=> CodeAction.Create("Remove static modifier", _ => DoFix(document, root, node));
-
-	private static Task<Document> DoFix(Document document, SyntaxNode root, PropertyDeclarationSyntax node)
+	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)
 	{
 		var modifiers = node.Modifiers.Remove(SyntaxKind.StaticKeyword);
 		var fixedNode = node.WithModifiers(modifiers);
 
-		root = root.ReplaceNode(node, fixedNode);
-		document = document.WithSyntaxRoot(root);
-
-		return Task.FromResult(document);
+		editor.ReplaceNode(node, fixedNode);
+		return true;
 	}
 }

@@ -1,17 +1,13 @@
 ﻿using System.Composition;
 
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableAttachedPropertyMethodToPartialFixProvider() : BaseCodeFixProvider<MethodDeclarationSyntax>(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed)
+public sealed class BindableAttachedPropertyMethodToPartialFixProvider() : BaseCodeFixProvider<MethodDeclarationSyntax>("To partial method", DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed)
 {
-	protected override CodeAction? CreateAction(Document document, SyntaxNode root, MethodDeclarationSyntax node, Diagnostic diagnostic)
-		=> CodeAction.Create("To partial method", token => DoFix(document, root, node, token));
-
 	private static MethodDeclarationSyntax ToPartial(MethodDeclarationSyntax node)
 	{
 		var semicolon = node.SemicolonToken.IsKind(SyntaxKind.SemicolonToken) ? node.SemicolonToken.WithLeadingTrivia(SyntaxTriviaList.Empty) : SyntaxHelper.Semicolon;
@@ -31,11 +27,9 @@ public sealed class BindableAttachedPropertyMethodToPartialFixProvider() : BaseC
 		return node;
 	}
 
-	private static async Task<Document> DoFix(Document document, SyntaxNode root, MethodDeclarationSyntax node, CancellationToken token)
+	protected override bool Fix(DocumentEditor editor, MethodDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)
 	{
 		var propertyName = Identifiers.GetAttachedPropertyName(node.Identifier.Text);
-		var editor = await DocumentEditor.CreateAsync(document, token);
-
 		editor.ReplaceNode(node, ToPartial(node));
 
 		var getterSymbol = editor.SemanticModel.GetDeclaredSymbol(node);
@@ -48,6 +42,6 @@ public sealed class BindableAttachedPropertyMethodToPartialFixProvider() : BaseC
 				editor.ReplaceNode(setterNode, ToPartial(setterNode));
 		}
 
-		return editor.GetChangedDocument();
+		return true;
 	}
 }

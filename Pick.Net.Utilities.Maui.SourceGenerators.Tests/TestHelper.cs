@@ -12,20 +12,27 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
 internal static class TestHelper
 {
+	public static class Assemblies
+	{
+		public static readonly Assembly System = typeof(object).Assembly;
+		public static readonly Assembly Maui = typeof(BindableObject).Assembly;
+		public static readonly Assembly Utilities = typeof(BooleanBox).Assembly;
+		public static readonly Assembly UtilitiesMaui = AssemblyInfo.Assembly;
+		public static readonly Assembly UtilitiesMauiSourceGenerators = typeof(BindablePropertyGenerator).Assembly;
+		public static readonly Assembly This = typeof(TestHelper).Assembly;
+	}
+
 	public static readonly ReferenceAssemblies Net70 = new("net7.0", new PackageIdentity("Microsoft.NETCore.App.Ref", "7.0.0"), Path.Combine("ref", "net7.0"));
 	public static readonly ReferenceAssemblies Net80 = new("net8.0", new PackageIdentity("Microsoft.NETCore.App.Ref", "8.0.0"), Path.Combine("ref", "net8.0"));
-	public static readonly Assembly MauiAssembly = typeof(BindableObject).Assembly;
-	public static readonly Assembly UtilitiesAssembly = typeof(BooleanBox).Assembly;
-	public static readonly Assembly UtilitiesMauiAssembly = AssemblyInfo.Assembly;
-	public static readonly Assembly UtilitiesMauiSourceGeneratorsAssembly = typeof(BindablePropertyGenerator).Assembly;
-	public static readonly Assembly ThisAssembly = typeof(TestHelper).Assembly;
 
-	public static void SetUpReferences<TAnalyzer>(this AnalyzerTest<TAnalyzer> test)
+	public static void SetUpReferences<TAnalyzer>(this AnalyzerTest<TAnalyzer> test, bool addAnalyzer = true)
 		where TAnalyzer : IVerifier, new()
 	{
-		test.SolutionTransforms.Add(AddAnalyzerToSolution);
-		test.TestState.AdditionalReferences.Add(MauiAssembly);
-		test.TestState.AdditionalReferences.Add(UtilitiesMauiAssembly);
+		if (addAnalyzer)
+			test.SolutionTransforms.Add(AddAnalyzerToSolution);
+
+		test.TestState.AdditionalReferences.Add(Assemblies.Maui);
+		test.TestState.AdditionalReferences.Add(Assemblies.UtilitiesMaui);
 		test.ReferenceAssemblies = Net80;
 	}
 
@@ -37,7 +44,7 @@ internal static class TestHelper
 
 	public static Solution AddAnalyzerToSolution(Solution solution, ProjectId id)
 	{
-		var reference = new AnalyzerFileReference(UtilitiesMauiSourceGeneratorsAssembly.Location, AnalyzerAssemblyLoader.Instance);
+		var reference = new AnalyzerFileReference(Assemblies.UtilitiesMauiSourceGenerators.Location, AnalyzerAssemblyLoader.Instance);
 		return solution.WithProjectAnalyzerReferences(id, [reference]);
 	}
 
@@ -50,11 +57,16 @@ internal static class TestHelper
 
 	public static CSharpCompilation CreateCompilation(CSharpSyntaxTree tree, string assemblyName)
 	{
+		var mscorlib = Path.GetDirectoryName(Assemblies.System.Location);
 		var references = new MetadataReference[]
 		{
-			MetadataReference.CreateFromFile(MauiAssembly.Location),
-			MetadataReference.CreateFromFile(UtilitiesMauiAssembly.Location),
-			MetadataReference.CreateFromFile(UtilitiesMauiSourceGeneratorsAssembly.Location)
+			MetadataReference.CreateFromFile(Path.Join(mscorlib, "mscorlib.dll")),
+			MetadataReference.CreateFromFile(Path.Join(mscorlib, "System.dll")),
+			MetadataReference.CreateFromFile(Path.Join(mscorlib, "System.Core.dll")),
+			MetadataReference.CreateFromFile(Path.Join(mscorlib, "System.Runtime.dll")),
+			MetadataReference.CreateFromFile(Path.Join(mscorlib, "System.Private.CoreLib.dll")),
+			MetadataReference.CreateFromFile(Assemblies.Maui.Location),
+			MetadataReference.CreateFromFile(Assemblies.UtilitiesMaui.Location)
 		};
 
 		return CSharpCompilation.Create(assemblyName, [tree], references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));

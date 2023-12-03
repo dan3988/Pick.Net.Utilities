@@ -9,12 +9,16 @@ public abstract class CodeGeneratorTests<TGenerator> where TGenerator : IIncreme
 {
 	protected CodeGeneratorTest<TGenerator> CreateTest(string code, LanguageVersion version = LanguageVersion.CSharp12, [CallerMemberName] string testName = null!)
 	{
-		return new()
+		var test = new CodeGeneratorTest<TGenerator>()
 		{
 			TestsType = GetType(),
 			TestName = testName,
-			Input = code,
+			TestCode = code,
 			Options = CSharpParseOptions.Default.WithLanguageVersion(version)
 		};
+
+		test.SetUpReferences(false);
+
+		return test;
 	}
 }

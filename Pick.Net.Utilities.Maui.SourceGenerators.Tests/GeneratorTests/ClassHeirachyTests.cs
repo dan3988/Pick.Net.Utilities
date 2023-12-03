@@ -6,7 +6,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.GeneratorTests;
 public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 {
 	[TestMethod]
-	public void TestRootLevelClass()
+	public async Task TestRootLevelClass()
 	{
 		const string code = """
 			using Pick.Net.Utilities.Maui.Helpers;
@@ -46,13 +46,13 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 			}
 			""";
 
-		CreateTest(code)
+		await CreateTest(code)
 			.ExpectOutput("RootLevelClass", output)
-			.Run();
+			.RunAsync();
 	}
 
 	[TestMethod]
-	public void NestedClasses()
+	public async Task NestedClasses()
 	{
 		const string code = """
 			using Pick.Net.Utilities.Maui.Helpers;
@@ -62,7 +62,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 			public partial class RootClass : BindableObject
 			{
-				public partial class FirstNestedClass
+				public partial class FirstNestedClass : BindableObject
 				{
 					[BindableProperty]
 					public object Value
@@ -71,7 +71,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 						set => SetValue(ValueProperty, value);
 					}
 
-					public partial class SecondNestedClass
+					public partial class SecondNestedClass : BindableObject
 					{
 						[BindableProperty]
 						public object Value
@@ -145,9 +145,9 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 			}
 			""";
 
-		CreateTest(code)
+		await CreateTest(code)
 			.ExpectOutput("Test.RootClass+FirstNestedClass", firstOutput)
 			.ExpectOutput("Test.RootClass+FirstNestedClass+SecondNestedClass", secondOutput)
-			.Run();
+			.RunAsync();
 	}
 }

@@ -6,7 +6,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.GeneratorTests;
 public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerator>
 {
 	[TestMethod]
-	public void TestSimpleInstanceProperty()
+	public async Task TestSimpleInstanceProperty()
 	{
 		const string code = """
 			using Pick.Net.Utilities.Maui.Helpers;
@@ -19,8 +19,8 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 				[BindableProperty]
 				public string Text
 				{
-					get => (string)GetValue(ValueProperty);
-					set => SetValue(ValueProperty, value);
+					get => (string)GetValue(TextProperty);
+					set => SetValue(TextProperty, value);
 				}
 			}
 			""";
@@ -51,13 +51,13 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 			}
 			""";
 
-		CreateTest(code)
+		await CreateTest(code)
 			.ExpectOutput("Test.Namespace.Class", output)
-			.Run();
+			.RunAsync();
 	}
 
 	[TestMethod]
-	public void TestReadOnlyInstanceProperty()
+	public async Task TestReadOnlyInstanceProperty()
 	{
 		const string code = """
 			using Pick.Net.Utilities.Maui.Helpers;
@@ -70,8 +70,8 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 				[BindableProperty]
 				protected string Text
 				{
-					get => (string)GetValue(ValueProperty);
-					private set => SetValue(ValueProperty, value);
+					get => (string)GetValue(TextProperty);
+					private set => SetValue(TextPropertyKey, value);
 				}
 			}
 			""";
@@ -104,8 +104,8 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 			}
 			""";
 
-		CreateTest(code)
+		await CreateTest(code)
 			.ExpectOutput("Test.Namespace.Class", output)
-			.Run();
+			.RunAsync();
 	}
 }

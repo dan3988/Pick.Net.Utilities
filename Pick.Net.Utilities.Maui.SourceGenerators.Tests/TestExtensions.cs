@@ -25,23 +25,6 @@ internal static class TestExtensions
 		return test;
 	}
 
-	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectTestDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, DiagnosticDescriptor descriptor, int line, int startColumn, int length, params object[] messageArgs)
-		where TAnalyzer : DiagnosticAnalyzer, new()
-		where TCodeFix : CodeFixProvider, new()
-		where TVerifier : IVerifier, new()
-	{
-		return ExpectTestDiagnostic(test, descriptor, line, startColumn, line, startColumn + length, messageArgs);
-	}
-
-	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectTestDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, DiagnosticDescriptor descriptor, int startLine, int startColumn, int endLine, int endColumn, params object[] messageArgs)
-		where TAnalyzer : DiagnosticAnalyzer, new()
-		where TCodeFix : CodeFixProvider, new()
-		where TVerifier : IVerifier, new()
-	{
-		test.TestState.ExpectedDiagnostics.Add(CSharpAnalyzerVerifier<TAnalyzer, TVerifier>.Diagnostic(descriptor), startLine, startColumn, endLine, endColumn, messageArgs);
-		return test;
-	}
-
 	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, DiagnosticDescriptor descriptor, int line, int startColumn, int length, params object[] messageArgs)
 		where TAnalyzer : DiagnosticAnalyzer, new()
 		where TCodeFix : CodeFixProvider, new()

@@ -46,9 +46,9 @@ public class BindableAttachedPropertyAccessorFixerTests : CodeFixTests<BindableA
 	""";
 
 		await CreateTest(original, expected)
-			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, 11, 23, 8, "Value")
-			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 23, 8, "Value")
-			.ExpectTestDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, 11, 23, 8, "Value")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, 11, 23, 8, "Value")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 23, 8, "Value")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, 11, 23, 8, "Value")
 			.ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedToInstance, 11, 31, 8, "Value")
 			.RunAsync();
 	}

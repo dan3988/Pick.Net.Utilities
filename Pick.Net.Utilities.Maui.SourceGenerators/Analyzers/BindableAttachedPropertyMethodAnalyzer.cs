@@ -106,7 +106,7 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 		{
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedMethodToPartial, symbol, propertyName);
 
-			if (!node.IsBindablePropertyUsed(propertyName, false) || (setterNode != null && setterNode.IsBindablePropertyUsed(propertyName, symbol.DeclaredAccessibility != setterSymbol!.DeclaredAccessibility)))
+			if (!node.IsBindablePropertyUsed(propertyName, false) || (setterNode != null && !setterNode.IsBindablePropertyUsed(propertyName, symbol.DeclaredAccessibility != setterSymbol!.DeclaredAccessibility)))
 				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, symbol, propertyName);
 
 		}

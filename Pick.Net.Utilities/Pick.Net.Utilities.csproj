@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RepositoryType>git</RepositoryType>
@@ -24,6 +24,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DelegateHelper.tt</DependentUpon>
     </None>
+    <Compile Update="Reflection\DelegateHelper.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DelegateHelper.tt</DependentUpon>
+    </Compile>
     <None Update="Reflection\DelegateHelper.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DelegateHelper.Designer.cs</LastGenOutput>

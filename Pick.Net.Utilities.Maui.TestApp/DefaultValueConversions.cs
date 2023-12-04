@@ -58,7 +58,7 @@ internal partial class DefaultValueConversions : BindableObject
 		set => SetValue(FloatLongProperty, value);
 	}
 
-	public const int IntUintValue = -1;
+	public const int IntUintValue = 1;
 
 	[BindableProperty(DefaultValue = nameof(IntUintValue))]
 	public uint IntUint
@@ -97,10 +97,10 @@ internal partial class DefaultValueConversions : BindableObject
 		set => SetValue(ElementProperty, value);
 	}
 
-	[BindableProperty(DefaultValue = nameof(GenerateElement))]
-	public View View
-	{
-		get => (View)GetValue(ViewProperty);
-		set => SetValue(ViewProperty, value);
-	}
+	//[BindableProperty(DefaultValue = nameof(GenerateElement))]
+	//public View View
+	//{
+	//	get => (View)GetValue(ViewProperty);
+	//	set => SetValue(ViewProperty, value);
+	//}
 }

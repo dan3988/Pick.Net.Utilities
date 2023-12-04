@@ -7,8 +7,7 @@ internal readonly record struct SyntaxGeneratorSharedProperties(
 	TypeSyntax AnnotatedPropertyType,
 	Accessibility Accessibility,
 	Accessibility WriteAccessibility,
-	ExpressionSyntax DefaultValueSyntax,
+	DefaultValueGenerator DefaultValue,
 	ExpressionSyntax DefaultModeSyntax,
-	bool DefaultValueFactory,
 	bool CoerceValueCallback,
 	bool ValidateValueCallback);

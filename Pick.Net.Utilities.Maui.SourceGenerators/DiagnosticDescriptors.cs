@@ -125,17 +125,8 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Must use a valid BindingMode value ({EnumText<BindingMode>()}).");
 
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueAndFactory = new(
-		Prefix + "0008",
-		"Value of DefaultValue will not be used",
-		"Setting DefaultValue will have no effect when DefaultValueFactory is true",
-		Category,
-		DiagnosticSeverity.Warning,
-		true,
-		"The value passed into DefaultValue will be ignored if DefaultValueFactory is true.");
-
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueNull = new(
-		Prefix + "0009",
+		Prefix + "0008",
 		"No default value or value generator for non-nullable property",
 		"The default value of non-nullable property '{0}' will be null",
 		Category,
@@ -144,7 +135,7 @@ internal static class DiagnosticDescriptors
 		"A property that is a non-nullable reference should specify a default value or use a default value generator.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInstancePropertyNotUsed = new(
-		Prefix + "0010",
+		Prefix + "0009",
 		"Use generated BindableProperty in property accessors",
 		"Bindable property '{0}' does not use generated BindableProperty",
 		Category,
@@ -153,7 +144,7 @@ internal static class DiagnosticDescriptors
 		$"Properties with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyAttachedPropertyNotUsed = new(
-		Prefix + "0011",
+		Prefix + "0010",
 		"Use generated BindableProperty in attached property accessor",
 		"Attached property accessor method '{0}' does not use generated BindableProperty",
 		Category,
@@ -162,13 +153,58 @@ internal static class DiagnosticDescriptors
 		$"Methods with [BindableProperty] attribute should use the BindableProperty instance that was generated.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyAttachedPropertyNullabilityMismatch = new(
-		Prefix + "0012",
+		Prefix + "0011",
 		"Nullability of attached property get and set methods do not match",
 		"Nullability get and set methods for attached property '{0}' do not match",
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
 		$"The nullability of the value parameter of set methods for attached properties should match the return value of the get method.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMemberNotFound = new(
+		Prefix + "0012",
+		"DefaultValue member not found",
+		"DefaultValue member '{0}' not found in type '{1}'",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The value of BindablePropertyAttribute.DefaultValue should be a member of the current type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMemberAmbiguous = new(
+		Prefix + "0013",
+		"Multiple members found for DefaultValue",
+		"Multiple members with name '{0}' found in type '{1}'",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The provided value of BindablePropertyAttribute.DefaultValue had multiple matches.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueWrongType = new(
+		Prefix + "0014",
+		"DefaultValue member type is not assignable to property type",
+		"The type of member '{0}' is not assignable to the property type '{1}'",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The type of default value fields/properties must be assignable to their corresponding property type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMethodWrongType = new(
+		Prefix + "0015",
+		"DefaultValue generator return type is not assignable to property type",
+		"The return type of default value generator '{0}' is not assignable to the property type '{1}'",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The return type of default value generator methods must be assignable to their corresponding property type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMemberInvalid = new(
+		Prefix + "0016",
+		"DefaultValue member was not a valid default value or generator",
+		"DefaultValue member '{0}' was not a valid default value or generator",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The value of BindablePropertyAttribute.DefaultValue should be a static field/property, or a parameterless function that retrns the property type.");
 
 	public static Location ToLocation(this SyntaxNode node)
 		=> Location.Create(node.SyntaxTree, node.Span);

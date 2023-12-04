@@ -16,20 +16,6 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 	{
 	}
 
-	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method)
-	{
-		method = MethodDeclaration(AnnotatedPropertyType, $"Generate{PropertyName}DefaultValue")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
-			.WithSemicolonToken();
-
-		var paramBindable = Parameter(Identifier("bindable"));
-		var parameters = ParameterList(SeparatedList(new[] { paramBindable }));
-		var body = InvocationExpression(
-				MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(DeclaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(method.Identifier)));
-
-		return ParenthesizedLambdaExpression(parameters, null, body);
-	}
-
 	protected override LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));

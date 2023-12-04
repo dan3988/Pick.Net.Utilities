@@ -25,11 +25,9 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	public Accessibility WriteAccessibility { get; }
 
-	public ExpressionSyntax DefaultValueSyntax { get; }
+	public DefaultValueGenerator DefaultValue { get; }
 
 	public ExpressionSyntax DefaultModeSyntax { get; }
-
-	public bool DefaultValueFactory { get; }
 
 	public bool CoerceValueCallback { get; }
 
@@ -41,7 +39,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
 	{
-		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValueSyntax, DefaultModeSyntax, DefaultValueFactory, CoerceValueCallback, ValidateValueCallback) = properties;
+		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValue, DefaultModeSyntax, CoerceValueCallback, ValidateValueCallback) = properties;
 	}
 
 	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
@@ -50,8 +48,14 @@ internal abstract class BindablePropertySyntaxGenerator
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
 		arguments[1] = SyntaxFactory.TypeOfExpression(PropertyType);
 		arguments[2] = SyntaxFactory.TypeOfExpression(DeclaringType);
-		arguments[3] = DefaultValueSyntax;
 		arguments[4] = DefaultModeSyntax;
+		arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
+		arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
+
+		DefaultValue.Generate(DeclaringType, PropertyType, out arguments[3], out arguments[9]);
+
+		members.Add(onChanging);
+		members.Add(onChanged);
 
 		if (ValidateValueCallback)
 		{
@@ -63,12 +67,6 @@ internal abstract class BindablePropertySyntaxGenerator
 			arguments[5] = SyntaxHelper.Null;
 		}
 
-		arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
-		arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
-
-		members.Add(onChanging);
-		members.Add(onChanged);
-
 		if (CoerceValueCallback)
 		{
 			arguments[8] = CreateCoerceValueHandler(out var method);
@@ -77,16 +75,6 @@ internal abstract class BindablePropertySyntaxGenerator
 		else
 		{
 			arguments[8] = SyntaxHelper.Null;
-		}
-
-		if (DefaultValueFactory)
-		{
-			arguments[9] = CreateDefaultValueGenerator(out var method);
-			members.Add(method);
-		}
-		else
-		{
-			arguments[9] = SyntaxHelper.Null;
 		}
 
 		var create = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Identifiers.BindableProperty, SyntaxFactory.IdentifierName(createMethod));
@@ -104,8 +92,6 @@ internal abstract class BindablePropertySyntaxGenerator
 	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method);
 
 	protected abstract LambdaExpressionSyntax CreateCoerceValueHandler(out MethodDeclarationSyntax method);
-
-	protected abstract LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method);
 
 	protected abstract void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField);
 

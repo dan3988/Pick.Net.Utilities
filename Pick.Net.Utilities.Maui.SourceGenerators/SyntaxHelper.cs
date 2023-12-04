@@ -192,6 +192,9 @@ internal static class SyntaxHelper
 	public static ParenthesizedExpressionSyntax WithSurroundingParenthesis(this ExpressionSyntax syntax)
 		=> ParenthesizedExpression(syntax);
 
+	public static InvocationExpressionSyntax NameOf(string expression)
+		=> InvocationExpression(nameofSyntax, ArgumentList(IdentifierName(expression)));
+
 	public static InvocationExpressionSyntax NameOf(ExpressionSyntax expression)
 		=> InvocationExpression(nameofSyntax, ArgumentList(expression));
 

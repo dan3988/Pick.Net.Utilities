@@ -66,23 +66,6 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 			members.Add(GenerateAttachedBindablePropertySetMethod(SetMethodGeneration, AnnotatedPropertyType, PropertyName, AttachedType, propertyKeyField));
 	}
 
-	protected override LambdaExpressionSyntax CreateDefaultValueGenerator(out MethodDeclarationSyntax method)
-	{
-		var paramBindable = Parameter(Identifier("bindable"));
-
-		method = MethodDeclaration(AnnotatedPropertyType, $"Generate{PropertyName}DefaultValue")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
-			.AddParameterListParameters(paramBindable.WithType(AttachedType))
-			.WithSemicolonToken();
-
-		var parameters = ParameterList(SeparatedList(new[] { paramBindable }));
-		var body = InvocationExpression(IdentifierName(method.Identifier))
-				.AddArgumentListArguments(
-					Argument(CastExpression(AttachedType, IdentifierName(paramBindable.Identifier))));
-
-		return ParenthesizedLambdaExpression(parameters, null, body);
-	}
-
 	protected override LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method)
 	{
 		var paramBindable = Parameter(Identifier("bindable"));

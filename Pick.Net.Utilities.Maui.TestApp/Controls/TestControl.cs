@@ -4,7 +4,10 @@ namespace Pick.Net.Utilities.Maui.TestApp.Controls;
 
 public partial class TestControl : BindableObject
 {
-	[BindableProperty(ValidateValueCallback = true, CoerceValueCallback = true, DefaultValueFactory = true)]
+	private static string CreateAttached()
+		=> "default value";
+
+	[BindableProperty(ValidateValueCallback = true, CoerceValueCallback = true, DefaultValue = nameof(CreateAttached))]
 	public static string GetAttached(Entry entry)
 		=> (string)entry.GetValue(AttachedProperty);
 
@@ -17,9 +20,6 @@ public partial class TestControl : BindableObject
 	private static partial string CoerceAttachedValue(string value)
 		=> value;
 
-	private static partial string GenerateAttachedDefaultValue(Entry bindable)
-		=> "default value";
-
 	[BindableProperty(DefaultMode = BindingMode.TwoWay, ValidateValueCallback = true, CoerceValueCallback = true)]
 	public string Text
 	{
@@ -27,31 +27,37 @@ public partial class TestControl : BindableObject
 		set => SetValue(TextProperty, value);
 	}
 
-	[BindableProperty(DefaultValueFactory = true)]
+	private string CreateTransformedText()
+		=> Text;
+
+	[BindableProperty(DefaultValue = nameof(CreateTransformedText))]
 	public string TransformedText
 	{
 		get => (string)GetValue(TransformedTextProperty);
 		private set => SetValue(TransformedTextPropertyKey, value);
 	}
 
-	private partial string GenerateTransformedTextDefaultValue()
-		=> Text;
+	private const int MaxLengthDefaultValue = 0;
 
-	[BindableProperty(DefaultValue = 0)]
+	[BindableProperty(DefaultValue = nameof(MaxLengthDefaultValue))]
 	public int MaxLength
 	{
 		get => (int)GetValue(MaxLengthProperty);
 		set => SetValue(MaxLengthProperty, value);
 	}
 
-	[BindableProperty(DefaultValue = 4000)]
+	private const int MinLengthDefaultValue = 4000;
+
+	[BindableProperty(DefaultValue = nameof(MinLengthDefaultValue))]
 	public int MinLength
 	{
 		get => (int)GetValue(MinLengthProperty);
 		set => SetValue(MinLengthProperty, value);
 	}
 
-	[BindableProperty(DefaultValue = "Default Value")]
+	private const string SomethingInternalDefaultValue = "Default Value";
+
+	[BindableProperty(DefaultValue = nameof(SomethingInternalDefaultValue))]
 	public string SomethingInternal
 	{
 		get => (string)GetValue(SomethingInternalProperty);

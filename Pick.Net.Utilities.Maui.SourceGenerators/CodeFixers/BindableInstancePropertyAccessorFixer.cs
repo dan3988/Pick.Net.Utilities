@@ -1,4 +1,5 @@
 ﻿using System.Composition;
+using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
@@ -65,14 +66,15 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 
 		list = AccessorList(open, new(accessors), close);
 
-		prop = MoveInitializerToAttribute(gen, editor.SemanticModel, prop, token);
+		if (MoveInitializerToAttribute(gen, editor.SemanticModel, ref prop, out var defaultValue, token))
+			editor.InsertBefore(ogProp, defaultValue);
+
 		prop = prop.WithAccessorList(list);
 
 		if (!prop.Identifier.TrailingTrivia.Any(v => v.IsKind(SyntaxKind.EndOfLineTrivia)))
 			prop = prop.WithIdentifier(prop.Identifier.WithTrailingTrivia(CarriageReturnLineFeed));
 
 		editor.ReplaceNode(ogProp, prop);
-
 		return true;
 	}
 
@@ -106,23 +108,42 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 		accessors.Add(accessor);
 	}
 
-	public static PropertyDeclarationSyntax MoveInitializerToAttribute(SyntaxGenerator gen, SemanticModel model, PropertyDeclarationSyntax prop, CancellationToken token)
+	public static bool MoveInitializerToAttribute(SyntaxGenerator gen, SemanticModel model, ref PropertyDeclarationSyntax prop, [MaybeNullWhen(false)] out MemberDeclarationSyntax value, CancellationToken token)
 	{
+		value = null;
+
 		if (prop.Initializer == null)
-			return prop;
+			return false;
 
 		var bp = BindablePropertyFixHelper.GetAttribute(model, prop, token);
 		if (bp == null)
-			return prop;
+			return false;
 
-		var (list, attr) = bp.Value;
+		string defaultValueName;
+
+		if (prop.Initializer.Value is LiteralExpressionSyntax lit)
+		{
+			defaultValueName = prop.Identifier.Text + "DefaultValue";
+			value = (FieldDeclarationSyntax)gen.FieldDeclaration(defaultValueName, prop.Type, Accessibility.Private, DeclarationModifiers.Const, prop.Initializer.Value);
+		}
+		else
+		{
+			defaultValueName = $"Create{prop.Identifier.Text}";
+			var method = (MethodDeclarationSyntax)gen.MethodDeclaration(defaultValueName, null, null, prop.Type, Accessibility.Private, DeclarationModifiers.Static);
+			var body = ArrowExpressionClause(prop.Initializer.Value);
+			value = method.WithBody(null).WithExpressionBody(body).WithSemicolonToken();
+		}
+
+		var(list, attr) = bp.Value;
 		var nameEquals = NameEquals(nameof(BindablePropertyAttribute.DefaultValue));
-		var argument = AttributeArgument(nameEquals, null, prop.Initializer.Value);
+		var argument = AttributeArgument(nameEquals, null, SyntaxHelper.NameOf(defaultValueName));
 		var newList = (AttributeListSyntax)gen.AddAttributeArguments(attr, [argument]);
 
-		return prop
+		prop = prop
 			.WithAttributeLists(prop.AttributeLists.Replace(list, newList))
 			.WithInitializer(null)
 			.WithSemicolonToken(default);
+
+		return true;
 	}
 }

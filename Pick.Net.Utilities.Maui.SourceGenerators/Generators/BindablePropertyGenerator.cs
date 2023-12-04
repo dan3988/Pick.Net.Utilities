@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
 
@@ -31,53 +32,109 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static ExpressionSyntax ParseDefaultValue(AttributeData attribute, ITypeSymbol? propertyType, object? value)
+	private static bool ParseDefaultValue(SemanticModel model, ISymbol owner, ITypeSymbol propertyType, object? value, ref DefaultValueGenerator defaultValue, [MaybeNullWhen(true)] out Diagnostic error)
 	{
-		static bool TryParseCore(AttributeData attribute, ITypeSymbol propertyType, ITypeSymbol realPropertyType, object? value, out ExpressionSyntax expression)
+		error = null;
+
+		if (value is not string name)
+			return true;
+
+		var parentType = owner.ContainingType;
+		var matches = parentType.GetMembers(name);
+		if (matches.Length == 0)
 		{
-			if (propertyType.SpecialType.TryGetTypeCode(out var target))
-			{
-				expression = SyntaxHelper.Literal(value, target);
-				return true;
-			}
-			else
-			{
-				expression = SyntaxHelper.Null;
-				return false;
-			}
+			error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberNotFound.CreateDiagnostic(owner, name, parentType.Name);
+			return false;
 		}
 
-		if (propertyType == null)
-			return SyntaxHelper.Null;
-
-		if (propertyType.TypeKind == TypeKind.Enum)
+		if (matches.Length > 1)
 		{
-			if (propertyType is not INamedTypeSymbol namedType)
-				return SyntaxHelper.Null;
+			error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberAmbiguous.CreateDiagnostic(owner, name, parentType.Name);
+			return false;
+		}
 
-			var typeName = propertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-			var member = propertyType.GetMembers().OfType<IFieldSymbol>().FirstOrDefault(v => Equals(v.ConstantValue, value));
-			if (member != null)
-				return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(typeName), IdentifierName(member.Name));
+		var member = matches[0];
+		if (member.Kind == SymbolKind.Property)
+		{
+			var prop = (IPropertySymbol)member;
+			return CheckFieldOrProperty(model, owner, prop, prop.Type, propertyType, ref defaultValue, out error);
+		}
+		else if (member.Kind == SymbolKind.Field)
+		{
+			var field = (IFieldSymbol)member;
+			return CheckFieldOrProperty(model, owner, field, field.Type, propertyType, ref defaultValue, out error);
+		}
+		else if (member.Kind == SymbolKind.Method)
+		{
+			var method = (IMethodSymbol)member;
+			if (!model.Compilation.HasImplicitConversion(method.ReturnType, propertyType))
+			{
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, name, owner.ContainingType.Name);
+				return false;
+			}
 
-			var underlyingType = namedType.EnumUnderlyingType!;
-			if (TryParseCore(attribute, underlyingType, namedType, value, out var expression))
-				expression = CastExpression(IdentifierName(typeName), expression);
+			var conversion = model.Compilation.ClassifyConversion(method.ReturnType, propertyType);
+			if (!model.Compilation.HasImplicitConversion(method.ReturnType, propertyType))
+			{
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, method.Name, owner.ContainingType.Name);
+				return false;
+			}
 
-			return expression;
+			if (method.IsStatic)
+			{
+				if (method.Parameters.Length == 0)
+				{
+					defaultValue = DefaultValueGenerator.StaticGenerator(Identifier(name));
+					return true;
+				}
+				else if (method.Parameters.Length == 1)
+				{
+					defaultValue = DefaultValueGenerator.StaticGenerator(Identifier(name), method.Parameters[0].Type.ToIdentifier());
+					return true;
+				}
+			}
+			else if (method.Parameters.Length == 0)
+			{
+				defaultValue = DefaultValueGenerator.InstanceGenerator(Identifier(name));
+				return true;
+			}
+
+			error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberInvalid.CreateDiagnostic(owner, method.Name);
+			return false;
 		}
 		else
 		{
-			TryParseCore(attribute, propertyType, propertyType, value, out var expression);
-			return expression;
+			error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberNotFound.CreateDiagnostic(owner, name, parentType.Name);
+			return false;
+		}
+
+		static bool CheckFieldOrProperty(SemanticModel model, ISymbol owner, ISymbol symbol, ITypeSymbol returnType, ITypeSymbol propertyType, ref DefaultValueGenerator defaultValue, [MaybeNullWhen(true)] out Diagnostic error)
+		{
+			var conversion = model.Compilation.ClassifyConversion(returnType, propertyType);
+			if (!conversion.Exists)
+			{
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, symbol.Name, owner.ContainingType.Name);
+				return false;
+			}
+
+			if (!symbol.IsStatic)
+			{
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberInvalid.CreateDiagnostic(owner, symbol.Name);
+				return false;
+			}
+
+			error = null;
+			defaultValue = DefaultValueGenerator.StaticValue(Identifier(symbol.Name), !conversion.IsIdentity);
+			return true;
 		}
 	}
 
-	private static void ParseAttribute(AttributeData attribute, INamedTypeSymbol declaringType, string propertyName, ITypeSymbol propertyType, Accessibility accessibility, Accessibility writeAccessibility, out SyntaxGeneratorSharedProperties result)
+	private static bool ParseAttribute(SemanticModel model, ISymbol symbol, AttributeData attribute, string propertyName, ITypeSymbol propertyType, Accessibility accessibility, Accessibility writeAccessibility, out SyntaxGeneratorSharedProperties result, [MaybeNullWhen(true)] out Diagnostic error)
 	{
+		error = null;
+
 		var defaultModeSyntax = DefaultDefaultModeSyntax;
-		var defaultValueSyntax = (ExpressionSyntax)SyntaxHelper.Null;
-		var defaultValueFactory = false;
+		var defaultValue = DefaultValueGenerator.None;
 		var coerceValueCallback = false;
 		var validateValueCallback = false;
 
@@ -86,13 +143,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			switch (name)
 			{
 				case nameof(BindablePropertyAttribute.DefaultValue):
-					defaultValueSyntax = ParseDefaultValue(attribute, constant.Type, constant.Value);
+					if (!ParseDefaultValue(model, symbol, propertyType, constant.Value, ref defaultValue, out error))
+					{
+						result = default;
+						return false;
+					}
+
 					break;
 				case nameof(BindablePropertyAttribute.DefaultMode):
 					defaultModeSyntax = ParseDefaultBindingMode(constant.Value);
-					break;
-				case nameof(BindablePropertyAttribute.DefaultValueFactory):
-					defaultValueFactory = Equals(constant.Value, true);
 					break;
 				case nameof(BindablePropertyAttribute.CoerceValueCallback):
 					coerceValueCallback = Equals(constant.Value, true);
@@ -103,44 +162,42 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			}
 		}
 
-		var declaringTypeSyntax = declaringType.ToIdentifier();
+		var declaringTypeSyntax = symbol.ContainingType.ToIdentifier();
 		var annotatedPropertyTypeSyntax = propertyType.ToIdentifier(true);
 		var propertyTypeSyntax = propertyType.ToIdentifier();
 
 		result = new SyntaxGeneratorSharedProperties(propertyName, declaringTypeSyntax, propertyTypeSyntax, annotatedPropertyTypeSyntax, accessibility, writeAccessibility,
-			defaultValueSyntax, defaultModeSyntax, defaultValueFactory, coerceValueCallback, validateValueCallback);
+			defaultValue, defaultModeSyntax, coerceValueCallback, validateValueCallback);
+
+		return true;
 	}
 
 
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
 
-	private static CreateGeneratorResult CreateForProperty(IPropertySymbol symbol, AttributeData attribute)
+	private static CreateGeneratorResult CreateForProperty(IPropertySymbol symbol, SemanticModel model, AttributeData attribute)
 	{
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 
-		ParseAttribute(attribute, symbol.ContainingType, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props);
+		if (!ParseAttribute(model, symbol, attribute, symbol.Name, symbol.Type, accessibility, writeAccessibility, out var props, out var error))
+			return new(error);
+
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
 		return new(generator);
 	}
 
-	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, AttributeData attribute, CancellationToken token)
+	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute, CancellationToken token)
 	{
 		var name = Identifiers.GetAttachedPropertyName(symbol.Name);
 
 		if (symbol.ReturnsVoid)
-		{
-			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn.CreateDiagnostic(symbol, name);
-			return new(error);
-		}
+			return new(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodReturn, symbol, name);
 
 		var arguments = symbol.Parameters;
 		if (arguments.Length == 0)
-		{
-			var error = DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature.CreateDiagnostic(symbol, name);
-			return new(error);
-		}
+			return new(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodSignature, symbol, name);
 
 		var attachedType = arguments[0].Type;
 		var propertyType = symbol.ReturnType;
@@ -167,7 +224,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				generatedSetterInfo = new(setMethod);
 		}
 
-		ParseAttribute(attribute, symbol.ContainingType, name, propertyType, accessibility, writeAccessibility, out var props);
+		if (!ParseAttribute(model, symbol, attribute, name, propertyType, accessibility, writeAccessibility, out var props, out var error))
+			return new(error);
 
 		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterInfo, generatedSetterInfo);
 		return new(generator);
@@ -189,8 +247,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 	{
 		var result = context.TargetSymbol.Kind switch
 		{
-			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.Attributes[0], token),
+			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0]),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0], token),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 

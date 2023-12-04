@@ -10,7 +10,6 @@ public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 	private static readonly ImmutableArray<DiagnosticDescriptor> Diagnostics = ImmutableArray.Create(
 	[
 		DiagnosticDescriptors.BindablePropertyDefaultValueNull,
-		DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory,
 		DiagnosticDescriptors.BindablePropertyInvalidDefaultMode
 	]);
 
@@ -40,27 +39,20 @@ public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 			return;
 
 		var dictionary = attr.NamedArguments.ToDictionary(v => v.Key, v => v.Value);
-		var hasDefault = dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defalutValueProp) && !defalutValueProp.IsNull;
-		var hasGenerator = dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValueFactory), out var defalutValueGeneratorProp) && defalutValueGeneratorProp is { Value: true };
-
-		var hasNonNullDefault = hasDefault || hasGenerator;
-		if (hasDefault && hasGenerator)
-			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, symbol);
-
-		if (hasDefault || hasGenerator)
-			return;
-
-		switch (symbol)
-		{
-			case IPropertySymbol { Type: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } }:
-				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, symbol.Name);
-				break;
-			case IMethodSymbol { ReturnType: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } } m:
-				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, Identifiers.GetAttachedPropertyName(m.Name));
-				break;
-		}
-
 		if (dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultMode), out var value) && (value is not { Value: int intValue } || !Enum.IsDefined(typeof(BindingMode), intValue)))
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, symbol, value.Value);
+
+		if (!dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defalutValueProp) || defalutValueProp.IsNull)
+		{
+			switch (symbol)
+			{
+				case IPropertySymbol { Type: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } }:
+					context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, symbol.Name);
+					break;
+				case IMethodSymbol { ReturnType: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } } m:
+					context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, Identifiers.GetAttachedPropertyName(m.Name));
+					break;
+			}
+		}
 	}
 }

@@ -17,6 +17,11 @@ internal readonly record struct CreateGeneratorResult
 	{
 		Error = error ?? throw new ArgumentNullException(nameof(error));
 	}
+	
+	public CreateGeneratorResult(DiagnosticDescriptor descriptor, ISymbol owner, params object?[] messageArgs)
+	{
+		Error = descriptor.CreateDiagnostic(owner, messageArgs);
+	}
 
 	public bool IsSuccessful([MaybeNullWhen(false)] out BindablePropertySyntaxGenerator result, [MaybeNullWhen(true)] out Diagnostic error)
 	{

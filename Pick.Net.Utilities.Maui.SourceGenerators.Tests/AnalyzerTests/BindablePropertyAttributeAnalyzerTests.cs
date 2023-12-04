@@ -29,31 +29,4 @@ public class BindablePropertyAttributeAnalyzerTests : CodeAnalyzerTests<Bindable
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, (object)66)
 			.RunAsync();
 	}
-
-	[TestMethod]
-	public async Task ReportDefaultValueAndGenerator()
-	{
-		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
-	using Microsoft.Maui.Controls;
-	
-	namespace Test;
-	
-	partial class TestClass : BindableObject
-	{
-		[BindableProperty(DefaultValue = "", DefaultValueFactory = true)]
-		public string Value
-		{
-			get => (string)GetValue(ValueProperty);
-			set => SetValue(ValueProperty, value);
-		}
-
-		private partial string GenerateValueDefaultValue() => "";
-	}
-	""";
-
-		await CreateTest(code)
-			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueAndFactory, 9, 16, 5, "Value")
-			.RunAsync();
-	}
 }

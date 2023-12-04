@@ -27,10 +27,6 @@ public abstract class CodeGeneratorTest : CodeActionTest<MSTestVerifier>
 		return DelegateHelper.CreateDelegate<TDelegate>(method);
 	}
 
-	public required Type TestsType { get; set; }
-
-	public required string TestName { get; set; }
-
 	public CSharpParseOptions Options { get; set; } = CSharpParseOptions.Default;
 
 	public List<CodeGeneratorTestOutput> OutputFiles { get; } = [];
@@ -52,42 +48,39 @@ public abstract class CodeGeneratorTest : CodeActionTest<MSTestVerifier>
 
 	protected abstract IIncrementalGenerator CreateGenerator();
 
-	protected override async Task<Compilation> GetProjectCompilationAsync(Project project, IVerifier verifier, CancellationToken cancellationToken)
+	public CodeGeneratorTest ExpectDiagnostic(DiagnosticDescriptor descriptor, int line, int column, int length, params object[] messageArgs)
+		=> ExpectDiagnostic(descriptor, line, column, line, column + length, messageArgs);
+
+	public CodeGeneratorTest ExpectDiagnostic(DiagnosticDescriptor descriptor, int startLine, int startColumn, int endLine, int endColumn, params object[] messageArgs)
 	{
-		var compilation = await base.GetProjectCompilationAsync(project, verifier, cancellationToken);
-		var generator = CreateGenerator();
-		var driver = (CSharpGeneratorDriver)CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions(Options);
-		driver.RunGeneratorsAndUpdateCompilation(compilation, out compilation, out var test, cancellationToken);
-
-		var generatorType = generator.GetType();
-		var AssemblyName = generatorType.Assembly.GetName();
-		var FileNamePrefix = AssemblyName.Name + "\\" + generatorType + "\\";
-
-		foreach (var (fileName, code) in OutputFiles)
-		{
-			var fullName = FileNamePrefix + fileName + ".g.cs";
-			var file = compilation.SyntaxTrees.FirstOrDefault(v => v.FilePath == fullName);
-			Assert.IsNotNull(file, "Generated file \"{0}\" was not found in compilation", fileName);
-			verifier.EqualOrDiff(code, file.ToString());
-		}
-
-		return compilation;
+		ExpectedDiagnostics.Add(new DiagnosticResult(descriptor).WithSpan(startLine, startColumn, endLine, endColumn).WithArguments(messageArgs));
+		return this;
 	}
 
 	protected override async Task RunImplAsync(CancellationToken cancellationToken)
 	{
-		await base.RunImplAsync(cancellationToken);
-
-		var state = new EvaluatedProjectState(this.TestState, ReferenceAssemblies);
-		var additionalProjects = TestState.AdditionalProjects.Values.Select(additionalProject => new EvaluatedProjectState(additionalProject, ReferenceAssemblies)).ToImmutableArray();
+		var testState = TestState.WithInheritedValuesApplied(null, []).WithProcessedMarkup(MarkupOptions, null, [], [], DefaultFilePath);
+		var state = new EvaluatedProjectState(testState, ReferenceAssemblies);
+		var additionalProjects = testState.AdditionalProjects.Values.Select(additionalProject => new EvaluatedProjectState(additionalProject, ReferenceAssemblies)).ToImmutableArray();
 		var project = await CreateProjectAsync(state, additionalProjects, cancellationToken);
-		var soltion = project.Solution;
-		var b = TestState.ExpectedDiagnostics.ToArray();
+		var compilation = await GetProjectCompilationAsync(project, Verify, cancellationToken);
+		var generator = CreateGenerator();
+		var driver = (CSharpGeneratorDriver)CSharpGeneratorDriver.Create(generator).WithUpdatedParseOptions(Options);
+		driver.RunGeneratorsAndUpdateCompilation(compilation, out compilation, out var diagnostics, cancellationToken);
 
-		var diagnostics = await GetSortedDiagnosticsAsync(soltion, [], [], CompilerDiagnostics.None, Verify, cancellationToken);
-		var expectedDiagnostics = TestState.ExpectedDiagnostics.ToArray();
+		VerifyDiagnosticResults.Invoke(this, diagnostics.Select(v => (project, v)), [], [.. testState.ExpectedDiagnostics], Verify);
 
-		VerifyDiagnosticResults.Invoke(this, diagnostics, [], expectedDiagnostics, Verify);
+		var generatorType = generator.GetType();
+		var assemblyName = generatorType.Assembly.GetName();
+		var fileNamePrefix = assemblyName.Name + "\\" + generatorType + "\\";
+
+		foreach (var (fileName, code) in OutputFiles)
+		{
+			var fullName = fileNamePrefix + fileName + ".g.cs";
+			var file = compilation.SyntaxTrees.FirstOrDefault(v => v.FilePath == fullName);
+			Assert.IsNotNull(file, "Generated file \"{0}\" was not found in compilation", fileName);
+			Verify.EqualOrDiff(code, file.ToString());
+		}
 	}
 
 }
@@ -104,12 +97,9 @@ public sealed class CodeGeneratorTest<TGenerator> : CodeGeneratorTest
 		return this;
 	}
 
-	public CodeGeneratorTest<TGenerator> ExpectDiagnostic(DiagnosticDescriptor descriptor, int line, int column, int length, params object[] messageArgs)
-		=> ExpectDiagnostic(descriptor, line, column, line, column + length, messageArgs);
+	public new CodeGeneratorTest<TGenerator> ExpectDiagnostic(DiagnosticDescriptor descriptor, int line, int column, int length, params object[] messageArgs)
+		=> (CodeGeneratorTest<TGenerator>)base.ExpectDiagnostic(descriptor, line, column, length, messageArgs);
 
-	public CodeGeneratorTest<TGenerator> ExpectDiagnostic(DiagnosticDescriptor descriptor, int startLine, int startColumn, int endLine, int endColumn, params object[] messageArgs)
-	{
-		ExpectedDiagnostics.Add(new DiagnosticResult(descriptor).WithSpan(startLine, startColumn, endLine, endColumn).WithArguments(messageArgs));
-		return this;
-	}
+	public new CodeGeneratorTest<TGenerator> ExpectDiagnostic(DiagnosticDescriptor descriptor, int startLine, int startColumn, int endLine, int endColumn, params object[] messageArgs)
+		=> (CodeGeneratorTest<TGenerator>)base.ExpectDiagnostic(descriptor, startLine, startColumn, endLine, endColumn, messageArgs);
 }

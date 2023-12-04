@@ -73,7 +73,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				return false;
 			}
 
-			var conversion = model.Compilation.ClassifyConversion(method.ReturnType, propertyType);
 			if (!model.Compilation.HasImplicitConversion(method.ReturnType, propertyType))
 			{
 				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, method.Name, owner.ContainingType.Name);

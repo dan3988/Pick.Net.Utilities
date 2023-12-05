@@ -62,6 +62,14 @@ internal static class DiagnosticDescriptors
 		true,
 		$"Methods with [BindableProperty] attribute can be declared as partial methods.");
 
+	public static readonly DiagnosticDescriptor BindablePropertyNoDefaultValue = new(
+		Prefix + "1003",
+		"Add a default value",
+		"Add a default value for property {0}",
+		Category,
+		DiagnosticSeverity.Hidden,
+		true);
+
 	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
 		"Duplicate [BindableProperty] property name",
@@ -119,7 +127,7 @@ internal static class DiagnosticDescriptors
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidDefaultMode = new(
 		Prefix + "0007",
 		"Supplied DefaultMode value is not a known value",
-		"Unknown DefaultMode value: {0}",
+		"Property '{0}' has specified an invalid DefaultMode value: {1}",
 		Category,
 		DiagnosticSeverity.Error,
 		true,

@@ -11,7 +11,7 @@ public static class BindablePropertyFixHelper
 {
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 
-	public static TypeSyntax GetTypeIdentifier(SemanticModel? model, SyntaxGenerator generator, string fullName)
+	public static TypeSyntax GetTypeIdentifier(this SemanticModel? model, SyntaxGenerator generator, string fullName)
 	{
 		if (model == null)
 			return IdentifierName("global::" + fullName);
@@ -23,19 +23,40 @@ public static class BindablePropertyFixHelper
 		return (TypeSyntax)generator.TypeExpression(typeInfo).WithAdditionalAnnotations(Simplifier.AddImportsAnnotation);
 	}
 
-	public static (AttributeListSyntax List, AttributeSyntax Attribute)? GetAttribute(SemanticModel? model, PropertyDeclarationSyntax prop, CancellationToken token)
+	public static AttributeSyntax? GetAttribute(SemanticModel model, MethodDeclarationSyntax method, CancellationToken token)
+		=> GetAttribute(model, method.AttributeLists, token);
+
+	public static AttributeSyntax? GetAttribute(SemanticModel model, PropertyDeclarationSyntax prop, CancellationToken token)
+		=> GetAttribute(model, prop.AttributeLists, token);
+
+	private static AttributeSyntax? GetAttribute(SemanticModel model, SyntaxList<AttributeListSyntax> attributes, CancellationToken token)
+		=> GetAttribute(model, attributes, out int index, token)?.Attributes[index];
+
+	public static AttributeListSyntax? GetAttribute(SemanticModel model, MethodDeclarationSyntax method, out int index, CancellationToken token)
+		=> GetAttribute(model, method.AttributeLists, out index, token);
+
+	public static AttributeListSyntax? GetAttribute(SemanticModel model, PropertyDeclarationSyntax prop, out int index, CancellationToken token)
+		=> GetAttribute(model, prop.AttributeLists, out index, token);
+
+	private static AttributeListSyntax? GetAttribute(SemanticModel model, SyntaxList<AttributeListSyntax> attributes, out int index, CancellationToken token)
 	{
+		index = -1;
+
 		if (model == null)
 			return null;
 
-		foreach (var attributeList in prop.AttributeLists)
+		foreach (var attributeList in attributes)
 		{
-			foreach (var attribute in attributeList.Attributes)
+			for (int i = 0; i < attributeList.Attributes.Count; i++)
 			{
+				var attribute = attributeList.Attributes[i];
 				var type = model.GetTypeInfo(attribute, token);
 				var name = type.Type?.ToDisplayString(FullNameFormat);
 				if (name == "Pick.Net.Utilities.Maui.Helpers.BindablePropertyAttribute")
-					return (attributeList, attribute);
+				{
+					index = i;
+					return attributeList;
+				}
 			}
 		}
 

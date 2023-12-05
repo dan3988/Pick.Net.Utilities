@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis.Testing;
-
-using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
+﻿using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.GeneratorTests;
 

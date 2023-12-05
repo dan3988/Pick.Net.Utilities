@@ -115,8 +115,8 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 		if (prop.Initializer == null)
 			return false;
 
-		var bp = BindablePropertyFixHelper.GetAttribute(model, prop, token);
-		if (bp == null)
+		var list = BindablePropertyFixHelper.GetAttribute(model, prop, out int attrIndex, token);
+		if (list == null)
 			return false;
 
 		string defaultValueName;
@@ -134,7 +134,7 @@ public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixPro
 			value = method.WithBody(null).WithExpressionBody(body).WithSemicolonToken();
 		}
 
-		var(list, attr) = bp.Value;
+		var attr = list.Attributes[attrIndex];
 		var nameEquals = NameEquals(nameof(BindablePropertyAttribute.DefaultValue));
 		var argument = AttributeArgument(nameEquals, null, SyntaxHelper.NameOf(defaultValueName));
 		var newList = (AttributeListSyntax)gen.AddAttributeArguments(attr, [argument]);

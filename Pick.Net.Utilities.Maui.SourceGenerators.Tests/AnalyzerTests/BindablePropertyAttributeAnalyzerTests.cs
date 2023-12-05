@@ -26,7 +26,7 @@ public class BindablePropertyAttributeAnalyzerTests : CodeAnalyzerTests<Bindable
 	""";
 
 		await CreateTest(code)
-			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, (object)66)
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, 9, 16, 5, "Value", 66)
 			.RunAsync();
 	}
 }

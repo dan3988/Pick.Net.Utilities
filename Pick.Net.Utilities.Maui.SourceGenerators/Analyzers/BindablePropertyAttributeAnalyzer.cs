@@ -9,6 +9,7 @@ public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 {
 	private static readonly ImmutableArray<DiagnosticDescriptor> Diagnostics = ImmutableArray.Create(
 	[
+		DiagnosticDescriptors.BindablePropertyNoDefaultValue,
 		DiagnosticDescriptors.BindablePropertyDefaultValueNull,
 		DiagnosticDescriptors.BindablePropertyInvalidDefaultMode
 	]);
@@ -33,26 +34,31 @@ public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 
 	private static void AnalyzeSymbol(SymbolAnalysisContext context, INamedTypeSymbol attributeType)
 	{
+		if (context.IsGeneratedCode)
+			return;
+
 		var symbol = context.Symbol;
 		var attr = symbol.GetAttributes().FirstOrDefault(v => SymbolEqualityComparer.Default.Equals(v.AttributeClass, attributeType));
 		if (attr == null)
 			return;
 
+		var (propName, propType) = symbol switch
+		{
+			IPropertySymbol s => (s.Name, s.Type),
+			IMethodSymbol s => (Identifiers.GetAttachedPropertyName(s.Name), s.ReturnType),
+			_ => throw new ArgumentException("Unexpected symbol type: " + symbol.Kind, nameof(symbol))
+		};
+
 		var dictionary = attr.NamedArguments.ToDictionary(v => v.Key, v => v.Value);
 		if (dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultMode), out var value) && (value is not { Value: int intValue } || !Enum.IsDefined(typeof(BindingMode), intValue)))
-			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, symbol, value.Value);
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, symbol, propName, value.Value);
 
 		if (!dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defalutValueProp) || defalutValueProp.IsNull)
 		{
-			switch (symbol)
-			{
-				case IPropertySymbol { Type: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } }:
-					context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, symbol.Name);
-					break;
-				case IMethodSymbol { ReturnType: { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated } } m:
-					context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, Identifiers.GetAttachedPropertyName(m.Name));
-					break;
-			}
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, symbol, propName);
+
+			if (propType is { IsValueType: false, NullableAnnotation: NullableAnnotation.NotAnnotated })
+				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, symbol, propName);
 		}
 	}
 }

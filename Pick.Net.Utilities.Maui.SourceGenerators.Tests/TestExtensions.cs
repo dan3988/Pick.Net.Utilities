@@ -8,6 +8,23 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
 internal static class TestExtensions
 {
+	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectFixDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, string descriptorId, DiagnosticSeverity severity, int line, int startColumn, int length, params object[] messageArgs)
+		where TAnalyzer : DiagnosticAnalyzer, new()
+		where TCodeFix : CodeFixProvider, new()
+		where TVerifier : IVerifier, new()
+	{
+		return ExpectFixDiagnostic(test, descriptorId, severity, line, startColumn, line, startColumn + length, messageArgs);
+	}
+
+	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectFixDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, string descriptorId, DiagnosticSeverity severity, int startLine, int startColumn, int endLine, int endColumn, params object[] messageArgs)
+		where TAnalyzer : DiagnosticAnalyzer, new()
+		where TCodeFix : CodeFixProvider, new()
+		where TVerifier : IVerifier, new()
+	{
+		test.FixedState.ExpectedDiagnostics.Add(new DiagnosticResult(descriptorId, severity), startLine, startColumn, endLine, endColumn, messageArgs);
+		return test;
+	}
+
 	public static CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> ExpectFixDiagnostic<TAnalyzer, TCodeFix, TVerifier>(this CSharpCodeFixTest<TAnalyzer, TCodeFix, TVerifier> test, DiagnosticDescriptor descriptor, int line, int startColumn, int length, params object[] messageArgs)
 		where TAnalyzer : DiagnosticAnalyzer, new()
 		where TCodeFix : CodeFixProvider, new()

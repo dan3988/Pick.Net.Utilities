@@ -24,7 +24,6 @@ public class BindableAttachedPropertyToNullableFixerProviderTests : CodeFixTests
 			return (string)obj.GetValue(ValueProperty);
 		}
 	
-		[BindableProperty]
 		public static void SetValue(BindableObject obj, string value)
 		{
 			obj.SetValue(ValueProperty, value);
@@ -47,7 +46,6 @@ public class BindableAttachedPropertyToNullableFixerProviderTests : CodeFixTests
 			return (string?)obj.GetValue(ValueProperty);
 		}
 	
-		[BindableProperty]
 		public static void SetValue(BindableObject obj, string? value)
 		{
 			obj.SetValue(ValueProperty, value);
@@ -57,6 +55,8 @@ public class BindableAttachedPropertyToNullableFixerProviderTests : CodeFixTests
 
 		await CreateTest(original, expected)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 23, 8, "Value")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, 10, 23, 8, "Value")
+			.ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, 10, 24, 8, "Value")
 			.RunAsync();
 	}
 }

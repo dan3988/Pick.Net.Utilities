@@ -47,6 +47,8 @@ public class BindableInstancePropertyToNullableFixerProviderTests : CodeFixTests
 
 		await CreateTest(original, expected)
 			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueNull, 10, 16, 5, "Value")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, 10, 16, 5, "Value")
+			.ExpectFixDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, 10, 17, 5, "Value")
 			.RunAsync();
 	}
 }

@@ -21,7 +21,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\Co
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Pick.Net.Utilities.Maui.Shared", "Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.shproj", "{C181FD58-A49A-4E15-94D8-F88458DE253D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pick.Net.Utilities.Maui.SourceGenerators.Tests", "Pick.Net.Utilities.Maui.SourceGenerators.Tests\Pick.Net.Utilities.Maui.SourceGenerators.Tests.csproj", "{BEFC07B3-38E7-4B39-BB27-49994CC985B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Maui.SourceGenerators.Tests", "Pick.Net.Utilities.Maui.SourceGenerators.Tests\Pick.Net.Utilities.Maui.SourceGenerators.Tests.csproj", "{BEFC07B3-38E7-4B39-BB27-49994CC985B6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7BE77EA6-5546-4425-88B7-A6D3C48B71F6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Maui", "Maui", "{ABC71038-BFEB-4A47-A25B-57FFE0BA5D56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E923A127-50A3-446C-9FC2-96624D55AC69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleApps", "ConsoleApps", "{2DB4D353-D453-4F61-9F47-0B3F313211E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +66,15 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2BCBBAB9-67E3-4076-8C31-C76B38D770D1} = {ABC71038-BFEB-4A47-A25B-57FFE0BA5D56}
+		{871760E7-67E0-48B4-B415-DB6B8FB68448} = {ABC71038-BFEB-4A47-A25B-57FFE0BA5D56}
+		{981BD7A0-412D-469E-BD01-911F4B36C4C6} = {2DB4D353-D453-4F61-9F47-0B3F313211E5}
+		{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E} = {7BE77EA6-5546-4425-88B7-A6D3C48B71F6}
+		{78CB99A5-6EB2-40E3-829A-12406CFC368A} = {2DB4D353-D453-4F61-9F47-0B3F313211E5}
+		{C181FD58-A49A-4E15-94D8-F88458DE253D} = {ABC71038-BFEB-4A47-A25B-57FFE0BA5D56}
+		{BEFC07B3-38E7-4B39-BB27-49994CC985B6} = {E923A127-50A3-446C-9FC2-96624D55AC69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F5B7D413-EFA2-4DDB-A7F5-F818F1E2F481}

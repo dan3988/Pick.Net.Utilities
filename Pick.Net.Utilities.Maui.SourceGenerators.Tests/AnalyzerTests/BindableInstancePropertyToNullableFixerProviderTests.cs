@@ -4,7 +4,7 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
 [TestClass]
-public class BindableInstancePropertyToNullableFixerProviderTests : CodeFixTests<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixerProvider>
+public class BindableInstancePropertyToNullableFixerProviderTests : CodeFixTests<BindablePropertyAttributeAnalyzer, BindableInstancePropertyToNullableFixProvider>
 {
 	[TestMethod]
 	public async Task MakePropertyNullable()

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyRemoveStaticModifierFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Remove static modifier", DiagnosticDescriptors.BindablePropertyStaticProperty)
+public sealed class BindablePropertyRemoveStaticModifierFixProvider() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Remove static modifier", DiagnosticDescriptors.BindablePropertyStaticProperty)
 {
 	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)
 	{

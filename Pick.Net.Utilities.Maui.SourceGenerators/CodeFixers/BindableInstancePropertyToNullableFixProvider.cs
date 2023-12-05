@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Editing;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyToNullableFixerProvider() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Make property type nullable", DiagnosticDescriptors.BindablePropertyDefaultValueNull)
+public sealed class BindableInstancePropertyToNullableFixProvider() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Make property type nullable", DiagnosticDescriptors.BindablePropertyDefaultValueNull)
 {
 	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)
 	{

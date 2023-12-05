@@ -8,7 +8,7 @@ using Pick.Net.Utilities.Maui.Helpers;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyDefaultValueFieldFixer() : BaseCodeFixProvider<MemberDeclarationSyntax>("Add static default value", DiagnosticDescriptors.BindablePropertyNoDefaultValue)
+public sealed class BindablePropertyDefaultValueFieldFixProvider() : BaseCodeFixProvider<MemberDeclarationSyntax>("Add static default value", DiagnosticDescriptors.BindablePropertyNoDefaultValue)
 {
 	protected override bool CanFix(MemberDeclarationSyntax node)
 		=> node.IsKind(SyntaxKind.PropertyDeclaration) || node.IsKind(SyntaxKind.MethodDeclaration);

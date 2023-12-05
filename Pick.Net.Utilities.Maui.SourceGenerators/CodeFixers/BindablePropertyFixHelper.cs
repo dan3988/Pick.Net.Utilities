@@ -7,7 +7,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 using static SyntaxFactory;
 
-public static class BindablePropertyFixHelper
+internal static class BindablePropertyFixHelper
 {
 	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 

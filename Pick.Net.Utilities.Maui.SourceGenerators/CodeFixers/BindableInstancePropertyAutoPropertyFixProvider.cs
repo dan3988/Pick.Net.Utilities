@@ -11,7 +11,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 using static SyntaxFactory;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindableInstancePropertyAutoPropertyFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Use BindableProperty in accessors", DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
+public sealed class BindableInstancePropertyAutoPropertyFixProvider() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Use BindableProperty in accessors", DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed)
 {
 	private static AccessorDeclarationSyntax CopyAttributes(AccessorListSyntax? existing, AccessorDeclarationSyntax syntax)
 	{

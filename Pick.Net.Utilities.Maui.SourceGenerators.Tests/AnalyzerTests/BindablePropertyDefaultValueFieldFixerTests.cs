@@ -6,7 +6,7 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
 [TestClass]
-public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<BindablePropertyAttributeAnalyzer, BindablePropertyDefaultValueFieldFixer>
+public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<BindablePropertyAttributeAnalyzer, BindablePropertyDefaultValueFieldFixProvider>
 {
 	[TestMethod]
 	public async Task TestDefaultValueString()

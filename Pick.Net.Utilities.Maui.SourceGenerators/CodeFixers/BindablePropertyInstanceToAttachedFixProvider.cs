@@ -8,7 +8,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 using static SyntaxFactory;
 
 [Shared, ExportCodeFixProvider(LanguageNames.CSharp)]
-public sealed class BindablePropertyInstanceToAttachedFixer() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Make property type nullable", DiagnosticDescriptors.BindablePropertyInstanceToAttached)
+public sealed class BindablePropertyInstanceToAttachedFixProvider() : BaseCodeFixProvider<PropertyDeclarationSyntax>("Make property type nullable", DiagnosticDescriptors.BindablePropertyInstanceToAttached)
 {
 	private static SyntaxTokenList AlterModifiers(SyntaxTokenList modifiers)
 	{

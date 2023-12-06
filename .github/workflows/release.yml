@@ -32,7 +32,7 @@ jobs:
         $VERSION = $VERSION_FULL -replace '-preview.*', ''
         Write-Output "VERSION_FULL: $VERSION_FULL"
         Write-Output "VERSION: $VERSION"
-        echo "$VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
+        echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
         echo "VERSION=$VERSION" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -48,4 +48,4 @@ jobs:
         name: ${{ matrix.package }}
         path: .build
     - name: Push
-      run: dotnet nuget push  .build/${{ matrix.package }}.${{ env.$VERSION_FULL }}.nupkg --api-key "${{ secrets.NUGET_TOKEN }}"
+      run: dotnet nuget push  .build/${{ matrix.package }}.${{ env.VERSION_FULL }}.nupkg --api-key "${{ secrets.NUGET_TOKEN }}"

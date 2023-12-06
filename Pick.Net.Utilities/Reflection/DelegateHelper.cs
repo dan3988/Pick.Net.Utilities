@@ -11,25 +11,6 @@ public static partial class DelegateHelper
 	public static T CreateDelegate<T>(MethodInfo method) where T : Delegate
 		=> (T)Delegate.CreateDelegate(typeof(T), method);
 
-	public static Type GetActionType(params Type[] argumentTypes)
-	{
-		if (ActionTypes.Length < argumentTypes.Length)
-			throw new ArgumentException($"Action<> class with {argumentTypes.Length} parameters does not exist");
-
-		return ActionTypes[argumentTypes.Length].MakeGenericType(argumentTypes);
-	}
-
-	public static Type GetFuncType(Type returnType, params Type[] argumentTypes)
-	{
-		if (FuncTypes.Length < argumentTypes.Length)
-			throw new ArgumentException($"Func<> class with {argumentTypes.Length} parameters does not exist");
-
-		var count = argumentTypes.Length;
-		Array.Resize(ref argumentTypes, count + 1);
-		argumentTypes[count] = returnType;
-		return FuncTypes[argumentTypes.Length].MakeGenericType(argumentTypes);
-	}
-
 	public static ImmutableArray<Type> GetArgumentTypes<T>() where T : Delegate
 		=> GetDelegateInfo<T>().ArgumentTypes;
 

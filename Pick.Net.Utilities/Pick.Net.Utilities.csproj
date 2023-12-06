@@ -18,20 +18,4 @@
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Reflection\DelegateHelper.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DelegateHelper.tt</DependentUpon>
-    </None>
-    <Compile Update="Reflection\DelegateHelper.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DelegateHelper.tt</DependentUpon>
-    </Compile>
-    <None Update="Reflection\DelegateHelper.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DelegateHelper.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
 </Project>

@@ -1,13 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 
 namespace Pick.Net.Utilities;
 
 public static class Enums
 {
-	public static ReadOnlyCollection<T> GetValues<T>() where T : unmanaged, Enum
+	public static ImmutableArray<T> GetValues<T>() where T : unmanaged, Enum
 		=> Enums<T>.ReadOnlyValues;
 
-	public static ReadOnlyCollection<string> GetNames<T>() where T : unmanaged, Enum
+	public static ImmutableArray<string> GetNames<T>() where T : unmanaged, Enum
 		=> Enums<T>.ReadOnlyNames;
 
 	public static TypeCode GetTypeCode<T>() where T : unmanaged, Enum
@@ -25,8 +26,8 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 	internal static readonly EnumHelper Helper = EnumHelper.ForTypeCode(TypeCode);
 
 	internal static readonly T[] Values = Enum.GetValues<T>();
-	internal static readonly ReadOnlyCollection<T> ReadOnlyValues = new(Values);
+	internal static readonly ImmutableArray<T> ReadOnlyValues = ImmutableArray.Create(Values);
 
 	internal static readonly string[] Names = Enum.GetNames<T>();
-	internal static readonly ReadOnlyCollection<string> ReadOnlyNames = new(Names);
+	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
 }

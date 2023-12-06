@@ -2,16 +2,13 @@
 
 namespace Pick.Net.Utilities.Collections;
 
-public class ReadOnlyMap<TKey, TValue> : IReadOnlyMap<TKey, TValue>, IReadOnlyMap, ICollection
+public class ReadOnlyMap<TKey, TValue>(IReadOnlyMap<TKey, TValue> map) : IReadOnlyMap<TKey, TValue>, IReadOnlyMap, ICollection
 	where TKey : notnull
 	where TValue : class
 {
-	private readonly IReadOnlyMap<TKey, TValue> map;
+	private static ReadOnlyMap<TKey, TValue>? _empty;
 
-	public ReadOnlyMap(IReadOnlyMap<TKey, TValue> map)
-	{
-		this.map = map;
-	}
+	public static ReadOnlyMap<TKey, TValue> Empty => _empty ??= new(new Map<TKey, TValue>());
 
 	public int Count => map.Count;
 

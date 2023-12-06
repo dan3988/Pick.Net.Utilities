@@ -7,22 +7,23 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	where TKey : notnull
 	where TValue : class
 {
-	private sealed class ValueCollection : IReadOnlyCollection<TValue>
+	public sealed class KeyCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TKey>
 	{
-		private readonly Map<TKey, TValue> owner;
+		public override int Count => owner.Count;
 
-		public int Count => owner.Count;
+		public override bool Contains(TKey item)
+			=> owner.ContainsKey(item);
 
-		public ValueCollection(Map<TKey, TValue> owner)
-		{
-			this.owner = owner;
-		}
+		public override IEnumerator<TKey> GetEnumerator()
+			=> owner.dictionary.Select(v => v.Key).GetEnumerator();
+	}
 
-		IEnumerator IEnumerable.GetEnumerator()
-			=> GetEnumerator();
+	public sealed class ValueCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TValue>
+	{
+		public override int Count => owner.Count;
 
-		public IEnumerator<TValue> GetEnumerator()
-			=> owner.dictionary.Values.Select(v => v.Value).GetEnumerator();
+		public override IEnumerator<TValue> GetEnumerator()
+			=> owner.dictionary.Select(v => v.Value.Value).GetEnumerator();
 	}
 
 	private static KeyValuePair<TKey, MapEntry<TKey, TValue>> ToMapEntry(KeyValuePair<TKey, TValue> pair)
@@ -30,9 +31,9 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	public int Count => dictionary.Count;
 
-	public IReadOnlyCollection<TKey> Keys => dictionary.Keys;
+	public KeyCollection Keys => keys ??= new(this);
 
-	public IReadOnlyCollection<TValue> Values => values ??= new(this);
+	public ValueCollection Values => values ??= new(this);
 
 	public TValue? this[TKey key]
 	{
@@ -51,6 +52,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	}
 
 	#region Explicit Property Implementations
+
+	IReadOnlyCollection<TKey> IReadOnlyMap<TKey, TValue>.Keys => Keys;
+
+	IReadOnlyCollection<TValue> IReadOnlyMap<TKey, TValue>.Values => Values;
 
 	bool ICollection<IReadOnlyMapEntry>.IsReadOnly => false;
 
@@ -80,6 +85,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	#endregion
 
 	private readonly Dictionary<TKey, MapEntry<TKey, TValue>> dictionary;
+	private KeyCollection? keys;
 	private ValueCollection? values;
 
 	public Map() : this(0, null)
@@ -110,6 +116,20 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	public Map(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey>? comparer)
 	{
 		dictionary = new(values.Select(ToMapEntry), comparer);
+	}
+
+	public Map(IEnumerable<IReadOnlyMapEntry<TKey, TValue>> values) : this(values, null)
+	{
+	}
+
+	public Map(IEnumerable<IReadOnlyMapEntry<TKey, TValue>> values, IEqualityComparer<TKey>? comparer)
+	{
+		values.TryGetNonEnumeratedCount(out var count);
+		dictionary = new(count, comparer);
+
+		foreach (var (key, value) in values)
+			dictionary.Add(key, new(key, value));
+
 	}
 
 	public IMapEntry<TKey, TValue>? GetEntry(TKey key)

@@ -18,6 +18,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
+    - name: Restore Workloads
+      run: dotnet workload restore "${{ matrix.package }}"
+    - name: Restore Packages
+      run: dotnet restore "${{ matrix.package }}"
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}"
     - name: Run Tests

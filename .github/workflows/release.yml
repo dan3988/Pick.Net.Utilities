@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}"
     - name: Run Tests
-      run: dotnet test --no-build  "${{ matrix.package }}"
+      run: dotnet test -c Release --no-build  "${{ matrix.package }}"
   build:
     runs-on: windows-latest
     timeout-minutes: 15

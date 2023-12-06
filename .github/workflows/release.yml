@@ -8,6 +8,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      matrix:
+        package: [ 'Pick.Net.Utilities.Tests', 'Pick.Net.Utilities.Maui.SourceGenerators.Tests' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -17,12 +20,13 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore
       run: dotnet restore
-    - name: Test Utilities
-      run: dotnet test --no-build  "Pick.Net.Utilities.Tests"
-    - name: Test SourceGenerators
-      run: dotnet test --no-build  "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
+    - name: Build
+      run: dotnet build -c Release "${{ matrix.package }}"
+    - name: Run Tests
+      run: dotnet test --no-build  "${{ matrix.package }}"
   build:
     runs-on: windows-latest
+    timeout-minutes: 15
     needs: test
     strategy:
       matrix:

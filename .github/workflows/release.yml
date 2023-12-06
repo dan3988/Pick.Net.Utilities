@@ -1,10 +1,13 @@
 name: Publish
 on:
   push:
-    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+    - "v[0-9]+.[0-9]+.[0-9]+-preview[0-9]+"
 jobs:
   test:
     runs-on: ubuntu-latesst
+    timeout-minutes: 15
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -25,23 +28,24 @@ jobs:
     #     git branch --remote --contains | grep origin/main
     - name: Get Version
       run: |
-        $VERSION = $env:GITHUB_REF -replace 'refs/tags/v', ''
-        Write-Output "Version: $version"
+        $VERSION_FULL = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        $VERSION = $VERSION_FULL -replace '-preview.*', ''
+        Write-Output "VERSION_FULL: $VERSION_FULL"
+        Write-Output "VERSION: $VERSION"
+        echo "$VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
         echo "VERSION=$VERSION" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Build
       run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
     - name: Pack
-      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${{ env.VERSION_FULL }} /p:BuildNumber=${{ github.run_number }}
     - name: Upload
       uses: actions/upload-artifact@v3.1.2
       with:
         name: ${{ matrix.package }}
         path: .build
-    - name: Add Nuget Source
-      run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/dan3988/index.json"
     - name: Push
-      run: dotnet nuget push  .build/${{ matrix.package }}.${{ env.VERSION }}.nupkg --source "github" --api-key "${{ secrets.GITHUB_TOKEN }}"
+      run: dotnet nuget push  .build/${{ matrix.package }}.${{ env.$VERSION_FULL }}.nupkg --api-key "${{ secrets.NUGET_TOKEN }}"

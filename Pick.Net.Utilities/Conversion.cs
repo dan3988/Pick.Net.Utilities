@@ -87,12 +87,15 @@ public static class Conversion
 	[return: NotNullIfNotNull(nameof(value))]
 	public static object? Convert(object? value, Type type, IFormatProvider? formatProvider = null)
 	{
+		var nt = Nullable.GetUnderlyingType(type);
+		if (nt != null)
+		{
+			type = nt;
+		}
+
 		if (value == null)
 		{
-			if (type.IsValueType && Nullable.GetUnderlyingType(type) == null)
-				throw new ArgumentException($"Cannot convert null to {type}.", nameof(value));
-
-			return null;
+			return !type.IsValueType || nt != null ? null : throw new ArgumentException($"Cannot convert null to {type}.", nameof(value));
 		}
 
 		if (type.IsInstanceOfType(value))

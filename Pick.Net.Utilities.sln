@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E923A127
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleApps", "ConsoleApps", "{2DB4D353-D453-4F61-9F47-0B3F313211E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pick.Net.Utilities.Tests", "Pick.Net.Utilities.Tests\Pick.Net.Utilities.Tests.csproj", "{22CFDFE8-F5F4-4DBB-BF02-7A2970A55DB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Tests", "Pick.Net.Utilities.Tests\Pick.Net.Utilities.Tests.csproj", "{22CFDFE8-F5F4-4DBB-BF02-7A2970A55DB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,5 +89,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems*{2bcbbab9-67e3-4076-8c31-c76b38d770d1}*SharedItemsImports = 5
 		Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems*{871760e7-67e0-48b4-b415-db6b8fb68448}*SharedItemsImports = 5
+		Pick.Net.Utilities.Maui.Shared\Pick.Net.Utilities.Maui.Shared.projitems*{c181fd58-a49a-4e15-94d8-f88458de253d}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

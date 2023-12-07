@@ -7,8 +7,7 @@ internal abstract class BindablePropertySyntaxGenerator
 		var propertyInitializer = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, Identifiers.BindablePropertyKeyProperty);
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(Identifiers.BindableProperty).AddVariables(declaration))
-			.WithModifiers(modifiers)
-			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly));
 
 		members.Add(field);
 	}
@@ -81,8 +80,7 @@ internal abstract class BindablePropertySyntaxGenerator
 		var propertyInitializer = SyntaxFactory.InvocationExpression(create, SyntaxHelper.ArgumentList(arguments));
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(fieldType).AddVariables(declaration))
-			.WithModifiers(modifiers)
-			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.ReadOnlyKeyword);
+			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly));
 
 		members.Add(field);
 	}

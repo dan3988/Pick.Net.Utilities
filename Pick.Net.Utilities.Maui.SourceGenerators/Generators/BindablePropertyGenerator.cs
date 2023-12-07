@@ -288,14 +288,14 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		foreach (var type in generationOutput.Types)
 		{
 			var classInfo = ClassInfo.Create(type.DeclaringType);
-			var declaration = TypeDeclaration(SyntaxKind.ClassDeclaration, classInfo.TypeName).AddModifier(SyntaxKind.PartialKeyword);
+			var declaration = TypeDeclaration(SyntaxKind.ClassDeclaration, classInfo.TypeName).WithModifiers(ModifierLists.Partial);
 			var members = new List<MemberDeclarationSyntax>();
 
 			foreach (var generator in type.Properties)
 				generator.GenerateMembers(members);
 
 			declaration = declaration.AddMembers([.. members]);
-			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).AddModifier(SyntaxKind.PartialKeyword).AddMembers(current));
+			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).WithModifiers(ModifierLists.Partial).AddMembers(current));
 
 			var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);
 			var root = classInfo.Namespace == "" ? (MemberDeclarationSyntax)declaration : NamespaceDeclaration(IdentifierName(classInfo.Namespace)).AddMembers(declaration);

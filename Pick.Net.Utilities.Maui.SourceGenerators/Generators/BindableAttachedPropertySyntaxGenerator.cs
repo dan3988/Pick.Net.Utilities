@@ -6,7 +6,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 {
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(AttachedPropertyGetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var modifiers = info.Accessibility.ToSyntaxList().Add(SyntaxKind.StaticKeyword).Add(SyntaxKind.PartialKeyword);
+		var modifiers = info.Accessibility.ToSyntaxList().AddRange(ModifierLists.StaticPartial);
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var expression = CastExpression(propertyType,
 				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.GetValue))
@@ -22,9 +22,9 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 
 	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(AttachedPropertySetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var modifiers = info.Accessibility.ToSyntaxList().Add(SyntaxKind.StaticKeyword);
+		var modifiers = info.Accessibility.ToSyntaxList().Add(Modifiers.Static);
 		if (info.Partial)
-			modifiers = modifiers.Add(SyntaxKind.PartialKeyword);
+			modifiers = modifiers.Add(Modifiers.Partial);
 
 		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var paramValue = Parameter(info.ValueParamName).WithType(propertyType);
@@ -72,7 +72,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 		var paramValue = Parameter(Identifier("value"));
 
 		method = MethodDeclaration(SyntaxHelper.TypeBoolean, $"Validate{PropertyName}Value")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.PrivateStaticPartial)
 			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
@@ -90,7 +90,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 		var paramValue = Parameter(Identifier("value"));
 
 		method = MethodDeclaration(AnnotatedPropertyType, $"Coerce{PropertyName}Value")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.PrivateStaticPartial)
 			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
@@ -109,7 +109,7 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 		var paramNewValue = Parameter(Identifier("newValue"));
 
 		method = MethodDeclaration(SyntaxHelper.TypeVoid, name)
-			.AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.StaticPartial)
 			.AddParameterListParameters(
 				paramBindable.WithType(AttachedType),
 				paramOldValue.WithType(AnnotatedPropertyType),

@@ -22,7 +22,7 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 		var paramValue = Parameter(Identifier("value"));
 
 		method = MethodDeclaration(SyntaxHelper.TypeBoolean, $"Validate{PropertyName}Value")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.PrivatePartial)
 			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
@@ -44,7 +44,7 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 		var paramValue = Parameter(Identifier("value"));
 
 		method = MethodDeclaration(AnnotatedPropertyType, $"Coerce{PropertyName}Value")
-			.AddModifiers(SyntaxKind.PrivateKeyword, SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.PrivatePartial)
 			.AddParameterListParameters(paramValue.WithType(AnnotatedPropertyType))
 			.WithSemicolonToken();
 
@@ -67,7 +67,7 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 		var paramNewValue = Parameter(Identifier("newValue"));
 
 		method = MethodDeclaration(SyntaxHelper.TypeVoid, name)
-			.AddModifier(SyntaxKind.PartialKeyword)
+			.WithModifiers(ModifierLists.Partial)
 			.AddParameterListParameters(
 				paramOldValue.WithType(AnnotatedPropertyType),
 				paramNewValue.WithType(AnnotatedPropertyType))

@@ -104,16 +104,6 @@ internal static class SyntaxHelper
 		var text = unit.GetText(encoding);
 		context.AddSource(hintName, text);
 	}
-
-	public static T AddModifier<T>(this T syntax, SyntaxKind kind) where T : MemberDeclarationSyntax
-		=> (T)syntax.AddModifiers(Token(kind));
-
-	public static T AddModifiers<T>(this T syntax, params SyntaxKind[] kind) where T : MemberDeclarationSyntax
-		=> (T)syntax.AddModifiers(kind.Select(Token).ToArray());
-
-	public static SyntaxTokenList Add(this SyntaxTokenList list, SyntaxKind kind)
-		=> list.Add(Token(kind));
-
 	public static bool Contains(this SyntaxTokenList list, SyntaxKind kind)
 		=> list.IndexOf(kind) >= 0;
 

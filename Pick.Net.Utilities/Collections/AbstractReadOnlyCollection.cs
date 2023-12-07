@@ -3,9 +3,9 @@
 namespace Pick.Net.Utilities.Collections;
 
 /// <summary>
-/// Abstract class that implements all collection interfaces, but only supports the read-only operations
+/// Abstract collection implementation that implements <see cref="ICollection"/>, <see cref="IReadOnlyCollection{T}"/>, and the methods of <see cref="ICollection{T}"/> that do not modify the collection, throwing a <see cref="NotSupportedException"/> for those that do.
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">The type of element in this collection</typeparam>
 public abstract class AbstractReadOnlyCollection<T> : ICollection<T>, ICollection, IReadOnlyCollection<T>
 {
 	protected static NotSupportedException Exception() => new("Collection is read-only");

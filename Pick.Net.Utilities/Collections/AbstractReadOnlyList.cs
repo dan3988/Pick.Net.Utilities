@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+
 namespace Pick.Net.Utilities.Collections;
 
 /// <summary>
-/// Abstract class that implements all list interfaces, but only supports the read-only operations
+/// Abstract collection implementation that implements <see cref="ICollection"/>, <see cref="IReadOnlyList{T}"/>, and the methods of <see cref="IList{T}"/> and <see cref="IList"/> that do not modify the collection, throwing a <see cref="NotSupportedException"/> for those that do.
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="T">The type of element in this list</typeparam>
 public abstract class AbstractReadOnlyList<T> : AbstractReadOnlyCollection<T>, IList<T>, IList, IReadOnlyList<T>
 {
 	public abstract T this[int index] { get; }

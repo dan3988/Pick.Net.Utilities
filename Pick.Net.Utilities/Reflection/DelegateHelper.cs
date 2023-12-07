@@ -11,15 +11,31 @@ public static partial class DelegateHelper
 	public static T CreateDelegate<T>(MethodInfo method) where T : Delegate
 		=> (T)Delegate.CreateDelegate(typeof(T), method);
 
+	/// <summary>
+	/// Gets the types of the parameters for the delegate <typeparamref name="T"/>
+	/// </summary>
+	/// <exception cref="ArgumentException"><typeparamref name="T"/> is <see cref="Delegate"/> or <see cref="MulticastDelegate"/></exception>
 	public static ImmutableArray<Type> GetArgumentTypes<T>() where T : Delegate
 		=> GetDelegateInfo<T>().ArgumentTypes;
 
+	/// <summary>
+	/// Gets the types of the parameters for the delegate <paramref name="type"/>
+	/// </summary>
+	/// <exception cref="ArgumentException"><paramref name="type"/> is not a delegate type</exception>
 	public static ImmutableArray<Type> GetArgumentTypes(Type type)
 		=> GetDelegateInfo(type).ArgumentTypes;
 
+	/// <summary>
+	/// Gets the return type of the delegate <typeparamref name="T"/>
+	/// </summary>
+	/// <exception cref="ArgumentException"><typeparamref name="T"/> is <see cref="Delegate"/> or <see cref="MulticastDelegate"/></exception>
 	public static Type GetReturnType<T>() where T : Delegate
 		=> GetDelegateInfo<T>().ReturnType;
 
+	/// <summary>
+	/// Gets the return type of the delegate <paramref name="type"/>
+	/// </summary>
+	/// <exception cref="ArgumentException"><paramref name="type"/> is not a delegate type</exception>
 	public static Type GetReturnType(Type type)
 		=> GetDelegateInfo(type).ReturnType;
 

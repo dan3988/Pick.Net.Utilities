@@ -85,6 +85,11 @@ public static unsafe class MemoryHelper
 		public string Create() => string.Create(ByteCount * 8, this, Create);
 	}
 
+	/// <summary>
+	/// Creates a string containing the little endian base 16 representation of all the values in <paramref name="value"/>
+	/// </summary>
+	/// <param name="value">The values to convert</param>
+	/// <param name="upperCase">Whether to return an upper case hex string</param>
 	public static string ToHexString<T>(this T[] value, bool upperCase = false)
 		where T : unmanaged
 	{
@@ -92,6 +97,7 @@ public static unsafe class MemoryHelper
 			return ToHexString(p, sizeof(T) * value.Length, upperCase);
 	}
 
+	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
 	public static string ToHexString<T>(this ReadOnlySpan<T> value, bool upperCase = false)
 		where T : unmanaged
 	{
@@ -99,6 +105,18 @@ public static unsafe class MemoryHelper
 			return ToHexString(p, sizeof(T) * value.Length, upperCase);
 	}
 
+	/// <summary>
+	/// Converts <paramref name="value"/> to a little endian base 16 string representation of its raw data.
+	/// </summary>
+	/// <param name="value">The value to convert</param>
+	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
+	public static string ToHexString<T>(T value, bool upperCase = false)
+		where T : unmanaged
+	{
+		return ToHexString(&value, sizeof(T), upperCase);
+	}
+
+	/// <inheritdoc cref="ToHexString{T}(T, bool)"/>
 	public static string ToHexString<T>(in T value, bool upperCase = false)
 		where T : unmanaged
 	{
@@ -106,15 +124,19 @@ public static unsafe class MemoryHelper
 			return ToHexString(p, sizeof(T), upperCase);
 	}
 
-	public static string ToHexString<T>(T value, bool upperCase = false)
-		where T : unmanaged
-	{
-		return ToHexString(&value, sizeof(T), upperCase);
-	}
-
+	/// <summary>
+	/// Converts <paramref name="byteCount"/> bytes from <paramref name="ptr"/> to a little endian base 16 string.
+	/// </summary>
+	/// <param name="ptr">A pointer to the first byte to convert</param>
+	/// <param name="ptr">The amaount of bytes to read from <paramref name="ptr"/></param>
+	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
 	public static string ToHexString(void* ptr, int byteCount, bool upperCase = false)
 		=> new ToHexStringState((nint)ptr, byteCount, upperCase).Create();
 
+	/// <summary>
+	/// Creates a string containing the little endian base 2 representation of all the values in <paramref name="value"/>
+	/// </summary>
+	/// <param name="value">The values to convert</param>
 	public static string ToBinaryString<T>(this T[] value)
 		where T : unmanaged
 	{
@@ -122,6 +144,7 @@ public static unsafe class MemoryHelper
 			return ToBinaryString(p, sizeof(T) * value.Length);
 	}
 
+	/// <inheritdoc cref="ToBinaryString{T}(T[])"/>
 	public static string ToBinaryString<T>(this ReadOnlySpan<T> value)
 		where T : unmanaged
 	{
@@ -129,6 +152,17 @@ public static unsafe class MemoryHelper
 			return ToBinaryString(p, sizeof(T) * value.Length);
 	}
 
+	/// <summary>
+	/// Converts <paramref name="value"/> to a little endian base 2 string representation of its raw data.
+	/// </summary>
+	/// <param name="value">The value to convert</param>
+	public static string ToBinaryString<T>(T value)
+		where T : unmanaged
+	{
+		return ToBinaryString(&value, sizeof(T));
+	}
+
+	/// <inheritdoc cref="ToBinaryString{T}(T))"/>
 	public static string ToBinaryString<T>(in T value)
 		where T : unmanaged
 	{
@@ -136,12 +170,11 @@ public static unsafe class MemoryHelper
 			return ToBinaryString(p, sizeof(T));
 	}
 
-	public static string ToBinaryString<T>(T value)
-		where T : unmanaged
-	{
-		return ToBinaryString(&value, sizeof(T));
-	}
-
+	/// <summary>
+	/// Converts <paramref name="byteCount"/> bytes from <paramref name="ptr"/> to a little endian base 2 string.
+	/// </summary>
+	/// <param name="ptr">A pointer to the first byte to convert</param>
+	/// <param name="ptr">The amaount of bytes to read from <paramref name="ptr"/></param>
 	public static string ToBinaryString(void* ptr, int sizeInBytes)
 		=> new ToBinaryStringState((nint)ptr, sizeInBytes).Create();
 }

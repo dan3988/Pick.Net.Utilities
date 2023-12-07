@@ -84,6 +84,17 @@ public static class Conversion
 		return code;
 	}
 
+	/// <summary>
+	/// Uses <see cref="SConvert.ChangeType(object?, Type)"/> to convert <paramref name="value"/> to an instance of <paramref name="type"/>, but supports conversion to nullable and enum types.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <param name="type"></param>
+	/// <param name="formatProvider"></param>
+	/// <returns></returns>
+	/// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c> and <paramref name="type"/> is a value type thas is not <see cref="Nullable{T}"/>.</exception>
+	/// <exception cref="FormatException"><paramref name="value"/> is a string in a format not recognised by <paramref name="type"/>.</exception>
+	/// <exception cref="OverflowException"><paramref name="value"/> represents a number that is out of the range of <paramref name="type"/>.</exception>
+	/// <exception cref="InvalidCastException">Conversion from <paramref name="value"/> to <paramref name="type"/> is not supported.</exception>
 	[return: NotNullIfNotNull(nameof(value))]
 	public static object? Convert(object? value, Type type, IFormatProvider? formatProvider = null)
 	{
@@ -95,7 +106,7 @@ public static class Conversion
 
 		if (value == null)
 		{
-			return !type.IsValueType || nt != null ? null : throw new ArgumentException($"Cannot convert null to {type}.", nameof(value));
+			return !type.IsValueType || nt != null ? null : throw new ArgumentNullException(nameof(value), $"Cannot convert null to {type}.");
 		}
 
 		if (type.IsInstanceOfType(value))
@@ -112,10 +123,12 @@ public static class Conversion
 		}
 	}
 
+	/// <summary>
+	/// Uses <see cref="SConvert.ChangeType(object?, Type)"/> to convert <paramref name="value"/> to an instance of <typeparamref name="T"/>, but supports conversion to nullable and enum types.
+	/// </summary>
+	/// <inheritdoc cref="Convert(object?, Type, IFormatProvider?)"/>
 	[return: NotNullIfNotNull(nameof(value))]
 	public static T? Convert<T>(object? value, IFormatProvider? formatProvider = null) => (T?)Convert(value, typeof(T), formatProvider);
 
 	public static T ChangeType<T>(object value) where T : IConvertible => (T)SConvert.ChangeType(value, typeof(T));
-
-	public static T ParseEnum<T>(string value, bool ignoreCase = false) where T : unmanaged, Enum => (T)Enum.Parse(typeof(T), value, ignoreCase);
 }

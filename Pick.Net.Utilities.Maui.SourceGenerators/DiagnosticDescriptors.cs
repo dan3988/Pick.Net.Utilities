@@ -1,7 +1,5 @@
 using System.Text;
 
-using Pick.Net.Utilities.Maui.Helpers;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
 internal static class DiagnosticDescriptors

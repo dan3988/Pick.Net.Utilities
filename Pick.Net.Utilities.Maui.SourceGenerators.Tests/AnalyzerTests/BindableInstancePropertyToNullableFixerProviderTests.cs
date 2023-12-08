@@ -11,7 +11,7 @@ public class BindableInstancePropertyToNullableFixerProviderTests : CodeFixTests
 	{
 		const string original = """
 	#nullable enable
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -29,7 +29,7 @@ public class BindableInstancePropertyToNullableFixerProviderTests : CodeFixTests
 
 		const string expected = """
 	#nullable enable
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;

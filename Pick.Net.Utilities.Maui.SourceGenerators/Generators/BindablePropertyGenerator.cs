@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-using Pick.Net.Utilities.Maui.Helpers;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 using static SyntaxFactory;

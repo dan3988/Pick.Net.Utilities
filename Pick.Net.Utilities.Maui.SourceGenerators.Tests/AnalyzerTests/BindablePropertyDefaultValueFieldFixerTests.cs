@@ -12,7 +12,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
 	public async Task TestDefaultValueString()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -29,7 +29,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -57,7 +57,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
 	public async Task TestDefaultValueInt()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -74,7 +74,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -103,7 +103,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
 	{
 		const string original = """
     using System.Collections.Generic;
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -121,7 +121,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
 
 		const string expected = """
     using System.Collections.Generic;
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -148,7 +148,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
 	public async Task TestDefaultValueNullable()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -165,7 +165,7 @@ public class BindablePropertyDefaultValueFieldFixerTests : CodeFixTests<Bindable
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;

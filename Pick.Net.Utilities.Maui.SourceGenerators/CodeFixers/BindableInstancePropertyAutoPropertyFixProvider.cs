@@ -4,8 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Editing;
 
-using Pick.Net.Utilities.Maui.Helpers;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 
 using static SyntaxFactory;

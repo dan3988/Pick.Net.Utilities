@@ -14,7 +14,7 @@ Used to show code fixers for adding a default value to a bindable property.
 ## PNUM0001
 Indicates that a `[BindableProperty]` attribute has been specified on multiple properties with the same name.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -31,7 +31,7 @@ public partial class SampleView : View
 ## PNUM0002
 Indicates that an attached property get method does not have a `Get` prefix.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -44,7 +44,7 @@ public partial class SampleView : View
 ## PNUM0003
 Indicates that an attached property get method does not have a return type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -57,7 +57,7 @@ public partial class SampleView : View
 ## PNUM0004
 Indicates that an attached property get does not have a single parameter representing the attached type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -74,7 +74,7 @@ public partial class SampleView : View
 ## PNUM0005
 Indicates that a static property has been declared with a `[BindableProperty]` attribute.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -87,7 +87,7 @@ public partial class SampleView : View
 ## PNUM0006
 Indicates that a non-static method has been declared with a `[BindableProperty]` attribute.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -100,7 +100,7 @@ public partial class SampleView : View
 ## PNUM0007
 Indicates that an invalid value has been specified for the value of the DefaultMode property.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -113,7 +113,7 @@ public partial class SampleView : View
 ## PNUM0008
 Indicates that bindable property has a non-nullable reference type but has not specified a default value.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -126,7 +126,7 @@ public partial class SampleView : View
 ## PNUM0009
 Indicates that an accessor of a bindable property does not use the correct bindable property.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -154,7 +154,7 @@ public partial class SampleView : View
 ## PNUM0010
 Indicates that an accessor of an attached bindable property does not use the correct bindable property.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -169,7 +169,7 @@ public partial class SampleView : View
 ## PNUM0011
 Indicates that an the nullability of attached property accessors are different.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -184,7 +184,7 @@ public partial class SampleView : View
 ## PNUM0012
 Indicates the value of DefaultValue is not a member of the declaring type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -197,7 +197,7 @@ public partial class SampleView : View
 ## PNUM0013
 Indicates the value of DefaultValue points to multiple members in declaring type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -214,7 +214,7 @@ public partial class SampleView : View
 ## PNUM0014
 Indicates that a DefaultValue field is not assignable to the property return type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -229,7 +229,7 @@ public partial class SampleView : View
 ## PNUM0015
 Indicates that a DefaultValue field is not assignable to the property return type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -244,7 +244,7 @@ public partial class SampleView : View
 ## PNUM0016
 Indicates that a DefaultValue generator does not return a value
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -261,7 +261,7 @@ public partial class SampleView : View
 ## PNUM0017
 Indicates that a DefaultValue generator's return type is not assignable to the property return type.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -276,7 +276,7 @@ public partial class SampleView : View
 ## PNUM0018
 Indicates that a DefaultValue generator method for an instance property has an invalid signature.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {
@@ -297,7 +297,7 @@ public partial class SampleView : View
 ## PNUM0019
 Indicates that a DefaultValue generator method for an attached property has an invalid signature.
 ```C#
-using Pick.Net.Utilities.Maui.Helpers;
+using Pick.Net.Utilities.Maui;
 
 public partial class SampleView : View
 {

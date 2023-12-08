@@ -1,7 +1,5 @@
 ﻿namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
-using System.Xml.Linq;
-
 using Microsoft.CodeAnalysis;
 
 using static SyntaxFactory;

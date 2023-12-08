@@ -9,7 +9,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodNameDiagnosticTest()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -31,7 +31,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodReturnTypeDiagnosticTest()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -54,7 +54,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodNoParametersDiagnosticTest()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -75,7 +75,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodMultipleParametersDiagnosticTest()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -97,7 +97,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodMismatchedGetNullablility()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -121,7 +121,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	public async Task MethodMismatchedSetNullablility()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;

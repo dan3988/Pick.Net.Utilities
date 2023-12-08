@@ -9,7 +9,7 @@ public class BindablePropertyAttributeAnalyzerTests : CodeAnalyzerTests<Bindable
 	public async Task ReportUndefinedBindngMode()
 	{
 		const string code = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;

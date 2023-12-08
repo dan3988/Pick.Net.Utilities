@@ -9,7 +9,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 	public async Task TestSimpleInstanceProperty()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			namespace Test.Namespace;
@@ -60,7 +60,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 	public async Task TestReadOnlyInstanceProperty()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			namespace Test.Namespace;

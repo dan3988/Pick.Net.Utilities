@@ -9,7 +9,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task DefaultValueField()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -57,7 +57,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task DefaultImplicitConversion()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -106,7 +106,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -155,7 +155,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -204,7 +204,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -253,7 +253,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public class TestValue(int value)
@@ -309,7 +309,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -359,7 +359,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task ErrorForNotFound()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -378,7 +378,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task ErrorForDefaultInstanceField()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -399,7 +399,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task ErrorForAmbiguous()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -422,7 +422,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task ErrorForVoidReturnType()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -445,7 +445,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task ErrorForInvalidReturnType()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class TestClass : BindableObject
@@ -467,7 +467,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 			
 			public partial class TestClass : BindableObject
@@ -489,7 +489,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	{
 		const string code = """
 			using System;
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 			
 			public partial class TestClass : BindableObject

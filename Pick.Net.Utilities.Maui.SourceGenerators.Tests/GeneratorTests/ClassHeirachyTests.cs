@@ -9,7 +9,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task TestRootLevelClass()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			public partial class RootLevelClass : BindableObject
@@ -55,7 +55,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 	public async Task NestedClasses()
 	{
 		const string code = """
-			using Pick.Net.Utilities.Maui.Helpers;
+			using Pick.Net.Utilities.Maui;
 			using Microsoft.Maui.Controls;
 
 			namespace Test;

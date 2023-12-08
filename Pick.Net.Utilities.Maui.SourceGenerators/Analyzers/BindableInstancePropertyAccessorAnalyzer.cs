@@ -1,7 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.Diagnostics;
 
-using Pick.Net.Utilities.Maui.Helpers;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]

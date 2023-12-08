@@ -1,4 +1,4 @@
-﻿namespace Pick.Net.Utilities.Maui.Helpers;
+﻿namespace Pick.Net.Utilities.Maui;
 
 public enum BindingMode
 {

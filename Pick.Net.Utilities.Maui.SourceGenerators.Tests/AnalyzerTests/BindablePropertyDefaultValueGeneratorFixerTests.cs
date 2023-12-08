@@ -10,7 +10,7 @@ public class BindablePropertyDefaultValueGeneratorFixerTests : CodeFixTests<Bind
 	public async Task InstanceProperty()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -27,7 +27,7 @@ public class BindablePropertyDefaultValueGeneratorFixerTests : CodeFixTests<Bind
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     using System;
     
@@ -57,7 +57,7 @@ public class BindablePropertyDefaultValueGeneratorFixerTests : CodeFixTests<Bind
 	public async Task AttachedProperty()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -70,7 +70,7 @@ public class BindablePropertyDefaultValueGeneratorFixerTests : CodeFixTests<Bind
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     using System;
     

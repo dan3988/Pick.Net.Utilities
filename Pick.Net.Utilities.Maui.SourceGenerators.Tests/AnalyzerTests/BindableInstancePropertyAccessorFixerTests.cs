@@ -10,7 +10,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
 	public async Task FixPropertyAccessors()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -29,7 +29,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
     """;
 
         const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -57,7 +57,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
 	public async Task FixReadOnlyPropertyAccessors()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -74,7 +74,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -100,7 +100,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
 	public async Task FixAutoProperty()
 	{
 		const string original = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -113,7 +113,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
     """;
 
 		const string expected = """
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -143,7 +143,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
 	{
 		const string original = """
     using System.Collections.Generic;
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;
@@ -157,7 +157,7 @@ public class BindableInstancePropertyAccessorFixerTests : CodeFixTests<BindableI
 
 		const string expected = """
     using System.Collections.Generic;
-    using Pick.Net.Utilities.Maui.Helpers;
+    using Pick.Net.Utilities.Maui;
     using Microsoft.Maui.Controls;
     
     namespace Test;

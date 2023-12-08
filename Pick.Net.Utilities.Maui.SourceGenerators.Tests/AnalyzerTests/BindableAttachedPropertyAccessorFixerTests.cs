@@ -10,7 +10,7 @@ public class BindableAttachedPropertyAccessorFixerTests : CodeFixTests<BindableA
 	public async Task ConvertPropertyGetMethod()
 	{
 		const string original = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 	
 	namespace Test;
@@ -29,7 +29,7 @@ public class BindableAttachedPropertyAccessorFixerTests : CodeFixTests<BindableA
 	""";
 
 		const string expected = """
-	using Pick.Net.Utilities.Maui.Helpers;
+	using Pick.Net.Utilities.Maui;
 	using Microsoft.Maui.Controls;
 
 	namespace Test;

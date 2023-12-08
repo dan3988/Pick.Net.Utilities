@@ -52,7 +52,7 @@ internal static class BindablePropertyFixHelper
 				var attribute = attributeList.Attributes[i];
 				var type = model.GetTypeInfo(attribute, token);
 				var name = type.Type?.ToDisplayString(FullNameFormat);
-				if (name == "Pick.Net.Utilities.Maui.Helpers.BindablePropertyAttribute")
+				if (name == "Pick.Net.Utilities.Maui.BindablePropertyAttribute")
 				{
 					index = i;
 					return attributeList;

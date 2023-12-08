@@ -1,10 +1,10 @@
-name: Publish
+name: Build
 on:
   push:
     branches: ['main']
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 15
     steps:
     - name: Checkout
@@ -13,8 +13,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
-    - name: Restore Workloads
-      run: dotnet workload install maui
     - name: Build
       run: |
         dotnet build -c Release "Pick.Net.Utilities.Tests"

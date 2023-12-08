@@ -26,7 +26,6 @@ public class EnumsTests
 	[TestMethod]
 	public void TestHasFlags()
 	{
-		var test2 = BindingFlags.Public.HasFlag(BindingFlags.Default);
 		Assert.IsTrue(Enums.HasFlagsFast(BindingFlags.Public, BindingFlags.Public));
 		Assert.IsTrue(Enums.HasFlagsFast(BindingFlags.Public, (BindingFlags)0));
 		Assert.IsFalse(Enums.HasFlagsFast(BindingFlags.Public, BindingFlags.NonPublic));

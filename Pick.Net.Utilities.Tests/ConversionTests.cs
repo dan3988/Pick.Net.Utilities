@@ -10,7 +10,7 @@ public class ConversionTests
 		Assert.AreEqual(ConsoleColor.Red, Conversion.Convert<ConsoleColor>("12"));
 		Assert.AreEqual(ConsoleColor.Gray, Conversion.Convert<ConsoleColor>(7));
 		Assert.AreEqual(ConsoleColor.Blue, Conversion.Convert<ConsoleColor?>(9));
-		Assert.ThrowsException<ArgumentException>(() => Conversion.Convert(null, typeof(ConsoleColor)));
+		Assert.ThrowsException<ArgumentNullException>(() => Conversion.Convert(null, typeof(ConsoleColor)));
 		Assert.ThrowsException<ArgumentException>(() => Conversion.Convert("Purple", typeof(ConsoleColor)));
 		Assert.AreEqual(null, Conversion.Convert<ConsoleColor?>(null));
 	}

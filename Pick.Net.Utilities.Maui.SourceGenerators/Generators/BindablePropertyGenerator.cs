@@ -55,12 +55,33 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		if (member.Kind == SymbolKind.Property)
 		{
 			var prop = (IPropertySymbol)member;
-			return CheckFieldOrProperty(model, owner, prop, prop.Type, propertyType, ref defaultValue, out error);
+			if (!ValidateFieldOrProperty(model, owner, prop, prop.Type, propertyType, out var requireConvert, out error))
+				return false;
+
+			defaultValue = !requireConvert && IsSpecialTypeIgnoreNullable(propertyType, SpecialType.System_Boolean)
+				? DefaultValueGenerator.BoxedBoolean(IdentifierName(prop.Name))
+				: DefaultValueGenerator.StaticValue(Identifier(prop.Name), requireConvert);
+
+			return true;
 		}
 		else if (member.Kind == SymbolKind.Field)
 		{
 			var field = (IFieldSymbol)member;
-			return CheckFieldOrProperty(model, owner, field, field.Type, propertyType, ref defaultValue, out error);
+			if (!ValidateFieldOrProperty(model, owner, field, field.Type, propertyType, out var requireConvert, out error))
+				return false;
+
+			if (requireConvert || !IsSpecialTypeIgnoreNullable(propertyType, SpecialType.System_Boolean))
+			{
+				defaultValue = DefaultValueGenerator.StaticValue(Identifier(field.Name), requireConvert);
+			}
+			else
+			{
+				defaultValue = field.IsConst
+					? DefaultValueGenerator.BoxedBoolean((bool?)field.ConstantValue ?? false)
+					: DefaultValueGenerator.BoxedBoolean(IdentifierName(field.Name));
+			}
+
+			return true;
 		}
 		else if (member.Kind == SymbolKind.Method)
 		{
@@ -137,10 +158,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			return false;
 		}
 
-		static bool CheckFieldOrProperty(SemanticModel model, ISymbol owner, ISymbol symbol, ITypeSymbol returnType, ITypeSymbol propertyType, ref DefaultValueGenerator defaultValue, [MaybeNullWhen(true)] out Diagnostic error)
+		static bool ValidateFieldOrProperty(SemanticModel model, ISymbol owner, ISymbol symbol, ITypeSymbol returnType, ITypeSymbol propertyType, out bool requireConvert, [MaybeNullWhen(true)] out Diagnostic error)
 		{
 			var conversion = model.Compilation.ClassifyConversion(returnType, propertyType);
-			if (!AllowPropertyTypeConversion(conversion, out var requireConvert))
+			if (!AllowPropertyTypeConversion(conversion, out requireConvert))
 			{
 				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, symbol.Name, propertyType.Name);
 				return false;
@@ -153,10 +174,12 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			}
 
 			error = null;
-			defaultValue = DefaultValueGenerator.StaticValue(Identifier(symbol.Name), requireConvert);
 			return true;
 		}
 	}
+
+	private static bool IsSpecialTypeIgnoreNullable(ITypeSymbol symbol, SpecialType type)
+		=> symbol.SpecialType == type || (symbol is INamedTypeSymbol { ConstructedFrom.SpecialType: SpecialType.System_Nullable_T, TypeArguments: [ ITypeSymbol param ] } && param.SpecialType == type);
 
 	private static bool AllowPropertyTypeConversion(Conversion conversion, out bool requireExplicitCast)
 	{
@@ -168,7 +191,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 		if (conversion.IsImplicit || conversion.IsEnumeration || conversion.IsUserDefined)
 		{
-			requireExplicitCast = true;
+			requireExplicitCast = !conversion.IsNullable;
 			return true;
 		}
 
@@ -212,6 +235,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var declaringTypeSyntax = symbol.ContainingType.ToIdentifier();
 		var annotatedPropertyTypeSyntax = propertyType.ToIdentifier(true);
 		var propertyTypeSyntax = propertyType.ToIdentifier();
+
+		if (defaultValue == DefaultValueGenerator.None && propertyType.SpecialType == SpecialType.System_Boolean)
+			defaultValue = DefaultValueGenerator.BoxedBoolean(false);
 
 		result = new SyntaxGeneratorSharedProperties(propertyName, declaringTypeSyntax, propertyTypeSyntax, annotatedPropertyTypeSyntax, accessibility, writeAccessibility,
 			defaultValue, defaultModeSyntax, coerceValueCallback, validateValueCallback);

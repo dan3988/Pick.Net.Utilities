@@ -54,6 +54,244 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	}
 
 	[TestMethod]
+	public async Task DefaultBooleanNoDefaultValue()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			public partial class TestClass : BindableObject
+			{
+				[BindableProperty]
+				public bool Toggle
+				{
+					get => (bool)GetValue(ToggleProperty);
+					set => SetValue(ToggleProperty, value);
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			partial class TestClass
+			{
+				partial void OnToggleChanging(bool oldValue, bool newValue);
+
+				partial void OnToggleChanged(bool oldValue, bool newValue);
+
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+					"Toggle",
+					typeof(bool),
+					typeof(global::TestClass),
+					global::Pick.Net.Utilities.BooleanBox.False,
+					global::Microsoft.Maui.Controls.BindingMode.OneWay,
+					null,
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanging((bool)oldValue, (bool)newValue),
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanged((bool)oldValue, (bool)newValue),
+					null,
+					null);
+
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("TestClass", output)
+			.RunAsync();
+	}
+
+	[TestMethod]
+	public async Task DefaultBooleanNullableConstValue()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			public partial class TestClass : BindableObject
+			{
+				public const bool ToggleDefaultValue = true;
+			
+				[BindableProperty(DefaultValue = nameof(ToggleDefaultValue))]
+				public bool? Toggle
+				{
+					get => (bool?)GetValue(ToggleProperty);
+					set => SetValue(ToggleProperty, value);
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			partial class TestClass
+			{
+				partial void OnToggleChanging(bool? oldValue, bool? newValue);
+
+				partial void OnToggleChanged(bool? oldValue, bool? newValue);
+
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+					"Toggle",
+					typeof(bool?),
+					typeof(global::TestClass),
+					global::Pick.Net.Utilities.BooleanBox.True,
+					global::Microsoft.Maui.Controls.BindingMode.OneWay,
+					null,
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanging((bool?)oldValue, (bool?)newValue),
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanged((bool?)oldValue, (bool?)newValue),
+					null,
+					null);
+
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("TestClass", output)
+			.RunAsync();
+	}
+
+	[TestMethod]
+	public async Task DefaultBooleanConstFalseValue()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			public partial class TestClass : BindableObject
+			{
+				public const bool ToggleDefaultValue = false;
+			
+				[BindableProperty(DefaultValue = nameof(ToggleDefaultValue))]
+				public bool Toggle
+				{
+					get => (bool)GetValue(ToggleProperty);
+					set => SetValue(ToggleProperty, value);
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			partial class TestClass
+			{
+				partial void OnToggleChanging(bool oldValue, bool newValue);
+
+				partial void OnToggleChanged(bool oldValue, bool newValue);
+
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+					"Toggle",
+					typeof(bool),
+					typeof(global::TestClass),
+					global::Pick.Net.Utilities.BooleanBox.False,
+					global::Microsoft.Maui.Controls.BindingMode.OneWay,
+					null,
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanging((bool)oldValue, (bool)newValue),
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanged((bool)oldValue, (bool)newValue),
+					null,
+					null);
+
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("TestClass", output)
+			.RunAsync();
+	}
+
+	[TestMethod]
+	public async Task DefaultBooleanConstTrueValue()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			public partial class TestClass : BindableObject
+			{
+				public const bool ToggleDefaultValue = true;
+
+				[BindableProperty(DefaultValue = nameof(ToggleDefaultValue))]
+				public bool Toggle
+				{
+					get => (bool)GetValue(ToggleProperty);
+					set => SetValue(ToggleProperty, value);
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			partial class TestClass
+			{
+				partial void OnToggleChanging(bool oldValue, bool newValue);
+
+				partial void OnToggleChanged(bool oldValue, bool newValue);
+
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+					"Toggle",
+					typeof(bool),
+					typeof(global::TestClass),
+					global::Pick.Net.Utilities.BooleanBox.True,
+					global::Microsoft.Maui.Controls.BindingMode.OneWay,
+					null,
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanging((bool)oldValue, (bool)newValue),
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanged((bool)oldValue, (bool)newValue),
+					null,
+					null);
+
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("TestClass", output)
+			.RunAsync();
+	}
+
+	[TestMethod]
+	public async Task DefaultBooleanPropertyValue()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			public partial class TestClass : BindableObject
+			{
+				public static bool ToggleDefaultValue => true;
+
+				[BindableProperty(DefaultValue = nameof(ToggleDefaultValue))]
+				public bool Toggle
+				{
+					get => (bool)GetValue(ToggleProperty);
+					set => SetValue(ToggleProperty, value);
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			partial class TestClass
+			{
+				partial void OnToggleChanging(bool oldValue, bool newValue);
+
+				partial void OnToggleChanged(bool oldValue, bool newValue);
+
+				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+					"Toggle",
+					typeof(bool),
+					typeof(global::TestClass),
+					global::Pick.Net.Utilities.BooleanBox.Box(ToggleDefaultValue),
+					global::Microsoft.Maui.Controls.BindingMode.OneWay,
+					null,
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanging((bool)oldValue, (bool)newValue),
+					(bindable, oldValue, newValue) => ((global::TestClass)bindable).OnToggleChanged((bool)oldValue, (bool)newValue),
+					null,
+					null);
+
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("TestClass", output)
+			.RunAsync();
+	}
+
+	[TestMethod]
 	public async Task DefaultImplicitConversion()
 	{
 		const string code = """

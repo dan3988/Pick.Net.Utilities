@@ -4,7 +4,15 @@ using static SyntaxFactory;
 
 internal abstract class DefaultValueGenerator
 {
+	private static readonly IdentifierNameSyntax BooleanBoxIdentifier = IdentifierName("global::Pick.Net.Utilities.BooleanBox");
+
 	public static DefaultValueGenerator None = new NoDefaultValue();
+
+	public static DefaultValueGenerator BoxedBoolean(bool value)
+		=> new BoxedBooleanConstantValue(value);
+
+	public static DefaultValueGenerator BoxedBoolean(ExpressionSyntax expression)
+		=> new BoxedBooleanValue(expression);
 
 	public static DefaultValueGenerator StaticValue(SyntaxToken identifier, bool requiresConvert)
 		=> new StaticDefaultValue(identifier, requiresConvert);
@@ -27,6 +35,27 @@ internal abstract class DefaultValueGenerator
 		{
 			defaultValue = SyntaxHelper.Null;
 			defaultValueGenerator = SyntaxHelper.Null;
+		}
+	}
+
+	private sealed class BoxedBooleanConstantValue(bool value) : DefaultValueGenerator
+	{
+		public override void Generate(TypeSyntax declaringType, TypeSyntax propertyType, out ExpressionSyntax defaultValue, out ExpressionSyntax defaultValueGenerator)
+		{
+			defaultValueGenerator = SyntaxHelper.Null;
+			defaultValue = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, BooleanBoxIdentifier, IdentifierName($"{value}"));
+		}
+	}
+
+	private sealed class BoxedBooleanValue(ExpressionSyntax expression) : DefaultValueGenerator
+	{
+		public override void Generate(TypeSyntax declaringType, TypeSyntax propertyType, out ExpressionSyntax defaultValue, out ExpressionSyntax defaultValueGenerator)
+		{
+			var accessor = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, BooleanBoxIdentifier, IdentifierName("Box"));
+			var invocation = InvocationExpression(accessor).AddArgumentListArguments(Argument(expression));
+
+			defaultValueGenerator = SyntaxHelper.Null;
+			defaultValue = invocation;
 		}
 	}
 

@@ -8,6 +8,8 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 
 	protected override string CreateReadOnlyMethod => "CreateReadOnly";
 
+	protected override string CommentFormat => "Bindable {0} for <see cref=\"{1}\"/>.";
+
 	internal BindableInstancePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties) : base(in properties)
 	{
 	}

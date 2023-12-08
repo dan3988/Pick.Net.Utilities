@@ -35,6 +35,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 
 					partial void OnTextChanged(string oldValue, string newValue);
 
+					/// <summary>Bindable property for <see cref="Text"/>.</summary>
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 						"Text",
 						typeof(string),
@@ -86,6 +87,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 
 					partial void OnTextChanged(string oldValue, string newValue);
 
+					/// <summary>Bindable property key for <see cref="Text"/>.</summary>
 					private static readonly global::Microsoft.Maui.Controls.BindablePropertyKey TextPropertyKey = global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly(
 						"Text",
 						typeof(string),
@@ -98,6 +100,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 						null,
 						null);
 			
+					/// <summary>Bindable property for <see cref="Text"/>.</summary>
 					protected static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = TextPropertyKey.BindableProperty;
 
 				}

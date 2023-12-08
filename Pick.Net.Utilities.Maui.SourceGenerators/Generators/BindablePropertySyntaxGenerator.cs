@@ -2,12 +2,13 @@
 
 internal abstract class BindablePropertySyntaxGenerator
 {
-	private static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField)
+	private static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField, SyntaxTrivia comment)
 	{
 		var propertyInitializer = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, bindablePropertyKeyField, Identifiers.BindablePropertyKeyProperty);
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(Identifiers.BindableProperty).AddVariables(declaration))
-			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly));
+			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly))
+			.WithLeadingTrivia(comment);
 
 		members.Add(field);
 	}
@@ -36,12 +37,17 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	protected abstract string CreateReadOnlyMethod { get; }
 
+	protected abstract string CommentFormat { get; }
+
 	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
 	{
 		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValue, DefaultModeSyntax, CoerceValueCallback, ValidateValueCallback) = properties;
 	}
 
-	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod)
+	private SyntaxTrivia CreateComment(string propertyDisplayType)
+		=> SyntaxFactory.Comment($"/// <summary>" + string.Format(CommentFormat, propertyDisplayType, PropertyName) + "</summary>");
+
+	private void GenerateBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, TypeSyntax fieldType, string createMethod, SyntaxTrivia comment)
 	{
 		var arguments = new ExpressionSyntax[10];
 		arguments[0] = SyntaxHelper.Literal(PropertyName);
@@ -80,7 +86,8 @@ internal abstract class BindablePropertySyntaxGenerator
 		var propertyInitializer = SyntaxFactory.InvocationExpression(create, SyntaxHelper.ArgumentList(arguments));
 		var declaration = SyntaxFactory.VariableDeclarator(fieldName.Identifier).WithInitializer(SyntaxFactory.EqualsValueClause(propertyInitializer));
 		var field = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(fieldType).AddVariables(declaration))
-			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly));
+			.WithModifiers(modifiers.AddRange(ModifierLists.StaticReadOnly))
+			.WithLeadingTrivia(comment);
 
 		members.Add(field);
 	}
@@ -101,13 +108,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		{
 			var writeModifiers = WriteAccessibility.ToSyntaxList();
 			var bindablePropertyKeyField = SyntaxFactory.IdentifierName(PropertyName + "PropertyKey");
-			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, Identifiers.BindablePropertyKey, CreateReadOnlyMethod);
-			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField);
+			GenerateBindablePropertyDeclaration(members, writeModifiers, bindablePropertyKeyField, Identifiers.BindablePropertyKey, CreateReadOnlyMethod, CreateComment("property key"));
+			GenerateReadOnlyBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, bindablePropertyKeyField, CreateComment("property"));
 			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyKeyField);
 		}
 		else
 		{
-			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, Identifiers.BindableProperty, CreateMethod);
+			GenerateBindablePropertyDeclaration(members, readModifiers, bindablePropertyField, Identifiers.BindableProperty, CreateMethod, CreateComment("property"));
 			GenerateExtraMembers(members, bindablePropertyField, bindablePropertyField);
 		}
 	}

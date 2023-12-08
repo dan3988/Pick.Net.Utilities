@@ -44,6 +44,8 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 
 	protected override string CreateReadOnlyMethod => "CreateAttachedReadOnly";
 
+	protected override string CommentFormat => "Bindable {0} for the attached property <c>{1}</c>.";
+
 	public TypeSyntax AttachedType { get; }
 
 	public AttachedPropertyGetterInfo? GetMethodGeneration { get; }

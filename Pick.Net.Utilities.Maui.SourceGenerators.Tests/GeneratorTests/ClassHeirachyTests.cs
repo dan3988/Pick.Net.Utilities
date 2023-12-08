@@ -30,7 +30,8 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 				partial void OnIntegerChanging(int oldValue, int newValue);
 
 				partial void OnIntegerChanged(int oldValue, int newValue);
-
+			
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -95,7 +96,8 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 						partial void OnValueChanging(object oldValue, object newValue);
 			
 						partial void OnValueChanged(object oldValue, object newValue);
-			
+
+						/// <summary>Bindable property for <see cref="Value"/>.</summary>
 						public static readonly global::Microsoft.Maui.Controls.BindableProperty ValueProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 							"Value",
 							typeof(object),
@@ -127,6 +129,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 			
 							partial void OnValueChanged(object oldValue, object newValue);
 			
+							/// <summary>Bindable property for <see cref="Value"/>.</summary>
 							public static readonly global::Microsoft.Maui.Controls.BindableProperty ValueProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 								"Value",
 								typeof(object),

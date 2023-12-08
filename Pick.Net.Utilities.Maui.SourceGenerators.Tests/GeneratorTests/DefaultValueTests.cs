@@ -33,6 +33,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnIntegerChanged(int oldValue, int newValue);
 
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -79,6 +80,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnToggleChanged(bool oldValue, bool newValue);
 
+				/// <summary>Bindable property for <see cref="Toggle"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Toggle",
 					typeof(bool),
@@ -127,6 +129,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnToggleChanged(bool? oldValue, bool? newValue);
 
+				/// <summary>Bindable property for <see cref="Toggle"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Toggle",
 					typeof(bool?),
@@ -175,6 +178,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnToggleChanged(bool oldValue, bool newValue);
 
+				/// <summary>Bindable property for <see cref="Toggle"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Toggle",
 					typeof(bool),
@@ -223,6 +227,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnToggleChanged(bool oldValue, bool newValue);
 
+				/// <summary>Bindable property for <see cref="Toggle"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Toggle",
 					typeof(bool),
@@ -271,6 +276,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnToggleChanged(bool oldValue, bool newValue);
 
+				/// <summary>Bindable property for <see cref="Toggle"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ToggleProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Toggle",
 					typeof(bool),
@@ -319,6 +325,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnIntegerChanged(int oldValue, int newValue);
 
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -368,6 +375,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnIntegerChanged(int oldValue, int newValue);
 
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -417,6 +425,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnIntegerChanged(int oldValue, int newValue);
 
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -466,6 +475,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnIntegerChanged(global::System.IConvertible oldValue, global::System.IConvertible newValue);
 
+				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(global::System.IConvertible),
@@ -522,6 +532,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				partial void OnTestValueChanged(global::TestValue oldValue, global::TestValue newValue);
 
+				/// <summary>Bindable property for <see cref="TestValue"/>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty TestValueProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"TestValue",
 					typeof(global::TestValue),
@@ -567,6 +578,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 
 				static partial void OnValueChanged(global::Microsoft.Maui.Controls.Entry bindable, string oldValue, string newValue);
 
+				/// <summary>Bindable property for the attached property <c>Value</c>.</summary>
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty ValueProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached(
 					"Value",
 					typeof(string),

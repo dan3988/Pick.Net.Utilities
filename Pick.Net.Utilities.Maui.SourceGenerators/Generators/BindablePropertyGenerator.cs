@@ -235,7 +235,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return new(generator);
 	}
 
-	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute, CancellationToken token)
+	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute)
 	{
 		var name = Identifiers.GetAttachedPropertyName(symbol.Name);
 
@@ -295,7 +295,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var result = context.TargetSymbol.Kind switch
 		{
 			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0]),
-			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0], token),
+			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0]),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 

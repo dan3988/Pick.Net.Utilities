@@ -29,22 +29,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Get Version
-      run: |
-        $VERSION_FULL = $env:GITHUB_REF -replace 'refs/tags/v', ''
-        $VERSION = $VERSION_FULL -replace '-preview.*', ''
-        Write-Output "VERSION_FULL: $VERSION_FULL"
-        Write-Output "VERSION: $VERSION"
-        echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
-        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet build -c Release "${{ matrix.package }}"
     - name: Pack
-      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${{ env.VERSION_FULL }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }}
     - name: Upload
       uses: actions/upload-artifact@v3.1.2
       with:

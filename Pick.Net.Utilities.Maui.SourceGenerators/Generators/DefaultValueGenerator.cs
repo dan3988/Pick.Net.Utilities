@@ -9,11 +9,11 @@ internal abstract class DefaultValueGenerator
 	public static DefaultValueGenerator StaticValue(SyntaxToken identifier, bool requiresConvert)
 		=> new StaticDefaultValue(identifier, requiresConvert);
 
-	public static DefaultValueGenerator StaticGenerator(SyntaxToken identifier, TypeSyntax? attachedType = null)
-		=> new StaticGeneratorMethod(identifier, attachedType);
+	public static DefaultValueGenerator StaticGenerator(SyntaxToken identifier, bool requiresConvert, TypeSyntax? attachedType = null)
+		=> new StaticGeneratorMethod(identifier, requiresConvert, attachedType);
 
-	public static DefaultValueGenerator InstanceGenerator(SyntaxToken identifier)
-		=> new InstanceGeneratorMethod(identifier);
+	public static DefaultValueGenerator InstanceGenerator(SyntaxToken identifier, bool requiresConvert)
+		=> new InstanceGeneratorMethod(identifier, requiresConvert);
 
 	private DefaultValueGenerator()
 	{
@@ -42,33 +42,37 @@ internal abstract class DefaultValueGenerator
 		}
 	}
 
-	private sealed class StaticGeneratorMethod(SyntaxToken identifier, TypeSyntax? attachedType) : DefaultValueGenerator
+	private sealed class StaticGeneratorMethod(SyntaxToken identifier, bool requiresConvert, TypeSyntax? attachedType) : DefaultValueGenerator
 	{
 		public override void Generate(TypeSyntax declaringType, TypeSyntax propertyType, out ExpressionSyntax defaultValue, out ExpressionSyntax defaultValueGenerator)
 		{
 			var paramBindable = Parameter(Identifier("bindable"));
 			var parameters = ParameterList(SeparatedList(new[] { paramBindable }));
-			var body = InvocationExpression(IdentifierName(identifier));
+			var invocation = InvocationExpression(IdentifierName(identifier));
 
 			if (attachedType != null)
 			{
-				body = body.AddArgumentListArguments(
+				invocation = invocation.AddArgumentListArguments(
 						Argument(CastExpression(attachedType, IdentifierName(paramBindable.Identifier))));
 			}
+
+			var body = requiresConvert ? (ExpressionSyntax)CastExpression(propertyType, invocation) : invocation;
 
 			defaultValue = SyntaxHelper.Null;
 			defaultValueGenerator = ParenthesizedLambdaExpression(parameters, null, body);
 		}
 	}
 
-	private sealed class InstanceGeneratorMethod(SyntaxToken identifier) : DefaultValueGenerator
+	private sealed class InstanceGeneratorMethod(SyntaxToken identifier, bool requiresConvert) : DefaultValueGenerator
 	{
 		public override void Generate(TypeSyntax declaringType, TypeSyntax propertyType, out ExpressionSyntax defaultValue, out ExpressionSyntax defaultValueGenerator)
 		{
 			var paramBindable = Parameter(Identifier("bindable"));
 			var parameters = ParameterList(SeparatedList(new[] { paramBindable }));
-			var body = InvocationExpression(
+			var invocation = InvocationExpression(
 					MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, CastExpression(declaringType, IdentifierName(paramBindable.Identifier)).WithSurroundingParenthesis(), IdentifierName(identifier)));
+
+			var body = requiresConvert ? (ExpressionSyntax)CastExpression(propertyType, invocation) : invocation;
 
 			defaultValue = SyntaxHelper.Null;
 			defaultValueGenerator = ParenthesizedLambdaExpression(parameters, null, body);

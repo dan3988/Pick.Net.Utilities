@@ -187,8 +187,17 @@ internal static class DiagnosticDescriptors
 		true,
 		$"The provided value of BindablePropertyAttribute.DefaultValue had multiple matches.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueWrongType = new(
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueFieldNonStatic = new(
 		Prefix + "0014",
+		"DefaultValue field or property must be static",
+		"DefaultValue field or property '{0}' is not static",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"A field or property used for a default [BindableProperty] value must be static to be accessed when the property is created.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueWrongType = new(
+		Prefix + "0015",
 		"DefaultValue member type is not assignable to property type",
 		"The type of member '{0}' is not assignable to the property type '{1}'",
 		Category,
@@ -197,7 +206,7 @@ internal static class DiagnosticDescriptors
 		$"The type of default value fields/properties must be assignable to their corresponding property type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMethodWrongType = new(
-		Prefix + "0015",
+		Prefix + "0016",
 		"DefaultValue generator return type is not assignable to property type",
 		"The return type of default value generator '{0}' is not assignable to the property type '{1}'",
 		Category,
@@ -205,14 +214,32 @@ internal static class DiagnosticDescriptors
 		true,
 		$"The return type of default value generator methods must be assignable to their corresponding property type.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMemberInvalid = new(
-		Prefix + "0016",
-		"DefaultValue member was not a valid default value or generator",
-		"DefaultValue member '{0}' was not a valid default value or generator",
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueGeneratorInvalidReturn = new(
+		Prefix + "0017",
+		"DefaultValue generator is not a valid default value or generator",
+		"DefaultValue generator '{0}' is not a valid default value generator",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"The value of BindablePropertyAttribute.DefaultValue should be a static field/property, or a parameterless function that retrns the property type.");
+		$"A default value generator for an instance [BindableProperty] must be parameterless or be static with a single parameter that is assignable to the declaring type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyInstanceDefaultValueGeneratorInvalidSignature = new(
+		Prefix + "0018",
+		"DefaultValue generator is not a valid default value or generator",
+		"DefaultValue generator '{0}' is not a valid default value generator",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"A default value generator for an instance [BindableProperty] must be parameterless or be static with a single parameter that is assignable to the declaring type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyAttachedDefaultValueGeneratorInvalidSignature = new(
+		Prefix + "0019",
+		"DefaultValue generator is not a valid default value or generator",
+		"DefaultValue generator '{0}' is not a valid default value generator",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"A default value generator for an attached [BindableProperty] must be static and either parameterless or have a single parameter that is assignable to the attached type.");
 
 	public static Location ToLocation(this SyntaxNode node)
 		=> Location.Create(node.SyntaxTree, node.Span);

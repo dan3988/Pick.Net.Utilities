@@ -40,21 +40,14 @@ internal static class SymbolHelper
 		[SpecialType.System_DateTime]		= new(TypeCode.DateTime),
 	};
 
-	public static readonly SyntaxTokenList TokensPublic = CreateTokenList(SyntaxKind.PublicKeyword);
-	public static readonly SyntaxTokenList TokensProtected = CreateTokenList(SyntaxKind.ProtectedKeyword);
-	public static readonly SyntaxTokenList TokensInternal = CreateTokenList(SyntaxKind.InternalKeyword);
-	public static readonly SyntaxTokenList TokensPrivate = CreateTokenList(SyntaxKind.PrivateKeyword);
-	public static readonly SyntaxTokenList TokensProtectedInternal = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword);
-	public static readonly SyntaxTokenList TokensProtectedPrivate = CreateTokenList(SyntaxKind.ProtectedKeyword, SyntaxKind.PrivateKeyword);
-
 	private static readonly Dictionary<Accessibility, SyntaxTokenList> VisibilityTokens = new()
 	{
-		[Accessibility.Public] = TokensPublic,
-		[Accessibility.Protected] = TokensProtected,
-		[Accessibility.Internal] = TokensInternal,
-		[Accessibility.Private] = TokensPrivate,
-		[Accessibility.ProtectedOrInternal] = TokensProtectedInternal,
-		[Accessibility.ProtectedAndInternal] = TokensProtectedPrivate,
+		[Accessibility.Private]					= ModifierLists.Private,
+		[Accessibility.ProtectedAndInternal]	= ModifierLists.PrivateProtected,
+		[Accessibility.Protected]				= ModifierLists.Protected,
+		[Accessibility.Internal]				= ModifierLists.Internal,
+		[Accessibility.ProtectedOrInternal]		= ModifierLists.ProtectedInternal,
+		[Accessibility.Public]					= ModifierLists.Public,
 	};
 
 	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)

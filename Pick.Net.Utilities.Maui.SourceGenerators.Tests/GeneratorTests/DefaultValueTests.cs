@@ -437,7 +437,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 			""";
 
 		await CreateTest(code)
-			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorInvalidReturn, 11, 13, 5, "CreateValue")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorNoReturnType, 11, 13, 5, "CreateValue", "int")
 			.RunAsync();
 	}
 
@@ -458,7 +458,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 			""";
 
 		await CreateTest(code)
-			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorInvalidReturn, 9, 13, 5, "CreateValue")
+			.ExpectDiagnostic(DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorWrongReturnType, 9, 13, 5, "CreateValue", "int")
 			.RunAsync();
 	}
 

@@ -1,7 +1,6 @@
-﻿using System.Text;
+using System.Text;
 
 using Pick.Net.Utilities.Maui.Helpers;
-using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators;
 
@@ -9,7 +8,7 @@ internal static class DiagnosticDescriptors
 {
 	private const string Prefix = "PNUM";
 
-	private static readonly string Category = typeof(BindablePropertyGenerator).FullName;
+	private const string Category = "Pick.Net.Utilities.Maui.SourceGenerators.Generators.BindablePropertyGenerator";
 
 	private static string EnumText<T>() where T : unmanaged, Enum
 	{
@@ -63,7 +62,7 @@ internal static class DiagnosticDescriptors
 		$"Methods with [BindableProperty] attribute can be declared as partial methods.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyNoDefaultValue = new(
-		Prefix + "1003",
+		Prefix + "1004",
 		"Add a default value",
 		"Add a default value for property {0}",
 		Category,
@@ -77,7 +76,7 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"[BindableProperty] attribute cannot be used to generate more than one attached or instance properties with the same name.");
+		$"[BindableProperty] attribute cannot be used to generate more than one attached or instance properties with the same name on the same type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodName = new(
 		Prefix + "0002",
@@ -86,20 +85,20 @@ internal static class DiagnosticDescriptors
 		Category,
 		DiagnosticSeverity.Warning,
 		true,
-		$"[BindableProperty] method names should be in the format 'Get<PropertyName>'.");
+		$"Methods annotated with the [BindableProperty] attribute should be have a 'Get' prefix.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodReturn = new(
 		Prefix + "0003",
-		"Method must have a return type",
-		"Attached property accessor '{0}' does not have a return type",
+		"Attached property accessor does not return a value",
+		"Attached property accessor '{0}' does not return a value",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
-		$"Methods annotated with [BindableProperty] must have a return type.");
+		$"Methods annotated with [BindableProperty] must retrun a value.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInvalidAttachedMethodSignature = new(
 		Prefix + "0004",
-		"Method must have a return type",
+		"Attached property accessors must have a single parameter",
 		"Attached property accessor '{0}' must have a single parameter",
 		Category,
 		DiagnosticSeverity.Error,
@@ -153,7 +152,7 @@ internal static class DiagnosticDescriptors
 
 	public static readonly DiagnosticDescriptor BindablePropertyAttachedPropertyNotUsed = new(
 		Prefix + "0010",
-		"Use generated BindableProperty in attached property accessor",
+		"Use generated BindableProperty in attached property accessors",
 		"Attached property accessor method '{0}' does not use generated BindableProperty",
 		Category,
 		DiagnosticSeverity.Warning,
@@ -205,23 +204,23 @@ internal static class DiagnosticDescriptors
 		true,
 		$"The type of default value fields/properties must be assignable to their corresponding property type.");
 
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueMethodWrongType = new(
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueGeneratorNoReturnType = new(
 		Prefix + "0016",
+		"DefaultValue generator return type is not assignable to property type",
+		"The default value generator '{0}' does not return a value",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The return type of default value generator methods must be assignable to their corresponding property type.");
+
+	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueGeneratorWrongReturnType = new(
+		Prefix + "0017",
 		"DefaultValue generator return type is not assignable to property type",
 		"The return type of default value generator '{0}' is not assignable to the property type '{1}'",
 		Category,
 		DiagnosticSeverity.Error,
 		true,
 		$"The return type of default value generator methods must be assignable to their corresponding property type.");
-
-	public static readonly DiagnosticDescriptor BindablePropertyDefaultValueGeneratorInvalidReturn = new(
-		Prefix + "0017",
-		"DefaultValue generator is not a valid default value or generator",
-		"DefaultValue generator '{0}' is not a valid default value generator",
-		Category,
-		DiagnosticSeverity.Error,
-		true,
-		$"A default value generator for an instance [BindableProperty] must be parameterless or be static with a single parameter that is assignable to the declaring type.");
 
 	public static readonly DiagnosticDescriptor BindablePropertyInstanceDefaultValueGeneratorInvalidSignature = new(
 		Prefix + "0018",
@@ -234,8 +233,8 @@ internal static class DiagnosticDescriptors
 
 	public static readonly DiagnosticDescriptor BindablePropertyAttachedDefaultValueGeneratorInvalidSignature = new(
 		Prefix + "0019",
-		"DefaultValue generator is not a valid default value or generator",
-		"DefaultValue generator '{0}' is not a valid default value generator",
+		"DefaultValue generator is not a valid default value or generator for an attached property",
+		"DefaultValue generator '{0}' is not a valid default value generator for an attached property",
 		Category,
 		DiagnosticSeverity.Error,
 		true,

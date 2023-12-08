@@ -67,10 +67,16 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		else if (member.Kind == SymbolKind.Method)
 		{
 			var method = (IMethodSymbol)member;
+			if (method.ReturnsVoid)
+			{
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorNoReturnType.CreateDiagnostic(owner, name, propertyType.ToIdentifier());
+				return false;
+			}
+
 			var returnTypeConversion = model.Compilation.ClassifyConversion(method.ReturnType, propertyType);
 			if (!AllowPropertyTypeConversion(returnTypeConversion, out var requireConvert))
 			{
-				error = DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorInvalidReturn.CreateDiagnostic(owner, name, owner.ContainingType.Name);
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueGeneratorWrongReturnType.CreateDiagnostic(owner, name, propertyType.ToIdentifier());
 				return false;
 			}
 
@@ -138,7 +144,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			var conversion = model.Compilation.ClassifyConversion(returnType, propertyType);
 			if (!AllowPropertyTypeConversion(conversion, out var requireConvert))
 			{
-				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, symbol.Name, owner.ContainingType.Name);
+				error = DiagnosticDescriptors.BindablePropertyDefaultValueWrongType.CreateDiagnostic(owner, symbol.Name, propertyType.Name);
 				return false;
 			}
 

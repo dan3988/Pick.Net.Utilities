@@ -14,7 +14,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore Workloads
-      run: dotnet workload restore
+      run: dotnet workload install maui
     - name: Build
       run: |
         dotnet build -c Release "Pick.Net.Utilities.Tests"

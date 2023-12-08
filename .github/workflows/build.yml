@@ -1,0 +1,52 @@
+name: Publish
+on:
+  push:
+    branches: ['main']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Build
+      run: |
+        dotnet build -c Release "Pick.Net.Utilities.Tests"
+        dotnet build -c Release "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
+    - name: Run Tests
+      run: dotnet test -c Release --no-build
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    needs: test
+    strategy:
+      matrix:
+        package: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Get Version
+      run: |
+        $VERSION_FULL = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        $VERSION = $VERSION_FULL -replace '-preview.*', ''
+        Write-Output "VERSION_FULL: $VERSION_FULL"
+        Write-Output "VERSION: $VERSION"
+        echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
+        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Build
+      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
+    - name: Pack
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${{ env.VERSION_FULL }} /p:BuildNumber=${{ github.run_number }}
+    - name: Upload
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ${{ matrix.package }}
+        path: .build

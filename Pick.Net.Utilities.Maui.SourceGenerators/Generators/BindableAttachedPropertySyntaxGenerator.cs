@@ -87,20 +87,13 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 		return ParenthesizedLambdaExpression(parameters, null, body);
 	}
 
-	protected override LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method)
+	protected override LambdaExpressionSyntax CreateChangeHandler(MethodSignature signature, out MethodDeclarationSyntax method)
 	{
+		method = signature.BuildMethod(SyntaxHelper.TypeVoid, [AttachedType, PropertyType, PropertyType]);
+
 		var paramBindable = Parameter(Identifier("bindable"));
 		var paramOldValue = Parameter(Identifier("oldValue"));
 		var paramNewValue = Parameter(Identifier("newValue"));
-
-		method = MethodDeclaration(SyntaxHelper.TypeVoid, name)
-			.WithModifiers(ModifierLists.StaticPartial)
-			.AddParameterListParameters(
-				paramBindable.WithType(AttachedType),
-				paramOldValue.WithType(AnnotatedPropertyType),
-				paramNewValue.WithType(AnnotatedPropertyType))
-			.WithSemicolonToken();
-
 		var parameters = ParameterList(SeparatedList(new[] { paramBindable, paramOldValue, paramNewValue }));
 		var body = InvocationExpression(IdentifierName(method.Identifier))
 			.AddArgumentListArguments(

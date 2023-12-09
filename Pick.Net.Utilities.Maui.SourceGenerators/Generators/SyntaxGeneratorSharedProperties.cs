@@ -9,5 +9,7 @@ internal readonly record struct SyntaxGeneratorSharedProperties(
 	Accessibility WriteAccessibility,
 	DefaultValueGenerator DefaultValue,
 	ExpressionSyntax DefaultModeSyntax,
+	MethodSignature PropertyChangingSignature,
+	MethodSignature PropertyChangedSignature,
 	bool CoerceValueCallback,
 	bool ValidateValueCallback);

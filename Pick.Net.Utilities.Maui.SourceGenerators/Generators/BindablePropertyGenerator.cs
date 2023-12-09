@@ -199,7 +199,19 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return false;
 	}
 
-	private static bool ParseAttribute(SemanticModel model, ISymbol symbol, AttributeData attribute, string propertyName, ITypeSymbol propertyType, ITypeSymbol attachedType, Accessibility accessibility, Accessibility writeAccessibility, out SyntaxGeneratorSharedProperties result, [MaybeNullWhen(true)] out Diagnostic error)
+	private static bool ParseAttribute(
+		SemanticModel model,
+		ISymbol symbol,
+		AttributeData attribute,
+		string propertyName,
+		ITypeSymbol propertyType,
+		ITypeSymbol attachedType,
+		Accessibility accessibility,
+		Accessibility writeAccessibility,
+		MethodSignature changingSignature,
+		MethodSignature changedSignature,
+		out SyntaxGeneratorSharedProperties result,
+		[MaybeNullWhen(true)] out Diagnostic error)
 	{
 		error = null;
 
@@ -240,7 +252,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 			defaultValue = DefaultValueGenerator.BoxedBoolean(false);
 
 		result = new SyntaxGeneratorSharedProperties(propertyName, declaringTypeSyntax, propertyTypeSyntax, annotatedPropertyTypeSyntax, accessibility, writeAccessibility,
-			defaultValue, defaultModeSyntax, coerceValueCallback, validateValueCallback);
+			defaultValue, defaultModeSyntax, changingSignature, changedSignature, coerceValueCallback, validateValueCallback);
 
 		return true;
 	}
@@ -253,11 +265,35 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 
-		if (!ParseAttribute(model, symbol, attribute, symbol.Name, symbol.Type, symbol.Type, accessibility, writeAccessibility, out var props, out var error))
+		var changingSignature = GetChangeHandlerSignature(symbol.ContainingType, symbol.Type, $"On{symbol.Name}Changing");
+		var changedSignatre = GetChangeHandlerSignature(symbol.ContainingType, symbol.Type, $"On{symbol.Name}Changed");
+
+		if (!ParseAttribute(model, symbol, attribute, symbol.Name, symbol.Type, symbol.Type, accessibility, writeAccessibility, changingSignature, changedSignatre, out var props, out var error))
 			return new(error);
 
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);
 		return new(generator);
+
+		static MethodSignature GetChangeHandlerSignature(ITypeSymbol declaringType, ITypeSymbol propertyType, string methodName)
+		{
+			var matches = declaringType.GetMembers(methodName);
+			foreach (var match in matches)
+			{
+				if (match.Kind != SymbolKind.Method)
+					continue;
+
+				var method = (IMethodSymbol)match;
+				if (method.Parameters is [IParameterSymbol x, IParameterSymbol y]
+					&& propertyType.Equals(x.Type, false)
+					&& propertyType.Equals(y.Type, false))
+					return new(method);
+			}
+
+
+			var propertyTypeSyntax = propertyType.ToIdentifier(true);
+
+			return new(methodName, default, "oldValue", "newValue");
+		}
 	}
 
 	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute)
@@ -295,11 +331,36 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				generatedSetterSignature = new(setMethod);
 		}
 
-		if (!ParseAttribute(model, symbol, attribute, name, propertyType, attachedType, accessibility, writeAccessibility, out var props, out var error))
+		var changingSignature = GetChangeHandlerSignature(symbol.ContainingType, attachedType, propertyType, $"On{name}Changing");
+		var changedSignatre = GetChangeHandlerSignature(symbol.ContainingType, attachedType, propertyType, $"On{name}Changed");
+
+		if (!ParseAttribute(model, symbol, attribute, name, propertyType, attachedType, accessibility, writeAccessibility, changingSignature, changedSignatre, out var props, out var error))
 			return new(error);
 
 		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterSignature, generatedSetterSignature);
 		return new(generator);
+
+		static MethodSignature GetChangeHandlerSignature(ITypeSymbol declaringType, ITypeSymbol attachedType, ITypeSymbol propertyType, string methodName)
+		{
+			var matches = declaringType.GetMembers(methodName);
+			foreach (var match in matches)
+			{
+				if (match.Kind != SymbolKind.Method)
+					continue;
+
+				var method = (IMethodSymbol)match;
+				if (method.Parameters is [IParameterSymbol x, IParameterSymbol y, IParameterSymbol z] 
+					&& attachedType.Equals(x.Type, false)
+					&& propertyType.Equals(y.Type, false)
+					&& propertyType.Equals(z.Type, false))
+					return new(method);
+			}
+
+			var attachedTypeSyntax = attachedType.ToIdentifier(true);
+			var propertyTypeSyntax = propertyType.ToIdentifier(true);
+
+			return new(methodName, ModifierLists.Static, "bindable", "oldValue", "newValue");
+		}
 	}
 
 	private static T? TryGetNode<T>(ISymbol symbol, CancellationToken token) where T : SyntaxNode

@@ -29,6 +29,10 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	public ExpressionSyntax DefaultModeSyntax { get; }
 
+	public MethodSignature PropertyChangingSignature { get; }
+
+	public MethodSignature PropertyChangedSignature { get; }
+
 	public bool CoerceValueCallback { get; }
 
 	public bool ValidateValueCallback { get; }
@@ -41,7 +45,7 @@ internal abstract class BindablePropertySyntaxGenerator
 
 	private protected BindablePropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties)
 	{
-		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValue, DefaultModeSyntax, CoerceValueCallback, ValidateValueCallback) = properties;
+		(PropertyName, DeclaringType, PropertyType, AnnotatedPropertyType, Accessibility, WriteAccessibility, DefaultValue, DefaultModeSyntax, PropertyChangingSignature, PropertyChangedSignature, CoerceValueCallback, ValidateValueCallback) = properties;
 	}
 
 	private SyntaxTrivia CreateComment(string propertyDisplayType)
@@ -54,13 +58,13 @@ internal abstract class BindablePropertySyntaxGenerator
 		arguments[1] = SyntaxFactory.TypeOfExpression(PropertyType);
 		arguments[2] = SyntaxFactory.TypeOfExpression(DeclaringType);
 		arguments[4] = DefaultModeSyntax;
-		arguments[6] = CreateChangeHandler($"On{PropertyName}Changing", out var onChanging);
-		arguments[7] = CreateChangeHandler($"On{PropertyName}Changed", out var onChanged);
-
-		DefaultValue.Generate(DeclaringType, PropertyType, out arguments[3], out arguments[9]);
+		arguments[6] = CreateChangeHandler(PropertyChangingSignature, out var onChanging);
+		arguments[7] = CreateChangeHandler(PropertyChangedSignature, out var onChanged);
 
 		members.Add(onChanging);
 		members.Add(onChanged);
+
+		DefaultValue.Generate(DeclaringType, PropertyType, out arguments[3], out arguments[9]);
 
 		if (ValidateValueCallback)
 		{
@@ -92,7 +96,7 @@ internal abstract class BindablePropertySyntaxGenerator
 		members.Add(field);
 	}
 
-	protected abstract LambdaExpressionSyntax CreateChangeHandler(string name, out MethodDeclarationSyntax method);
+	protected abstract LambdaExpressionSyntax CreateChangeHandler(MethodSignature signature, out MethodDeclarationSyntax method);
 
 	protected abstract LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method);
 

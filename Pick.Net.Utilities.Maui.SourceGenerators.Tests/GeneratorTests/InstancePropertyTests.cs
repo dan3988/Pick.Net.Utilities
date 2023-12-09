@@ -111,4 +111,64 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 			.ExpectOutput("Test.Namespace.Class", output)
 			.RunAsync();
 	}
+
+	[TestMethod]
+	public async Task TestInstancePropertyChangeHandlerSignatureCopying()
+	{
+		const string code = """
+			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui.Controls;
+
+			namespace Test.Namespace;
+
+			public partial class Class : BindableObject
+			{
+				[BindableProperty]
+				public string Text
+				{
+					get => (string)GetValue(TextProperty);
+					set => SetValue(TextProperty, value);
+				}
+			
+				private partial void OnTextChanging(string oldText, string newText)
+				{
+				}
+
+				protected virtual partial void OnTextChanged(string aaaa, string bbbb)
+				{
+				}
+			}
+			""";
+
+		const string output = """
+			#nullable enable
+			namespace Test.Namespace
+			{
+				partial class Class
+				{
+					private partial void OnTextChanging(string oldText, string newText);
+
+					protected virtual partial void OnTextChanged(string aaaa, string bbbb);
+
+					/// <summary>Bindable property for <see cref="Text"/>.</summary>
+					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
+						"Text",
+						typeof(string),
+						typeof(global::Test.Namespace.Class),
+						null,
+						global::Microsoft.Maui.Controls.BindingMode.OneWay,
+						null,
+						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanging((string)oldValue, (string)newValue),
+						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanged((string)oldValue, (string)newValue),
+						null,
+						null);
+
+				}
+			}
+			""";
+
+		await CreateTest(code)
+			.ExpectOutput("Test.Namespace.Class", output)
+			.RunAsync();
+	}
 }

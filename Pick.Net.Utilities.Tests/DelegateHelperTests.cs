@@ -6,7 +6,7 @@ namespace Pick.Net.Utilities.Tests;
 public class DelegateHelperTests
 {
 	static void TestGetArguments<T>(params Type[] expectedTypes) where T : Delegate
-		=> CollectionAssert.AreEqual(expectedTypes, DelegateHelper.GetArgumentTypes<T>());
+		=> CollectionAssert.AreEqual(expectedTypes, DelegateHelper.GetParameterTypes<T>());
 
 	[TestMethod]
 	public void TestGetArguments()
@@ -15,9 +15,9 @@ public class DelegateHelperTests
 		TestGetArguments<Func<bool>>();
 		TestGetArguments<Func<bool, int, string>>(typeof(bool), typeof(int));
 		TestGetArguments<Action<string, string, string>>(typeof(string), typeof(string), typeof(string));
-		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetArgumentTypes<MulticastDelegate>());
-		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetArgumentTypes(typeof(string)));
-		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetArgumentTypes(typeof(Func<,,>)));
+		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetParameterTypes<MulticastDelegate>());
+		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetParameterTypes(typeof(string)));
+		Assert.ThrowsException<ArgumentException>(() => DelegateHelper.GetParameterTypes(typeof(Func<,,>)));
 	}
 
 	[TestMethod]

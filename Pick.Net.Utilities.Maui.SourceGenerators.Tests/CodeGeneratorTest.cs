@@ -20,7 +20,7 @@ public abstract class CodeGeneratorTest : CodeActionTest<MSTestVerifier>
 
 	private static TDelegate GetInstanceMethod<TDelegate>(string name, BindingFlags flags) where TDelegate : Delegate
 	{
-		var paramTypes = DelegateHelper.GetArgumentTypes<TDelegate>();
+		var paramTypes = DelegateHelper.GetParameterTypes<TDelegate>();
 		var instanceType = paramTypes[0];
 		var paramTypesArray = paramTypes.Skip(1).ToArray();
 		var method = instanceType.GetMethod(name, flags, paramTypesArray) ?? throw new MissingMethodException(instanceType.FullName, name);

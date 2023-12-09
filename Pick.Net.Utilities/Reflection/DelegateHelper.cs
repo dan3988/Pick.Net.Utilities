@@ -15,14 +15,14 @@ public static partial class DelegateHelper
 	/// Gets the types of the parameters for the delegate <typeparamref name="T"/>
 	/// </summary>
 	/// <exception cref="ArgumentException"><typeparamref name="T"/> is <see cref="Delegate"/> or <see cref="MulticastDelegate"/></exception>
-	public static ImmutableArray<Type> GetArgumentTypes<T>() where T : Delegate
+	public static ImmutableArray<Type> GetParameterTypes<T>() where T : Delegate
 		=> GetDelegateInfo<T>().ArgumentTypes;
 
 	/// <summary>
 	/// Gets the types of the parameters for the delegate <paramref name="type"/>
 	/// </summary>
 	/// <exception cref="ArgumentException"><paramref name="type"/> is not a delegate type</exception>
-	public static ImmutableArray<Type> GetArgumentTypes(Type type)
+	public static ImmutableArray<Type> GetParameterTypes(Type type)
 		=> GetDelegateInfo(type).ArgumentTypes;
 
 	/// <summary>

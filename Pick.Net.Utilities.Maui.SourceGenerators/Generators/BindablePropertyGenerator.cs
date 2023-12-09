@@ -245,7 +245,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return true;
 	}
 
-
 	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
 		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
 
@@ -276,31 +275,30 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var propertyType = symbol.ReturnType;
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = accessibility;
-		var generatedGetterInfo = default(AttachedPropertyGetterInfo);
-		var generatedSetterInfo = default(AttachedPropertySetterInfo);
+		var generatedGetterSignature = default(MethodSignature);
+		var generatedSetterSignature = default(MethodSignature);
 
 		if (symbol.IsPartialDefinition)
-		{
-			generatedGetterInfo = new(symbol);
-		}
+			generatedGetterSignature = new(symbol);
 
 		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
 		if (setMethod == null)
 		{
-			generatedSetterInfo = new(false, symbol.Parameters[0].Name, "value", symbol.DeclaredAccessibility);
+			var modifiers = symbol.DeclaredAccessibility.ToSyntaxList().Add(Modifiers.Static);
+			generatedSetterSignature = new("Set" + name, modifiers, symbol.Parameters[0].Name, "value");
 		}
 		else
 		{
 			writeAccessibility = setMethod.DeclaredAccessibility;
 
 			if (setMethod.IsPartialDefinition)
-				generatedSetterInfo = new(setMethod);
+				generatedSetterSignature = new(setMethod);
 		}
 
 		if (!ParseAttribute(model, symbol, attribute, name, propertyType, attachedType, accessibility, writeAccessibility, out var props, out var error))
 			return new(error);
 
-		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterInfo, generatedSetterInfo);
+		var generator = new BindableAttachedPropertySyntaxGenerator(in props, attachedType.ToIdentifier(), generatedGetterSignature, generatedSetterSignature);
 		return new(generator);
 	}
 

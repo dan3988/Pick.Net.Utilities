@@ -4,40 +4,23 @@ using static SyntaxFactory;
 
 internal sealed class BindableAttachedPropertySyntaxGenerator : BindablePropertySyntaxGenerator
 {
-	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(AttachedPropertyGetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
+	private static MethodDeclarationSyntax GenerateAttachedBindablePropertyGetMethod(MethodSignature signature, TypeSyntax propertyType, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var modifiers = info.Accessibility.ToSyntaxList().AddRange(ModifierLists.StaticPartial);
-		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
 		var expression = CastExpression(propertyType,
-				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.GetValue))
+				InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(signature.ParameterNames[0]), Identifiers.GetValue))
 					.AddArgumentListArguments(Argument(bindablePropertyField)));
 
-		return MethodDeclaration(propertyType, info.MethodName)
-			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj })))
-			.WithReturnType(propertyType)
-			.WithModifiers(modifiers)
-			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken();
+		return signature.BuildMethod(propertyType, [attachedType], ArrowExpressionClause(expression));
 	}
 
-	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(AttachedPropertySetterInfo info, TypeSyntax propertyType, string propertyName, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
+	private static MethodDeclarationSyntax GenerateAttachedBindablePropertySetMethod(MethodSignature signature, TypeSyntax propertyType, TypeSyntax attachedType, TypeSyntax bindablePropertyField)
 	{
-		var modifiers = info.Accessibility.ToSyntaxList().Add(Modifiers.Static);
-		if (info.Partial)
-			modifiers = modifiers.Add(Modifiers.Partial);
-
-		var paramObj = Parameter(info.ObjectParamName).WithType(attachedType);
-		var paramValue = Parameter(info.ValueParamName).WithType(propertyType);
-		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(info.ObjectParamName), Identifiers.SetValue))
+		var expression = InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName(signature.ParameterNames[0]), Identifiers.SetValue))
 			.AddArgumentListArguments(
 				Argument(bindablePropertyField),
-				Argument(IdentifierName(info.ValueParamName)));
+				Argument(IdentifierName(signature.ParameterNames[1])));
 
-		return MethodDeclaration(SyntaxHelper.TypeVoid, "Set" + propertyName)
-			.WithParameterList(ParameterList(SeparatedList(new[] { paramObj, paramValue })))
-			.WithModifiers(modifiers)
-			.WithExpressionBody(ArrowExpressionClause(expression))
-			.WithSemicolonToken();
+		return signature.BuildMethod(SyntaxHelper.TypeVoid, [attachedType, propertyType], ArrowExpressionClause(expression));
 	}
 
 	protected override string CreateMethod => "CreateAttached";
@@ -48,24 +31,24 @@ internal sealed class BindableAttachedPropertySyntaxGenerator : BindableProperty
 
 	public TypeSyntax AttachedType { get; }
 
-	public AttachedPropertyGetterInfo? GetMethodGeneration { get; }
+	public MethodSignature? GetMethodSignature { get; }
 
-	public AttachedPropertySetterInfo? SetMethodGeneration { get; }
+	public MethodSignature? SetMethodSignature { get; }
 
-	internal BindableAttachedPropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties, TypeSyntax attachedType, AttachedPropertyGetterInfo? getMethodGeneration, AttachedPropertySetterInfo? setMethodGeneration) : base(in properties)
+	internal BindableAttachedPropertySyntaxGenerator(in SyntaxGeneratorSharedProperties properties, TypeSyntax attachedType, MethodSignature? getMethodSignature, MethodSignature? setMethodSignature) : base(in properties)
 	{
 		AttachedType = attachedType;
-		GetMethodGeneration = getMethodGeneration;
-		SetMethodGeneration = setMethodGeneration;
+		GetMethodSignature = getMethodSignature;
+		SetMethodSignature = setMethodSignature;
 	}
 
 	protected override void GenerateExtraMembers(ICollection<MemberDeclarationSyntax> members, TypeSyntax propertyField, TypeSyntax propertyKeyField)
 	{
-		if (GetMethodGeneration != null)
-			members.Add(GenerateAttachedBindablePropertyGetMethod(GetMethodGeneration, AnnotatedPropertyType, PropertyName, AttachedType, propertyField));
+		if (GetMethodSignature != null)
+			members.Add(GenerateAttachedBindablePropertyGetMethod(GetMethodSignature, AnnotatedPropertyType, AttachedType, propertyField));
 
-		if (SetMethodGeneration != null)
-			members.Add(GenerateAttachedBindablePropertySetMethod(SetMethodGeneration, AnnotatedPropertyType, PropertyName, AttachedType, propertyKeyField));
+		if (SetMethodSignature != null)
+			members.Add(GenerateAttachedBindablePropertySetMethod(SetMethodSignature, AnnotatedPropertyType, AttachedType, propertyKeyField));
 	}
 
 	protected override LambdaExpressionSyntax CreateValidateValueHandler(out MethodDeclarationSyntax method)

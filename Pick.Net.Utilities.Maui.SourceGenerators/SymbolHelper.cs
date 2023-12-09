@@ -136,6 +136,39 @@ internal static class SymbolHelper
 		}
 	}
 
+	public static bool Equals(this ITypeSymbol left, ITypeSymbol right, bool includeNullability)
+		=> left.Equals(right, includeNullability ? SymbolEqualityComparer.IncludeNullability : SymbolEqualityComparer.Default);
+
+	public static SyntaxTokenList GetModifiers(this IMethodSymbol symbol)
+	{
+		var list = symbol.DeclaredAccessibility.ToSyntaxList();
+		if (symbol.IsStatic)
+			list = list.Add(Modifiers.Static);
+
+		if (symbol.IsVirtual)
+			list = list.Add(Modifiers.Virtual);
+
+		if (symbol.IsAbstract)
+			list = list.Add(Modifiers.Abstract);
+
+		if (symbol.IsSealed)
+			list = list.Add(Modifiers.Sealed);
+
+		if (symbol.IsOverride)
+			list = list.Add(Modifiers.Override);
+
+		if (symbol.IsReadOnly)
+			list = list.Add(Modifiers.ReadOnly);
+
+		if (symbol.IsAsync)
+			list = list.Add(Modifiers.Async);
+
+		if (symbol.IsPartialDefinition)
+			list = list.Add(Modifiers.Partial);
+
+		return list;
+	}
+
 	public static SyntaxTokenList ToSyntaxList(this Accessibility accessibility)
 	{
 		VisibilityTokens.TryGetValue(accessibility, out var list);

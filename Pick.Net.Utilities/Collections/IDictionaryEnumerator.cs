@@ -14,6 +14,8 @@ public interface IDictionaryEnumerator<TKey, TValue> : IDictionaryEnumerator, IE
 		}
 	}
 
+	object IEnumerator.Current => Current;
+
 	object IDictionaryEnumerator.Key => Current.Key;
 
 	object? IDictionaryEnumerator.Value => Current.Value;

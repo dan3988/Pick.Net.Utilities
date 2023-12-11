@@ -19,6 +19,56 @@ public static class CollectionExtensions
 		value = entry.Value;
 	}
 
+	public static StringDictionary<TIn> ToStringDictionary<TIn>(this IEnumerable<TIn> source, Func<TIn, string> keySelector, StringComparison comparison = StringComparison.Ordinal)
+	{
+		return new(source.Select(Selector), comparison);
+
+		KeyValuePair<string, TIn> Selector(TIn item)
+		{
+			var key = keySelector.Invoke(item);
+			return new(key, item);
+		}
+	}
+
+	public static StringDictionary<TOut> ToStringDictionary<TIn, TOut>(this IEnumerable<TIn> source, Func<TIn, string> keySelector, Func<TIn, TOut> valueSelector, StringComparison comparison = StringComparison.Ordinal)
+	{
+		return new(source.Select(Selector), comparison);
+
+		KeyValuePair<string, TOut> Selector(TIn item)
+		{
+			var key = keySelector.Invoke(item);
+			var value = valueSelector.Invoke(item);
+			return new(key, value);
+		}
+	}
+
+	public static Map<TKey, TValue> ToMap<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keySelector, IEqualityComparer<TKey>? comparer = null)
+		where TKey : notnull
+		where TValue : class
+	{
+		return new(source.Select(Selector), comparer);
+
+		KeyValuePair<TKey, TValue> Selector(TValue item)
+		{
+			var key = keySelector.Invoke(item);
+			return new(key, item);
+		}
+	}
+
+	public static Map<TKey, TValue> ToMap<TIn, TKey, TValue>(this IEnumerable<TIn> source, Func<TIn, TKey> keySelector, Func<TIn, TValue> valueSelector, IEqualityComparer<TKey>? comparer = null)
+		where TKey : notnull
+		where TValue : class
+	{
+		return new(source.Select(Selector), comparer);
+
+		KeyValuePair<TKey, TValue> Selector(TIn item)
+		{
+			var key = keySelector.Invoke(item);
+			var value = valueSelector.Invoke(item);
+			return new(key, value);
+		}
+	}
+
 	public static void Insert<T1, T2>(this IList<ValueTuple<T1, T2>> @this, int index, T1 item1, T2 item2)
 		=> @this.Insert(index, (item1, item2));
 

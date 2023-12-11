@@ -56,15 +56,6 @@ internal partial class DefaultValueConversions : BindableObject
 		set => SetValue(FloatLongProperty, value);
 	}
 
-	public const int IntUintValue = 1;
-
-	[BindableProperty(DefaultValue = nameof(IntUintValue))]
-	public uint IntUint
-	{
-		get => (uint)GetValue(IntUintProperty);
-		set => SetValue(IntUintProperty, value);
-	}
-
 	public const int IntEnumValue = 5;
 
 	[BindableProperty(DefaultValue = nameof(IntEnumValue))]

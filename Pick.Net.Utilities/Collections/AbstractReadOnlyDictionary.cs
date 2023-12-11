@@ -12,15 +12,18 @@ public abstract class AbstractReadOnlyDictionary<TKey, TValue> : AbstractReadOnl
 	where TKey : notnull
 {
 	protected static IDictionaryEnumerator<TKey, TValue> CreateDictionaryEnumerator(IEnumerable<KeyValuePair<TKey, TValue>> source)
-		=> new DictionaryEnumerator(source.GetEnumerator());
+	{
+		var en = source.GetEnumerator();
+		return en as IDictionaryEnumerator<TKey, TValue> ?? new DictionaryEnumerator(en);
+	}
 
 	public virtual TValue this[TKey key] => TryGetValue(key, out var value) ? value : throw new KeyNotFoundException();
 
-	private KeyCollection? _keys;
-	public AbstractReadOnlyCollection<TKey> Keys => _keys ??= new(this);
+	private AbstractReadOnlyCollection<TKey>? _keys;
+	public AbstractReadOnlyCollection<TKey> Keys => _keys ??= CreateKeys();
 
-	private ValueCollection? _values;
-	public AbstractReadOnlyCollection<TValue> Values => _values ??= new(this);
+	private AbstractReadOnlyCollection<TValue>? _values;
+	public AbstractReadOnlyCollection<TValue> Values => _values ??= CreateValues();
 
 	#region Explicit Properties
 
@@ -53,6 +56,12 @@ public abstract class AbstractReadOnlyDictionary<TKey, TValue> : AbstractReadOnl
 	}
 
 	#endregion Explicit Properties
+
+	protected virtual AbstractReadOnlyCollection<TKey> CreateKeys()
+		=> new KeyCollection(this);
+
+	protected virtual AbstractReadOnlyCollection<TValue> CreateValues()
+		=> new ValueCollection(this);
 
 	bool IDictionary.Contains(object key)
 		=> key is TKey k && ContainsKey(k);

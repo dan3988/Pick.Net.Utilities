@@ -1,35 +1,41 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace Pick.Net.Utilities.Collections;
 
+[DebuggerTypeProxy(typeof(IMapDebugView<,>))]
+[DebuggerDisplay("Count = {Count}")]
 public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, ICollection<IMapEntry<TKey, TValue>>, ICollection<IReadOnlyMapEntry>
 	where TKey : notnull
 	where TValue : class
 {
-	public sealed class KeyCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TKey>
+	private enum ConflictBehaviour : byte
 	{
-		public override int Count => owner.Count;
-
-		public override bool Contains(TKey item)
-			=> owner.ContainsKey(item);
-
-		public override IEnumerator<TKey> GetEnumerator()
-			=> owner.dictionary.Select(v => v.Key).GetEnumerator();
+		Return,
+		Overwrite,
+		Throw
 	}
 
-	public sealed class ValueCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TValue>
-	{
-		public override int Count => owner.Count;
+	private const int lowBits = 0x7FFFFFFF;
 
-		public override IEnumerator<TValue> GetEnumerator()
-			=> owner.dictionary.Select(v => v.Value.Value).GetEnumerator();
-	}
+	private readonly IEqualityComparer<TKey> _comparer;
 
-	private static KeyValuePair<TKey, MapEntry<TKey, TValue>> ToMapEntry(KeyValuePair<TKey, TValue> pair)
-		=> new(pair.Key, new(pair));
+	/// <summary>
+	/// The number of entries in use, including free entries.
+	/// </summary>
+	private int _count;
+	/// <summary>
+	/// The number of times this collection has been mutated
+	/// </summary>
+	private int _version;
+	private Entry?[] _entries;
 
-	public int Count => dictionary.Count;
+	private KeyCollection? keys;
+	private ValueCollection? values;
+
+	public int Count => _count;
 
 	public KeyCollection Keys => keys ??= new(this);
 
@@ -37,18 +43,8 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	public TValue? this[TKey key]
 	{
-		get => dictionary.TryGetValue(key, out var entry) ? entry.Value : null;
-		set
-		{
-			if (value == null)
-			{
-				dictionary.Remove(key);
-			}
-			else
-			{
-				dictionary[key] = new(key, value);
-			}
-		}
+		get => TryGetEntry(key)?.Value;
+		set => _ = value == null ? Remove(key) : Insert(key, value, ConflictBehaviour.Overwrite);
 	}
 
 	#region Explicit Property Implementations
@@ -84,59 +80,184 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	#endregion
 
-	private readonly Dictionary<TKey, MapEntry<TKey, TValue>> dictionary;
-	private KeyCollection? keys;
-	private ValueCollection? values;
-
 	public Map() : this(0, null)
 	{
 	}
 
-	public Map(int capacity) : this(capacity, null)
+	public Map(int initialCapacity, IEqualityComparer<TKey>? comparer = null)
 	{
-	}
-
-	public Map(IEqualityComparer<TKey>? comparer) : this(0, comparer)
-	{
-	}
-
-	public Map(int capacity, IEqualityComparer<TKey>? comparer)
-	{
-		dictionary = new(capacity, comparer);
+		var size = initialCapacity <= HashHelpers.MinPrime ? HashHelpers.MinPrime : HashHelpers.GetPrime(initialCapacity);
+		_comparer = comparer ?? EqualityComparer<TKey>.Default;
+		_entries = new Entry[size];
 	}
 
 	public Map(Dictionary<TKey, TValue> values) : this(values, values.Comparer)
 	{
 	}
 
-	public Map(IEnumerable<KeyValuePair<TKey, TValue>> values) : this(values, null)
-	{
-	}
-
-	public Map(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey>? comparer)
-	{
-		dictionary = new(values.Select(ToMapEntry), comparer);
-	}
-
-	public Map(IEnumerable<IReadOnlyMapEntry<TKey, TValue>> values) : this(values, null)
-	{
-	}
-
-	public Map(IEnumerable<IReadOnlyMapEntry<TKey, TValue>> values, IEqualityComparer<TKey>? comparer)
+	public Map(IEnumerable<KeyValuePair<TKey, TValue>> values, IEqualityComparer<TKey>? comparer = null)
 	{
 		values.TryGetNonEnumeratedCount(out var count);
-		dictionary = new(count, comparer);
+
+		var size = HashHelpers.GetPrime(count);
+		_comparer = comparer ?? EqualityComparer<TKey>.Default;
+		_entries = new Entry[size];
 
 		foreach (var (key, value) in values)
-			dictionary.Add(key, new(key, value));
+			ConstructorInsert(key, value);
+	}
 
+	public Map(IEnumerable<IReadOnlyMapEntry<TKey, TValue>> values, IEqualityComparer<TKey>? comparer = null)
+	{
+		values.TryGetNonEnumeratedCount(out var count);
+
+		var size = HashHelpers.GetPrime(count);
+		_comparer = comparer ?? EqualityComparer<TKey>.Default;
+		_entries = new Entry[size];
+
+		foreach (var (key, value) in values)
+			ConstructorInsert(key, value);
+	}
+
+	private bool EnsureCapacity(int min)
+	{
+		var cap = _entries.Length;
+		if (cap >= min)
+			return false;
+
+		cap = HashHelpers.ExpandPrime(cap);
+		if (cap < min)
+			cap = min;
+
+		var oldEntries = _entries;
+		var newEntries = new Entry?[cap];
+
+		for (var i = 0; i < oldEntries.Length; i++)
+		{
+			Entry? next;
+
+			for (var e = oldEntries[i]; e != null; e = next)
+			{
+				next = e.Next;
+
+				ref var bucket = ref newEntries[e.HashCode % cap];
+				while (bucket != null)
+					bucket = ref bucket.Next;
+
+				bucket = e;
+				e.Next = null;
+			}
+		}
+
+		_entries = newEntries;
+		return true;
+	}
+
+	private void ConstructorInsert(TKey key, TValue value)
+	{
+		var hash = lowBits & _comparer.GetHashCode(key);
+
+		ref var entry = ref _entries[hash % _entries.Length];
+
+		while (entry != null)
+		{
+			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key))
+				throw new ArgumentException("An item with the same key has already been added. Key: " + key);
+
+			entry = ref entry.Next;
+		}
+
+		entry = new(key, hash, value);
+	}
+
+	private Entry? TryGetEntry(TKey key)
+	{
+		var hash = lowBits & _comparer.GetHashCode(key);
+
+		ref var entry = ref _entries[hash % _entries.Length];
+
+		while (entry != null)
+		{
+			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key))
+				return entry;
+
+			entry = ref entry.Next;
+		}
+
+		return null;
+	}
+
+	private bool Insert(TKey key, TValue value, ConflictBehaviour behaviour)
+	{
+		var hash = lowBits & _comparer.GetHashCode(key);
+		ref var entry = ref _entries[hash % _entries.Length];
+
+		while (entry != null)
+		{
+			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key))
+			{
+				if (behaviour == ConflictBehaviour.Throw)
+					throw new ArgumentException("An item with the same key has already been added. Key: " + key, nameof(key));
+
+				if (behaviour == ConflictBehaviour.Overwrite)
+				{
+					entry.Value = value;
+					goto Added;
+				}
+
+				return false;
+			}
+
+			entry = ref entry.Next;
+		}
+
+		if (!EnsureCapacity(++_count))
+		{
+			entry = new(key, hash, value);
+			goto Added;
+		}
+
+		entry = ref _entries[hash % _entries.Length]!;
+
+		while (entry != null)
+			entry = ref entry.Next;
+
+		entry = new(key, hash, value);
+	Added:
+		PrintEntries("Added");
+		_version++;
+		return true;
+	}
+
+	private void PrintEntries(string type)
+	{
+		var sb = new StringBuilder().AppendLine(type);
+
+		for (var i = 0; i < _entries.Length; i++)
+		{
+			ref var entry = ref _entries[i];
+			sb.Append($"[{i}]: ");
+			if (entry == null)
+			{
+				sb.AppendLine("null");
+				continue;
+			}
+
+			sb.Append($"{entry.Key} {entry.HashCode}");
+			while (entry.Next != null)
+			{
+				entry = ref entry.Next;
+				sb.Append($" -> {entry.Key} {entry.HashCode}");
+			}
+
+			sb.AppendLine();
+		}
+
+		Debug.WriteLine(sb);
 	}
 
 	public IMapEntry<TKey, TValue>? GetEntry(TKey key)
-	{
-		dictionary.TryGetValue(key, out var entry);
-		return entry;
-	}
+		=> TryGetEntry(key);
 
 	public void CopyTo(IReadOnlyMapEntry[] array, int arrayIndex)
 		=> CopyTo((Array)array, arrayIndex);
@@ -144,36 +265,84 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	public void CopyTo(IMapEntry<TKey, TValue>[] array, int arrayIndex)
 		=> CopyTo((Array)array, arrayIndex);
 
+	public void CopyTo(Array array, int index)
+	{
+		for (var i = 0; i < _entries.Length; i++)
+		{
+			var e = _entries[i];
+			while (e != null)
+			{
+				array.SetValue(e, index++);
+				e = e.Next;
+			}
+		}
+	}
+
 	public bool ContainsKey(TKey key)
-		=> dictionary.ContainsKey(key);
+		=> TryGetEntry(key) != null;
 
 	public void Add(IMapEntry<TKey, TValue> item)
 		=> Add(item.Key, item.Value);
 
 	public void Add(TKey key, TValue value)
-		=> dictionary.Add(key, new(key, value));
+		=> Insert(key, value, ConflictBehaviour.Throw);
 
 	public bool TryAdd(TKey key, TValue value)
-		=> dictionary.TryAdd(key, new(key, value));
+		=> Insert(key, value, ConflictBehaviour.Return);
 
 	public void Clear()
-		=> dictionary.Clear();
+	{
+		for (var i = 0; i < _entries.Length; i++)
+		{
+			var entry = _entries[i];
+
+			while (entry != null)
+			{
+				var next = entry.Next;
+				entry.Next = null;
+				entry = next;
+			}
+		}
+
+		_count = 0;
+		_entries = new Entry?[HashHelpers.MinPrime];
+	}
 
 	public bool Remove(TKey key)
-		=> dictionary.Remove(key);
+	{
+		var value = default(TValue);
+		return Remove(key, false, ref value);
+	}
 
 	public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
-		if (dictionary.Remove(key, out var entry))
+		value = default;
+		return Remove(key, false, ref value);
+	}
+
+	public bool Remove(TKey key, bool checkValue, [MaybeNullWhen(false)] ref TValue? value)
+	{
+		var hash = lowBits & _comparer.GetHashCode(key);
+
+		ref var entry = ref _entries[hash % _entries.Length];
+
+		while (entry != null)
 		{
-			value = entry.Value;
-			return true;
+			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key) && (!checkValue || EqualityComparer<TValue>.Default.Equals(value, entry.Value)))
+			{
+				var old = entry;
+				entry = entry.Next;
+				old.Next = null;
+				value = old.Value;
+				_version++;
+				_count--;
+				return true;
+			}
+
+			entry = ref entry.Next;
 		}
-		else
-		{
-			value = null;
-			return false;
-		}
+
+		return false;
 	}
 
 	IEnumerator IEnumerable.GetEnumerator()
@@ -188,33 +357,16 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	IEnumerator<IMapEntry<TKey, TValue>> IEnumerable<IMapEntry<TKey, TValue>>.GetEnumerator()
 		=> GetEnumerator();
 
-	public IEnumerator<MapEntry<TKey, TValue>> GetEnumerator()
-		=> dictionary.Values.GetEnumerator();
-
-	private void CopyTo(Array array, int index)
-	{
-		foreach (var entry in dictionary.Values)
-			array.SetValue(entry, index++);
-	}
+	public Enumerator GetEnumerator()
+		=> new(this);
 
 	private bool Contains(TKey key, TValue value, IReadOnlyMapEntry entry)
-		=> dictionary.TryGetValue(key, out var found) && (ReferenceEquals(entry, found) || EqualityComparer<TValue>.Default.Equals(found.Value, value));
-
-	private bool Remove(TKey key, TValue value, IReadOnlyMapEntry entry)
 	{
-		if (Contains(key, value, entry))
-		{
-			dictionary.Remove(key);
-			return true;
-		}
-
-		return false;
+		var existing = TryGetEntry(key);
+		return existing != null && (ReferenceEquals(existing, entry) || EqualityComparer<TValue>.Default.Equals(existing.Value, value));
 	}
 
 	#region Explicit Method Implementations
-
-	void ICollection.CopyTo(Array array, int index)
-		=> CopyTo(array, index);
 
 	bool ICollection<IReadOnlyMapEntry>.Contains(IReadOnlyMapEntry item)
 		=> item is { Key: TKey key, Value: TValue value } && Contains(key, value, item);
@@ -226,7 +378,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		=> key is TKey k && Remove(k);
 
 	bool ICollection<IMapEntry<TKey, TValue>>.Remove(IMapEntry<TKey, TValue> item)
-		=> Remove(item.Key, item.Value, item);
+	{
+		var value = item.Value;
+		return Remove(item.Key, true, ref value);
+	}
 
 	bool ICollection<IReadOnlyMapEntry>.Remove(IReadOnlyMapEntry item)
 		=> item is { Key: TKey key, Value: TValue value } && Contains(key, value, item);
@@ -242,7 +397,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		if (value is not TValue v)
 			throw new ArgumentException("Could not cast value to type " + typeof(TValue), nameof(value));
 
-		dictionary.Add(k, new(k, v));
+		Add(k, v);
 	}
 
 	IReadOnlyMapEntry<TKey, TValue>? IReadOnlyMap<TKey, TValue>.GetEntry(TKey key)
@@ -252,4 +407,179 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		=> key is TKey k ? GetEntry(k) : null;
 
 	#endregion
+
+	[DebuggerDisplay("Key = {Key}, Value = {Value}")]
+	private sealed class Entry(TKey key, int hashCode, TValue value, Entry? next = null) : IMapEntry<TKey, TValue>
+	{
+		internal readonly TKey Key = key;
+		internal readonly int HashCode = hashCode;
+		internal Entry? Next = next;
+		[AllowNull]
+		internal TValue Value = value;
+
+		object IReadOnlyMapEntry.Key => Key;
+
+		TKey IReadOnlyMapEntry<TKey, TValue>.Key => Key;
+
+		object IReadOnlyMapEntry.Value => Value;
+
+		TValue IReadOnlyMapEntry<TKey, TValue>.Value => Value;
+
+		TValue IMapEntry<TKey, TValue>.Value
+		{
+			get => Value;
+			set => Value = value;
+		}
+	}
+
+	public struct Enumerator(Map<TKey, TValue> owner) : IEnumerator<IMapEntry<TKey, TValue>>
+	{
+		private readonly Map<TKey, TValue> _owner = owner;
+		private int _version = owner._version;
+		private int _index;
+		private Entry? _current;
+
+		public readonly IMapEntry<TKey, TValue> Current => _current!;
+
+		readonly object? IEnumerator.Current => _current;
+
+		private readonly void CheckVersion()
+		{
+			ObjectDisposedException.ThrowIf(_version < 0, typeof(Enumerator));
+			if (_version != _owner._version)
+				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
+		}
+
+		public void Dispose()
+		{
+			_version = -1;
+		}
+
+		public bool MoveNext()
+		{
+			CheckVersion();
+
+			var index = _index;
+			var entries = _owner._entries;
+			if (entries.Length <= index)
+				return false;
+
+			var current = _current == null ? entries[0] : _current.Next;
+			while (current == null)
+			{
+				if (++index >= (uint)entries.Length)
+				{
+					_index = index;
+					_current = null;
+					return false;
+				}
+
+				current = entries[index];
+			}
+
+			_index = index;
+			_current = current;
+			return true;
+		}
+
+		public void Reset()
+		{
+			CheckVersion();
+			_index = 0;
+			_current = default;
+		}
+	}
+
+	private abstract class BaseEnumerator<TItem>(Map<TKey, TValue> owner) : IEnumerator<TItem>
+	{
+		private readonly Map<TKey, TValue> _owner = owner;
+		private int _version = owner._version;
+		private int _index;
+		private Entry? _current;
+
+		public TItem Current { get; private set; } = default!;
+
+		object? IEnumerator.Current => Current;
+
+		protected abstract TItem GetValue(Entry entry);
+
+		private void CheckVersion()
+		{
+			ObjectDisposedException.ThrowIf(_version < 0, typeof(Enumerator));
+			if (_version != _owner._version)
+				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
+		}
+
+		public void Dispose()
+		{
+			_version = -1;
+		}
+
+		public bool MoveNext()
+		{
+			CheckVersion();
+
+			var index = _index;
+			var entries = _owner._entries;
+			if (entries.Length <= index)
+				return false;
+
+			var current = _current == null ? entries[0] : _current.Next;
+			while (current == null)
+			{
+				if (++index >= (uint)entries.Length)
+				{
+					_index = index;
+					_current = null;
+					Current = default!;
+					return false;
+				}
+
+				current = entries[index];
+			}
+
+			_index = index;
+			_current = current;
+			Current = GetValue(current);
+			return true;
+		}
+
+		public void Reset()
+		{
+			CheckVersion();
+			_index = 0;
+			_current = default;
+		}
+	}
+
+	private sealed class KeyEnumerator(Map<TKey, TValue> owner) : BaseEnumerator<TKey>(owner)
+	{
+		protected override TKey GetValue(Entry entry)
+			=> entry.Key;
+	}
+
+	public sealed class KeyCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TKey>
+	{
+		public override int Count => owner.Count;
+
+		public override bool Contains(TKey item)
+			=> owner.ContainsKey(item);
+
+		public override IEnumerator<TKey> GetEnumerator()
+			=> new KeyEnumerator(owner);
+	}
+
+	private sealed class ValueEnumerator(Map<TKey, TValue> owner) : BaseEnumerator<TValue>(owner)
+	{
+		protected override TValue GetValue(Entry entry)
+			=> entry.Value;
+	}
+
+	public sealed class ValueCollection(Map<TKey, TValue> owner) : AbstractReadOnlyCollection<TValue>
+	{
+		public override int Count => owner.Count;
+
+		public override IEnumerator<TValue> GetEnumerator()
+			=> new ValueEnumerator(owner);
+	}
 }

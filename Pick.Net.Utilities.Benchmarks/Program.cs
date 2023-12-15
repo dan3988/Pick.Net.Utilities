@@ -4,4 +4,5 @@ using BenchmarkDotNet.Running;
 using Pick.Net.Utilities.Benchmarks;
 
 //BenchmarkRunner.Run<EnumsBenchmarks>();
-BenchmarkRunner.Run<StringDictionaryBenchmarks>();
+//BenchmarkRunner.Run<StringDictionaryBenchmarks>();
+BenchmarkRunner.Run<MapBenchmarks>();

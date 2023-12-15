@@ -1,7 +1,47 @@
-﻿namespace Pick.Net.Utilities.Collections;
+﻿using System.Collections;
+using System.Collections.Specialized;
+
+namespace Pick.Net.Utilities.Collections;
+
+using CCEventHandler = NotifyCollectionChangedEventHandler;
+using CCEventArgs = NotifyCollectionChangedEventArgs;
+using CCAction = NotifyCollectionChangedAction;
 
 public static class CollectionExtensions
 {
+	public static void InvokeAdded(this CCEventHandler handler, INotifyCollectionChanged sender, object item, int index)
+		=> handler.Invoke(sender, new CCEventArgs(CCAction.Add, item, index));
+
+	public static void InvokeAdded(this CCEventHandler handler, INotifyCollectionChanged sender, IList items, int index)
+		=> handler.Invoke(sender, new CCEventArgs(CCAction.Add, items, index));
+
+	public static void InvokeReplaced(this CCEventHandler handler, INotifyCollectionChanged sender, object oldItem, object newItem, int index)
+		=> handler.Invoke(sender, new CCEventArgs(CCAction.Replace, newItem, oldItem, index));
+
+	public static void InvokeRemoved(this CCEventHandler handler, INotifyCollectionChanged sender, object item, int index)
+		=> handler.Invoke(sender, new CCEventArgs(CCAction.Remove, item, index));
+
+	public static void InvokeReset(this CCEventHandler handler, INotifyCollectionChanged sender)
+		=> handler.Invoke(sender, new CCEventArgs(CCAction.Reset));
+
+	private static bool IsNotNull<T>(T? item) where T : class
+		=> item != null;
+
+	public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source) where T : class
+		=> source.Where(IsNotNull)!;
+
+	public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> values)
+	{
+		if (collection is List<T> list)
+		{
+			list.AddRange(values);
+			return;
+		}
+
+		foreach (var value in values)
+			collection.Add(value);
+	}
+
 	public static void Deconstruct<T, TKey, TValue>(this T pair, out TKey key, out TValue value)
 		where TKey : notnull
 		where TValue : class

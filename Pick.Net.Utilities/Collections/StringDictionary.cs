@@ -13,7 +13,6 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	private static readonly bool ValueIsNullable = !ValueType.IsValueType || Nullable.GetUnderlyingType(ValueType) != null;
 
 	private const int lowBits = 0x7FFFFFFF;
-	private const int defaultCapacity = 4;
 
 	private static string GetKeyAsString(object? key, [CallerArgumentExpression(nameof(key))] string argName = null!)
 	{
@@ -124,7 +123,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	#endregion Explicit Properties
 
-	public StringDictionary() : this(defaultCapacity, StringComparison.Ordinal)
+	public StringDictionary() : this(0, StringComparison.Ordinal)
 	{
 	}
 
@@ -132,13 +131,13 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	{
 	}
 
-	public StringDictionary(StringComparison comparison) : this(defaultCapacity, comparison)
+	public StringDictionary(StringComparison comparison) : this(0, comparison)
 	{
 	}
 
 	public StringDictionary(int initialCapacity, StringComparison comparison)
 	{
-		var size = HashHelpers.GetPrime(initialCapacity);
+		var size = initialCapacity <= HashHelpers.MinPrime ? HashHelpers.MinPrime : HashHelpers.GetPrime(initialCapacity);
 		_entries = new Entry[size];
 		_comparison = comparison;
 	}
@@ -197,10 +196,10 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	private bool EnsureCapacity(int min)
 	{
 		var cap = _entries.Length;
-		if (cap > min)
+		if (cap >= min)
 			return false;
 
-		cap = cap == 0 ? defaultCapacity : cap << 1;
+		cap = HashHelpers.ExpandPrime(cap);
 		if (cap < min)
 			cap = min;
 
@@ -331,7 +330,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	{
 		ref var entry = ref Insert(key, false);
 		if (Unsafe.IsNullRef(ref entry))
-			throw new ArgumentException("An item with the same key has already been added. Key: " + key);
+			throw new ArgumentException("An item with the same key has already been added. Key: " + key, nameof(key));
 
 		entry.Value = value;
 		_version++;
@@ -380,7 +379,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		return Remove(key, false, ref value);
 	}
 
-	private bool Remove(ReadOnlySpan<char> key, bool checkValue, [NotNullWhen(true)] ref T? value)
+	private bool Remove(ReadOnlySpan<char> key, bool checkValue, ref T? value)
 	{
 		if (_size > 0)
 		{
@@ -574,7 +573,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			CheckVersion();
 
-			while ((uint)_index < (uint)_owner._size)
+			while (unchecked((uint)_index < (uint)_owner._size))
 			{
 				ref var entry = ref _owner._entries[_index++];
 				if (entry.HashCode > 0)
@@ -628,7 +627,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 				ref var entry = ref _owner._entries[_index++];
 				if (entry.HashCode > 0)
 				{
-					_current = GetValue(ref entry);
+					_current = GetValue(in entry);
 					return true;
 				}
 			}
@@ -637,7 +636,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 			return false;
 		}
 
-		protected abstract TItem GetValue(ref Entry entry);
+		protected abstract TItem GetValue(in Entry entry);
 
 		public void Reset()
 		{
@@ -649,7 +648,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	private sealed class KeyEnumerator(StringDictionary<T> owner) : BaseEnumerator<string>(owner)
 	{
-		protected override string GetValue(ref StringDictionary<T>.Entry entry)
+		protected override string GetValue(in Entry entry)
 			=> entry.Key;
 	}
 
@@ -670,7 +669,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	private sealed class ValueEnumerator(StringDictionary<T> owner) : BaseEnumerator<T>(owner)
 	{
-		protected override T GetValue(ref StringDictionary<T>.Entry entry)
+		protected override T GetValue(in Entry entry)
 			=> entry.Value;
 	}
 

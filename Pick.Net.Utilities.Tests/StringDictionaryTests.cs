@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-using Pick.Net.Utilities.Collections;
+﻿using Pick.Net.Utilities.Collections;
 
 namespace Pick.Net.Utilities.Tests;
 
@@ -9,26 +7,25 @@ public class StringDictionaryTests
 {
 	private static void CheckDictionaryValues<T>(StringDictionary<T> values, params (string Key, T Value)[] expected)
 	{
-		CollectionAssert.AreEqual(values, expected.Select(v => new KeyValuePair<string, T>(v.Key, v.Value)).ToArray());
-		CollectionAssert.AreEqual(values.Keys, expected.Select(v => v.Key).ToArray());
-		CollectionAssert.AreEqual(values.Values, expected.Select(v => v.Value).ToArray());
-
+		CollectionAssert.AreEqual(expected.Select(v => new KeyValuePair<string, T>(v.Key, v.Value)).ToArray(), values);
+		CollectionAssert.AreEqual(expected.Select(v => v.Key).ToArray(), values.Keys);
+		CollectionAssert.AreEqual(expected.Select(v => v.Value).ToArray(), values.Values);
 	}
 
 	private static void CheckValue<T>(StringDictionary<T> values, string key, T value)
 	{
-		Assert.IsTrue(values.ContainsKey(key));
-		Assert.IsTrue(values.Keys.Contains(key));
-		Assert.IsTrue(values.TryGetValue(key, out var retrievedValue));
-		Assert.AreEqual(value, (object?)retrievedValue);
-		Assert.AreEqual(value, (object?)values[key]);
+		Assert.IsTrue(values.ContainsKey(key), "Expected ContainsKey to return true for key '{0}'.", key);
+		Assert.IsTrue(values.Keys.Contains(key), "Expected dictionary key collection to contain '{0}'.", key);
+		Assert.IsTrue(values.TryGetValue(key, out var retrievedValue), "Expected TryGetValue to return true for key '{0}'.", key);
+		Assert.AreEqual(value, (object?)retrievedValue, "Expected TryGetValue value for key '{0}' to be '{1}'.", key, value);
+		Assert.AreEqual(value, (object?)values[key], "Expected indexer value for key '{0}' to be '{1}'.", key, value);
 
 		var keySpan = key.AsSpan();
-		Assert.IsTrue(values.ContainsKey(keySpan));
-		Assert.IsTrue(values.Keys.Contains(keySpan));
-		Assert.IsTrue(values.TryGetValue(keySpan, out retrievedValue));
-		Assert.AreEqual(value, (object?)retrievedValue);
-		Assert.AreEqual(value, (object?)values[keySpan]);
+		Assert.IsTrue(values.ContainsKey(keySpan), "Expected ContainsKey to return true for key '{0}'.", key);
+		Assert.IsTrue(values.Keys.Contains(keySpan), "Expected dictionary key collection to contain '{0}'.", key);
+		Assert.IsTrue(values.TryGetValue(keySpan, out retrievedValue), "Expected TryGetValue to return true for key '{0}'.", key);
+		Assert.AreEqual(value, (object?)retrievedValue, "Expected TryGetValue value for key '{0}' to be '{1}'.", key, value);
+		Assert.AreEqual(value, (object?)values[keySpan], "Expected indexer value for key '{0}' to be '{1}'.", key, value);
 
 		CollectionAssert.Contains(values.Values, value);
 	}

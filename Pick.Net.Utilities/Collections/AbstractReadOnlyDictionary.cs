@@ -17,7 +17,7 @@ public abstract class AbstractReadOnlyDictionary<TKey, TValue> : AbstractReadOnl
 		return en as IDictionaryEnumerator<TKey, TValue> ?? new DictionaryEnumerator(en);
 	}
 
-	public virtual TValue this[TKey key] => TryGetValue(key, out var value) ? value : throw new KeyNotFoundException();
+	public virtual TValue this[TKey key] => TryGetValue(key, out var value) ? value : throw CollectionHelper.KeyNotFoundException(key);
 
 	private AbstractReadOnlyCollection<TKey>? _keys;
 	public AbstractReadOnlyCollection<TKey> Keys => _keys ??= CreateKeys();
@@ -51,7 +51,7 @@ public abstract class AbstractReadOnlyDictionary<TKey, TValue> : AbstractReadOnl
 
 	object? IDictionary.this[object key]
 	{
-		get => key is TKey k ? this[k] : throw new KeyNotFoundException();
+		get => key is TKey k ? this[k] : throw CollectionHelper.KeyNotFoundException(key);
 		set => throw Exception();
 	}
 

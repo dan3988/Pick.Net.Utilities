@@ -11,13 +11,6 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	where TKey : notnull
 	where TValue : class
 {
-	private enum ConflictBehaviour : byte
-	{
-		Return,
-		Overwrite,
-		Throw
-	}
-
 	private const int lowBits = 0x7FFFFFFF;
 
 	private readonly IEqualityComparer<TKey> _comparer;
@@ -44,7 +37,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	public TValue? this[TKey key]
 	{
 		get => TryGetEntry(key)?.Value;
-		set => _ = value == null ? Remove(key) : Insert(key, value, ConflictBehaviour.Overwrite);
+		set => _ = value == null ? Remove(key) : Insert(key, value, DictionaryInsertBehaviour.Overwrite);
 	}
 
 	#region Explicit Property Implementations
@@ -162,7 +155,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		while (entry != null)
 		{
 			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key))
-				throw new ArgumentException("An item with the same key has already been added. Key: " + key);
+				throw CollectionHelper.EnumeratorInvalidatedException();
 
 			entry = ref entry.Next;
 		}
@@ -187,7 +180,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		return null;
 	}
 
-	private bool Insert(TKey key, TValue value, ConflictBehaviour behaviour)
+	private bool Insert(TKey key, TValue value, DictionaryInsertBehaviour behaviour)
 	{
 		var hash = lowBits & _comparer.GetHashCode(key);
 		ref var entry = ref _entries[hash % _entries.Length];
@@ -196,10 +189,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		{
 			if (hash == entry.HashCode && _comparer.Equals(key, entry.Key))
 			{
-				if (behaviour == ConflictBehaviour.Throw)
-					throw new ArgumentException("An item with the same key has already been added. Key: " + key, nameof(key));
+				if (behaviour == DictionaryInsertBehaviour.Throw)
+					throw CollectionHelper.DuplicateAddedException(key);
 
-				if (behaviour == ConflictBehaviour.Overwrite)
+				if (behaviour == DictionaryInsertBehaviour.Overwrite)
 				{
 					entry.Value = value;
 					goto Added;
@@ -285,10 +278,10 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		=> Add(item.Key, item.Value);
 
 	public void Add(TKey key, TValue value)
-		=> Insert(key, value, ConflictBehaviour.Throw);
+		=> Insert(key, value, DictionaryInsertBehaviour.Throw);
 
 	public bool TryAdd(TKey key, TValue value)
-		=> Insert(key, value, ConflictBehaviour.Return);
+		=> Insert(key, value, DictionaryInsertBehaviour.Return);
 
 	public void Clear()
 	{

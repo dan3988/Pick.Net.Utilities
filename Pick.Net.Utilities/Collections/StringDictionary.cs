@@ -9,31 +9,7 @@ namespace Pick.Net.Utilities.Collections;
 [DebuggerDisplay("Count = {Count}")]
 public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>, IDictionary
 {
-	private static readonly Type ValueType = typeof(T);
-	private static readonly bool ValueIsNullable = !ValueType.IsValueType || Nullable.GetUnderlyingType(ValueType) != null;
-
 	private const int lowBits = 0x7FFFFFFF;
-
-	private static string GetKeyAsString(object? key, [CallerArgumentExpression(nameof(key))] string argName = null!)
-	{
-		ArgumentNullException.ThrowIfNull(key);
-		return key is string ? key.ToString()! : throw new ArgumentException($"The given key '{key}' is not a string and cannot be used in this generic collection", argName);
-	}
-
-	private static T GetValueAsT(object? value, [CallerArgumentExpression(nameof(value))] string argName = null!)
-	{
-		if (value == null)
-		{
-			if (ValueIsNullable)
-				return default!;
-		}
-		else if (value is T v)
-		{
-			return v;
-		}
-
-		throw new ArgumentException($"The given value '{value}' is not of type '{ValueType}' and cannot be used in this generic collection.", argName);
-	}
 
 	private readonly StringComparison _comparison;
 	/// <summary>
@@ -76,9 +52,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		set
 		{
 			ArgumentNullException.ThrowIfNull(key);
-			ref var entry = ref Insert(key, true);
-			entry.Value = value;
-			_version++;
+			Insert(key, ref value, DictionaryInsertBehaviour.Overwrite);
 		}
 	}
 
@@ -87,7 +61,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		get
 		{
 			ref var entry = ref TryGetEntry(key);
-			return !Unsafe.IsNullRef(ref entry) ? entry.Value : throw new KeyNotFoundException($"The given key '{key}' was not present in the dictionary");
+			return !Unsafe.IsNullRef(ref entry) ? entry.Value : throw CollectionHelper.KeyNotFoundException(key);
 		}
 	}
 
@@ -117,8 +91,8 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	object? IDictionary.this[object key]
 	{
-		get => key is string str ? this[(ReadOnlySpan<char>)str] : throw new ArgumentException($"The given key '{key}' is not a string and cannot be used in this generic collection");
-		set => this[GetKeyAsString(key)] = GetValueAsT(value);
+		get => key is string str ? this[str] : null;
+		set => this[CollectionHelper.ConvertKey<string>(key)] = CollectionHelper.ConvertValue<T>(value);
 	}
 
 	#endregion Explicit Properties
@@ -175,7 +149,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 			{
 				entry = ref _entries[i];
 				if (hash == entry.HashCode && string.Equals(key, entry.Key, _comparison))
-					throw new ArgumentException("An item with the same key has already been added. Key: " + key);
+					throw CollectionHelper.DuplicateAddedException(key);
 
 				i = ~entry.Next;
 			}
@@ -240,7 +214,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		return ref Unsafe.NullRef<Entry>();
 	}
 
-	private ref Entry Insert(string key, bool overwrite)
+	private bool Insert(string key, ref T value, DictionaryInsertBehaviour behaviour)
 	{
 		ArgumentNullException.ThrowIfNull(key);
 
@@ -256,7 +230,19 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 			{
 				entry = ref _entries[i];
 				if (hash == entry.HashCode && string.Equals(key, entry.Key, _comparison))
-					return ref (overwrite ? ref entry : ref Unsafe.NullRef<Entry>());
+				{
+					if (behaviour == DictionaryInsertBehaviour.Throw)
+						throw CollectionHelper.DuplicateAddedException(key);
+
+					if (behaviour == DictionaryInsertBehaviour.Overwrite)
+					{
+						(value, entry.Value) = (entry.Value, value);
+						_version++;
+						return true;
+					}
+
+					return false;
+				}
 
 				i = ~entry.Next;
 			}
@@ -286,8 +272,11 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		entry.Key = key;
 		entry.HashCode = hash;
 		entry.Next = buck.Bucket;
+		entry.Value = value;
 		buck.Bucket = ~index;
-		return ref entry;
+		value = default!;
+		_version++;
+		return true;
 	}
 
 	public bool ContainsKey(string key)
@@ -327,32 +316,15 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	}
 
 	public void Add(string key, T value)
-	{
-		ref var entry = ref Insert(key, false);
-		if (Unsafe.IsNullRef(ref entry))
-			throw new ArgumentException("An item with the same key has already been added. Key: " + key, nameof(key));
-
-		entry.Value = value;
-		_version++;
-	}
+		=> Insert(key, ref value, DictionaryInsertBehaviour.Throw);
 
 	public bool TryAdd(string key, T value)
-		=> TryAdd(key, value, out _);
+		=> Insert(key, ref value, DictionaryInsertBehaviour.Return);
 
 	public bool TryAdd(string key, T value, [MaybeNullWhen(true)] out T existing)
 	{
-		ref var entry = ref Insert(key, false);
-		if (Unsafe.IsNullRef(ref entry))
-		{
-			existing = default;
-			return true;
-		}
-		else
-		{
-			existing = entry.Value;
-			_version++;
-			return false;
-		}
+		existing = value;
+		return Insert(key, ref existing, DictionaryInsertBehaviour.Return);
 	}
 
 	public bool Remove(string key)
@@ -425,7 +397,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	public void CopyTo(Array array, int index)
 	{
-		CheckCopyToArgs(array, index, out int count);
+		CollectionHelper.CheckCopyToArgs(this, array, index, out int count);
 
 		if (array is KeyValuePair<string, T>[] pairArray)
 		{
@@ -448,19 +420,8 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	public void CopyTo(KeyValuePair<string, T>[] array, int index)
 	{
-		CheckCopyToArgs(array, index, out int count);
+		CollectionHelper.CheckCopyToArgs(this, array, index, out int count);
 		CopyToImpl(array, index, count);
-	}
-
-	private void CheckCopyToArgs(Array array, int index, out int count)
-	{
-		ArgumentNullException.ThrowIfNull(array);
-
-		if (unchecked((uint)index > (uint)array.Length))
-			throw new ArgumentOutOfRangeException(nameof(index), "Index must be a non-negative number smaller than the size of the array");
-
-		if ((count = Count) > (index + array.Length))
-			throw new ArgumentException("Destination array is not long enough to copy all the items in the collection. Check array index and length.", nameof(index));
 	}
 
 	private void CopyToImpl(DictionaryEntry[] array, int index, int count)
@@ -510,7 +471,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		=> GetEnumerator();
 
 	void IDictionary.Add(object key, object? value)
-		=> Add(GetKeyAsString(key), GetValueAsT(value));
+		=> Add(CollectionHelper.ConvertKey<string>(key), CollectionHelper.ConvertValue<T>(value));
 
 	bool IDictionary.Contains(object key)
 		=> key is string str && ContainsKey((ReadOnlySpan<char>)str);
@@ -519,7 +480,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		=> GetEnumerator();
 
 	void IDictionary.Remove(object key)
-		=> Remove(GetKeyAsString(key));
+		=> Remove(CollectionHelper.ConvertKey<string>(key));
 
 	#endregion Explicit Methods
 
@@ -610,7 +571,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			ObjectDisposedException.ThrowIf(_version < 0, this);
 			if (_version != _owner._version)
-				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
+				throw CollectionHelper.EnumeratorInvalidatedException();
 		}
 
 		public void Dispose()

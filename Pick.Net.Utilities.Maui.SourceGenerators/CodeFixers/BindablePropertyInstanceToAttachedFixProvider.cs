@@ -33,8 +33,6 @@ public sealed class BindablePropertyInstanceToAttachedFixProvider() : BaseCodeFi
 			.AddParameterListParameters(
 				Parameter(Identifier("obj")).WithType(attachedType));
 
-		editor.ReplaceNode(node, getMethod);
-
 		var setAccessor = node.AccessorList?.Accessors.FirstOrDefault(v => v.Kind() is SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration);
 		if (setAccessor != null)
 		{
@@ -48,6 +46,8 @@ public sealed class BindablePropertyInstanceToAttachedFixProvider() : BaseCodeFi
 
 			editor.InsertAfter(node, setMethod);
 		}
+
+		editor.ReplaceNode(node, getMethod);
 
 		return true;
 	}

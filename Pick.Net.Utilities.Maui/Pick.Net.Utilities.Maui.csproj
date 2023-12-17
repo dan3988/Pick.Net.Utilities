@@ -6,6 +6,9 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
+    <PackageTags>dotnet;MAUI;Bindable Property;Helpers;Utilities</PackageTags>
+    <PackageReadmeFile>README.MD</PackageReadmeFile>
+    <Description>Code generator for creating .NET MAUI BindableProperty declarations and various helper classes for developing MAUI applications</Description>
     <Version Condition="'$(Version)' == ''">0.0.0</Version>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
     <AssemblyVersion>$(Version).$(BuildNumber)</AssemblyVersion>
@@ -17,9 +20,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
+    <None Include=".\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Pick.Net.Utilities\Pick.Net.Utilities.csproj" />
     <None Include="..\Pick.Net.Utilities.Maui.SourceGenerators\bin\$(Configuration)\netstandard2.0\Pick.Net.Utilities.Maui.SourceGenerators.dll" PackagePath="analyzers\dotnet\roslyn4.0\cs" Pack="true" Visible="false" />
   </ItemGroup>

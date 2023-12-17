@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace Pick.Net.Utilities.Collections;
 
 [DebuggerTypeProxy(typeof(IStringDictionaryDebugView<>))]
-[DebuggerDisplay("Count = {Count}")]
+[DebuggerDisplay(CollectionHelper.DebuggerDisplay)]
 public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>, IDictionary
 {
 	private const int lowBits = 0x7FFFFFFF;

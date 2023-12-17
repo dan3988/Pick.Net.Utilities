@@ -6,7 +6,7 @@ using System.Text;
 namespace Pick.Net.Utilities.Collections;
 
 [DebuggerTypeProxy(typeof(IMapDebugView<,>))]
-[DebuggerDisplay("Count = {Count}")]
+[DebuggerDisplay(CollectionHelper.DebuggerDisplay)]
 public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, ICollection<IMapEntry<TKey, TValue>>, ICollection<IReadOnlyMapEntry>
 	where TKey : notnull
 	where TValue : class

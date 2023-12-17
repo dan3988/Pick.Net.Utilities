@@ -5,6 +5,8 @@ namespace Pick.Net.Utilities.Collections;
 
 internal static class CollectionHelper
 {
+	public const string DebuggerDisplay = "Count = {Count}";
+
 	public static T ConvertKey<T>(object? key, [CallerArgumentExpression(nameof(key))] string argName = null!)
 	{
 		ArgumentNullException.ThrowIfNull(key);

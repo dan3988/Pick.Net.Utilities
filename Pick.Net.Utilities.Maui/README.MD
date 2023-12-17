@@ -111,10 +111,10 @@ You can use the properties on the `[BindableProperty]` attribute to set the prop
 
 There are also code fixers to help speed up development:
 
-![screen1](./.github/screen1.png)
+![screen1](./readme/screen1.png)
 
-![screen2](./.github/screen2.png)
+![screen2](./readme/screen2.png)
 
-![screen3](./.github/screen3.png)
+![screen3](./readme/screen3.png)
 
-![screen4](./.github/screen4.png)
+![screen4](./readme/screen4.png)

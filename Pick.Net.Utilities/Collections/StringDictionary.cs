@@ -484,7 +484,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	#endregion Explicit Methods
 
-	[DebuggerDisplay("Key = {key}, Value = {value}")]
+	[DebuggerDisplay("Key = {Key}, Value = {Value}")]
 	private struct Entry
 	{
 		internal string Key;

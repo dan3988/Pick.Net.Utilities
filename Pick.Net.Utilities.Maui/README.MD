@@ -109,12 +109,12 @@ private static partial void SetValue(global::Microsoft.Maui.Controls.Element ele
 ```
 You can use the properties on the `[BindableProperty]` attribute to set the properties default value, default `BindingMode`, and to use value validator and coerce methods.
 
-There are also code fixers to help speed up development:
+There are also code fixers to streamline the process of creating bindable properties and to fix common mistakes:
 
-![screen1](./readme/screen1.png)
+![screen1](https://raw.githubusercontent.com/dan3988/Pick.Net.Utilities/main/Pick.Net.Utilities.Maui/readme/screen1.png)
 
-![screen2](./readme/screen2.png)
+![screen2](https://raw.githubusercontent.com/dan3988/Pick.Net.Utilities/main/Pick.Net.Utilities.Maui/readme/screen2.png)
 
-![screen3](./readme/screen3.png)
+![screen3](https://raw.githubusercontent.com/dan3988/Pick.Net.Utilities/main/Pick.Net.Utilities.Maui/readme/screen3.png)
 
-![screen4](./readme/screen4.png)
+![screen4](https://raw.githubusercontent.com/dan3988/Pick.Net.Utilities/main/Pick.Net.Utilities.Maui/readme/screen4.png)

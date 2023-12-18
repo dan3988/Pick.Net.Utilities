@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
+		LICENSE.MD = LICENSE.MD
 		Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md = Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md
+		README.MD = README.MD
 		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
@@ -35,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleApps", "ConsoleApps"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Tests", "Pick.Net.Utilities.Tests\Pick.Net.Utilities.Tests.csproj", "{22CFDFE8-F5F4-4DBB-BF02-7A2970A55DB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pick.Net.Utilities.Benchmarks", "Pick.Net.Utilities.Benchmarks\Pick.Net.Utilities.Benchmarks.csproj", "{EC45C618-FC8A-4922-88AA-5B0EE6B47DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities.Benchmarks", "Pick.Net.Utilities.Benchmarks\Pick.Net.Utilities.Benchmarks.csproj", "{EC45C618-FC8A-4922-88AA-5B0EE6B47DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

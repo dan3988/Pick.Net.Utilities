@@ -261,10 +261,10 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		}
 		else
 		{
-			index = _size;
-
-			if (EnsureCapacity(++_size) || index == 0)
+			if (EnsureCapacity(_size + 1) || _size == 0)
 				bucket = hash % _entries.Length;
+
+			index = _size++;
 		}
 
 		ref var buck = ref _entries[bucket];

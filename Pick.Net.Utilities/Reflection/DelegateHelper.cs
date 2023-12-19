@@ -25,6 +25,50 @@ public static partial class DelegateHelper
 	public static T CreateDelegate<T>(object? firstArgument, MethodInfo method) where T : Delegate
 		=> (T)Delegate.CreateDelegate(typeof(T), firstArgument, method);
 
+	/// <summary>
+	/// Thread safe delegate concatenation of <paramref name="value"/> to the field <paramref name="eventHandler"/>.
+	/// </summary>
+	/// <remarks>
+	/// This is the same implementation that the compiler generates when an event without accessors is declared.
+	/// </remarks>
+	/// <typeparam name="T">The delegate type</typeparam>
+	/// <param name="eventHandler">A refernece to the field for the event handler</param>
+	/// <param name="value">The delegate to add to the event handler</param>
+	public static void SafeSubscribe<T>(ref T? eventHandler, T? value) where T : Delegate
+	{
+		T? last = eventHandler;
+		T? expected, current;
+		do
+		{
+			expected = last;
+			current = (T?)Delegate.Combine(expected, value);
+			last = Interlocked.CompareExchange(ref eventHandler, current, expected);
+		}
+		while (last != expected);
+	}
+
+	/// <summary>
+	/// Thread safe delegate removal of <paramref name="value"/> from the field <paramref name="eventHandler"/>.
+	/// </summary>
+	/// <remarks>
+	/// This is the same implementation that the compiler generates when an event without accessors is declared.
+	/// </remarks>
+	/// <typeparam name="T">The delegate type</typeparam>
+	/// <param name="eventHandler">A refernece to the field for the event handler</param>
+	/// <param name="value">The delegate to remove from the event handler</param>
+	public static void SafeUnsubscribe<T>(ref T? eventHandler, T? value) where T : Delegate
+	{
+		T? last = eventHandler;
+		T? expected, current;
+		do
+		{
+			expected = last;
+			current = (T?)Delegate.Remove(expected, value);
+			last = Interlocked.CompareExchange(ref eventHandler, current, expected);
+		}
+		while (last != expected);
+	}
+
 	/// <inheritdoc cref="Delegate.Combine(Delegate?, Delegate?)"/>
 	[return: NotNullIfNotNull(nameof(a))]
 	[return: NotNullIfNotNull(nameof(b))]

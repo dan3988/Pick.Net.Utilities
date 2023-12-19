@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -23,6 +24,24 @@ public static partial class DelegateHelper
 	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	public static T CreateDelegate<T>(object? firstArgument, MethodInfo method) where T : Delegate
 		=> (T)Delegate.CreateDelegate(typeof(T), firstArgument, method);
+
+	/// <inheritdoc cref="Delegate.Combine(Delegate?, Delegate?)"/>
+	[return: NotNullIfNotNull(nameof(a))]
+	[return: NotNullIfNotNull(nameof(b))]
+	public static T? Combine<T>(T? a, T? b) where T : Delegate
+		=> (T?)Delegate.Combine(a, b);
+
+	/// <inheritdoc cref="Delegate.Combine(Delegate?[])"/>
+	public static T? Combine<T>(params T?[] delegates) where T : Delegate
+		=> (T?)Delegate.Combine(delegates);
+
+	/// <inheritdoc cref="Delegate.Remove(Delegate?, Delegate?)"/>
+	public static T? Remove<T>(T? source, T? value) where T : Delegate
+		=> (T?)Delegate.Remove(source, value);
+
+	/// <inheritdoc cref="Delegate.RemoveAll(Delegate?, Delegate?)"/>
+	public static T? RemoveAll<T>(T? source, T? value) where T : Delegate
+		=> (T?)Delegate.RemoveAll(source, value);
 
 	/// <summary>
 	/// Gets the types of the parameters for the delegate <typeparamref name="T"/>

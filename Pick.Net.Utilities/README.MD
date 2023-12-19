@@ -66,7 +66,7 @@ var value3 = map[keys[^4..]];
 ```
 
 ### DelegateHelper
-Generic version of `Delegate.CreateDelegate`
+Generic version of `Delegate.CreateDelegate`, `Delegate.Combine` and `Delegate.Remove`
 ```csharp
 // instead of
 var handler = (Predicate<string>)Delegate.CreateDelegate(typeof(Predicate<string>), method);

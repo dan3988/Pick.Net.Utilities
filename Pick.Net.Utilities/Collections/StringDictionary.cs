@@ -28,6 +28,10 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	/// The number of free slots
 	/// </summary>
 	private int _freeCount;
+	/// <summary>
+	/// Stores the negated index of entry index for each bucket
+	/// </summary>
+	private int[] _buckets;
 	private Entry[] _entries;
 
 	private KeyCollection? _keys;
@@ -113,6 +117,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	{
 		var size = initialCapacity <= HashHelpers.MinPrime ? HashHelpers.MinPrime : HashHelpers.GetPrime(initialCapacity);
 		_entries = new Entry[size];
+		_buckets = new int[size];
 		_comparison = comparison;
 	}
 
@@ -134,6 +139,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		};
 
 		_entries = new Entry[size];
+		_buckets = new int[size];
 		_comparison = comparison;
 
 		var index = 0;
@@ -144,7 +150,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 			var hash = lowBits & key.GetHashCode(comparison);
 			var bucket = hash % _entries.Length;
-			var i = ~_entries[bucket].Bucket;
+			var i = ~_buckets[bucket];
 			while (i >= 0)
 			{
 				entry = ref _entries[i];
@@ -154,13 +160,13 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 				i = ~entry.Next;
 			}
 
-			ref var buck = ref _entries[bucket];
+			ref var buck = ref _buckets[bucket];
 			entry = ref _entries[index];
 			entry.Key = key;
 			entry.HashCode = hash;
 			entry.Value = value;
-			entry.Next = buck.Bucket;
-			buck.Bucket = ~index;
+			entry.Next = buck;
+			buck = ~index;
 			index++;
 		}
 
@@ -178,18 +184,20 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 			cap = min;
 
 		var entries = _entries;
+		var buckets = new int[cap];
 
 		Array.Resize(ref entries, cap);
 
 		for (int i = 0; i < _size; i++)
 		{
 			ref var entry = ref entries[i];
-			ref var bucket = ref entries[entry.HashCode % cap];
-			entry.Next = bucket.Bucket;
-			bucket.Bucket = ~i;
+			ref var bucket = ref buckets[entry.HashCode % cap];
+			entry.Next = bucket;
+			bucket = ~i;
 		}
 
 		_entries = entries;
+		_buckets = buckets;
 		return true;
 	}
 
@@ -198,7 +206,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		if (_size > 0)
 		{
 			var hash = lowBits & string.GetHashCode(key, _comparison);
-			var i = ~_entries[hash % _entries.Length].Bucket;
+			var i = ~_buckets[hash % _entries.Length];
 
 			while (i >= 0)
 			{
@@ -225,7 +233,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		if (_size > 0)
 		{
 			bucket = hash % _entries.Length;
-			var i = ~_entries[bucket].Bucket;
+			var i = ~_buckets[bucket];
 			while (i >= 0)
 			{
 				entry = ref _entries[i];
@@ -267,13 +275,13 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 			index = _size++;
 		}
 
-		ref var buck = ref _entries[bucket];
+		ref var buck = ref _buckets[bucket];
 		entry = ref _entries[index];
 		entry.Key = key;
 		entry.HashCode = hash;
-		entry.Next = buck.Bucket;
+		entry.Next = buck;
 		entry.Value = value;
-		buck.Bucket = ~index;
+		buck = ~index;
 		value = default!;
 		_version++;
 		return true;
@@ -308,6 +316,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		if (_size > 0)
 		{
 			_entries = new Entry[HashHelpers.MinPrime];
+			_buckets = new int[HashHelpers.MinPrime];
 			_size = 0;
 			_freeCount = 0;
 			_freeIndex = 0;
@@ -357,7 +366,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			var hash = lowBits & string.GetHashCode(key, _comparison);
 			var bucket = hash % _entries.Length;
-			var i = ~_entries[bucket].Bucket;
+			var i = ~_buckets[bucket];
 			var last = 0;
 
 			while (i >= 0)
@@ -376,7 +385,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 					entry.Next = _freeIndex;
 
 					if (last == 0)
-						_entries[bucket].Bucket = entry.Next;
+						_buckets[bucket] = entry.Next;
 					else
 						_entries[last].Next = entry.Next;
 
@@ -493,11 +502,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		/// </summary>
 		internal int HashCode;
 		/// <summary>
-		/// Stores the negated index of the entry for the bucket at the index of this entry.
-		/// </summary>
-		internal int Bucket;
-		/// <summary>
-		/// Stores the negated index of the next entry if there is a hash code collision.
+		/// Stores the negated index of the next entry if there is a bucket collision.
 		/// </summary>
 		internal int Next;
 

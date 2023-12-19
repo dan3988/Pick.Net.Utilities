@@ -289,9 +289,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					return new(method);
 			}
 
-
-			var propertyTypeSyntax = propertyType.ToIdentifier(true);
-
 			return new(methodName, default, "oldValue", "newValue");
 		}
 	}
@@ -355,9 +352,6 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					&& propertyType.Equals(z.Type, false))
 					return new(method);
 			}
-
-			var attachedTypeSyntax = attachedType.ToIdentifier(true);
-			var propertyTypeSyntax = propertyType.ToIdentifier(true);
 
 			return new(methodName, ModifierLists.Static, "bindable", "oldValue", "newValue");
 		}

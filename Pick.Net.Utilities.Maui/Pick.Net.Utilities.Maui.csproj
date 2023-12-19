@@ -20,7 +20,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <None Include=".\README.md" Pack="true" PackagePath="\"/>
+    <None Include=".\README.MD" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pick.Net.Utilities.Maui.SourceGenerators\Pick.Net.Utilities.Maui.SourceGenerators.csproj" ReferenceOutputAssembly="false" />

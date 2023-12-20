@@ -50,12 +50,6 @@ internal static class SymbolHelper
 		[Accessibility.Public]					= ModifierLists.Public,
 	};
 
-	private static SyntaxTokenList CreateTokenList(SyntaxKind kind)
-		=> new(Token(kind));
-
-	private static SyntaxTokenList CreateTokenList(params SyntaxKind[] kinds)
-		=> new(kinds.Select(Token));
-
 	public static bool TryGetTypeCode(this SpecialType type, out TypeCode typeCode)
 	{
 		if (specialTypesMap.TryGetValue(type, out var info))

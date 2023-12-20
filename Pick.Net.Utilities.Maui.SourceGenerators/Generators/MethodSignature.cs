@@ -1,6 +1,6 @@
 ﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
-internal sealed record MethodSignature(string MethodName, SyntaxTokenList Modifiers, ImmutableArray<SyntaxToken> ParameterNames)
+public sealed record MethodSignature(string MethodName, SyntaxTokenList Modifiers, ImmutableArray<SyntaxToken> ParameterNames)
 {
 	public MethodSignature(IMethodSymbol method) : this(method.Name, method.GetModifiers(), method.Parameters.Select(v => v.Name))
 	{

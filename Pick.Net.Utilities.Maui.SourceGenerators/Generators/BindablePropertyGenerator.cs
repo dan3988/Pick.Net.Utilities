@@ -1,17 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
 using static SyntaxFactory;
 
-using UngroupedCreateResult = (INamedTypeSymbol Owner, CreateGeneratorResult Result);
-
 [Generator]
-public class BindablePropertyGenerator : IIncrementalGenerator
+public class BindablePropertyGenerator : BaseCodeGenerator<BindablePropertySyntaxGenerator>
 {
-	private static readonly Type AttributeType = typeof(BindablePropertyAttribute);
-
 	private static readonly IdentifierNameSyntax NameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
 	private static readonly IdentifierNameSyntax NameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));
 
@@ -257,10 +252,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return true;
 	}
 
-	private static bool StringStartsAndEndsWith(string value, string start, string end, StringComparison comparison = StringComparison.Ordinal)
-		=> value.StartsWith(start) && value.AsSpan(start.Length).Equals(end.AsSpan(), comparison);
-
-	private static CreateGeneratorResult CreateForProperty(IPropertySymbol symbol, SemanticModel model, AttributeData attribute)
+	private static Result<BindablePropertySyntaxGenerator> CreateForProperty(IPropertySymbol symbol, SemanticModel model, AttributeData attribute)
 	{
 		var accessibility = symbol.DeclaredAccessibility;
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
@@ -293,7 +285,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		}
 	}
 
-	private static CreateGeneratorResult CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute)
+	private static Result<BindablePropertySyntaxGenerator> CreateForMethod(IMethodSymbol symbol, SemanticModel model, AttributeData attribute)
 	{
 		var name = Identifiers.GetAttachedPropertyName(symbol.Name);
 
@@ -369,78 +361,15 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		return null;
 	}
 
-	private static UngroupedCreateResult TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)
+	private protected override Type AttributeType => typeof(BindablePropertyAttribute);
+
+	private protected override Result<BindablePropertySyntaxGenerator> TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
-		var result = context.TargetSymbol.Kind switch
+		return context.TargetSymbol.Kind switch
 		{
 			SymbolKind.Property => CreateForProperty((IPropertySymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0]),
 			SymbolKind.Method => CreateForMethod((IMethodSymbol)context.TargetSymbol, context.SemanticModel, context.Attributes[0]),
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
-
-		return (context.TargetSymbol.ContainingType, result);
-	}
-
-	private static GenerationOutput GroupGenerators(ImmutableArray<UngroupedCreateResult> values, CancellationToken token)
-	{
-		var types = ImmutableArray.CreateBuilder<PropertyCollection>();
-		var diagnosticsBuilder = ImmutableArray.CreateBuilder<Diagnostic>();
-		var map = new Dictionary<INamedTypeSymbol, List<BindablePropertySyntaxGenerator>>(SymbolEqualityComparer.Default);
-
-		foreach (var (declaringType, result) in values)
-		{
-			if (!result.IsSuccessful(out var generator, out var error))
-			{
-				diagnosticsBuilder.Add(error);
-				continue;
-			}
-
-			if (!map.TryGetValue(declaringType, out var properties))
-			{
-				map[declaringType] = properties = [];
-				types.Add(new(declaringType, properties));
-			}
-
-			properties.Add(generator);
-		}
-
-		return new(diagnosticsBuilder.ToImmutable(), types.ToImmutable());
-	}
-
-	private static void GenerateOutput(SourceProductionContext context, GenerationOutput generationOutput)
-	{
-		foreach (var diagnostic in generationOutput.Diagnostics)
-			context.ReportDiagnostic(diagnostic);
-
-		foreach (var type in generationOutput.Types)
-		{
-			var classInfo = ClassInfo.Create(type.DeclaringType);
-			var declaration = TypeDeclaration(SyntaxKind.ClassDeclaration, classInfo.TypeName).WithModifiers(ModifierLists.Partial);
-			var members = new List<MemberDeclarationSyntax>();
-
-			foreach (var generator in type.Properties)
-				generator.GenerateMembers(members);
-
-			declaration = declaration.AddMembers([.. members]);
-			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).WithModifiers(ModifierLists.Partial).AddMembers(current));
-
-			var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);
-			var root = classInfo.Namespace == "" ? (MemberDeclarationSyntax)declaration : NamespaceDeclaration(IdentifierName(classInfo.Namespace)).AddMembers(declaration);
-			var unit = CompilationUnit()
-				.AddMembers(root)
-				.WithLeadingTrivia(Trivia(nullableEnable))
-				.AddFormatting();
-
-			var fileName = classInfo.GetFileName();
-			context.AddSource(fileName, unit, Encoding.UTF8);
-			context.CancellationToken.ThrowIfCancellationRequested();
-		}
-	}
-
-	public void Initialize(IncrementalGeneratorInitializationContext context)
-	{
-		var info = context.SyntaxProvider.ForAttributeWithMetadataType(AttributeType, TransformMember);
-		var collected = info.Collect().Select(GroupGenerators);
-		context.RegisterSourceOutput(collected, GenerateOutput);
 	}
 }

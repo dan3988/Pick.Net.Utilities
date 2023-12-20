@@ -2,7 +2,7 @@
 
 using static SyntaxFactory;
 
-internal abstract class DefaultValueGenerator
+public abstract class DefaultValueGenerator
 {
 	private static readonly IdentifierNameSyntax BooleanBoxIdentifier = IdentifierName("global::Pick.Net.Utilities.BooleanBox");
 

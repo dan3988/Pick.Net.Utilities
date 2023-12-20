@@ -84,6 +84,6 @@ Get delegate parameter and return types
 ```csharp
 ImmutableArray<Type> types = DelegateHelper.GetParameterTypes<Action<string, int>>();
 // [ typeof(string), typeof(int) ]
-Type types = DelegateHelper.GetParameterTypes<Func<string>>();
+Type types = DelegateHelper.GetReturnType<Func<string>>();
 // typeof(string)
 ```

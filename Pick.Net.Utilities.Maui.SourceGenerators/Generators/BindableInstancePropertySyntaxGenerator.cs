@@ -64,7 +64,7 @@ internal sealed class BindableInstancePropertySyntaxGenerator : BindableProperty
 
 	protected override LambdaExpressionSyntax CreateChangeHandler(MethodSignature signature, out MethodDeclarationSyntax method)
 	{
-		method = signature.BuildMethod(SyntaxHelper.TypeVoid, [PropertyType, PropertyType]);
+		method = signature.BuildMethod(SyntaxHelper.TypeVoid, [AnnotatedPropertyType, AnnotatedPropertyType]);
 
 		var paramBindable = Parameter(Identifier("bindable"));
 		var paramOldValue = Parameter(Identifier("oldValue"));

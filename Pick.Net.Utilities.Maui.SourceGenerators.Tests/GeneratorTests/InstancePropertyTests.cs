@@ -124,13 +124,13 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 			public partial class Class : BindableObject
 			{
 				[BindableProperty]
-				public string Text
+				public string? Text
 				{
-					get => (string)GetValue(TextProperty);
+					get => (string?)GetValue(TextProperty);
 					set => SetValue(TextProperty, value);
 				}
 			
-				private partial void OnTextChanging(string oldText, string newText)
+				private partial void OnTextChanging(string? oldText, string? newText)
 				{
 				}
 
@@ -146,9 +146,9 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 			{
 				partial class Class
 				{
-					private partial void OnTextChanging(string oldText, string newText);
+					private partial void OnTextChanging(string? oldText, string? newText);
 
-					protected virtual partial void OnTextChanged(string aaaa, string bbbb);
+					protected virtual partial void OnTextChanged(string? aaaa, string? bbbb);
 
 					/// <summary>Bindable property for <see cref="Text"/>.</summary>
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
@@ -158,8 +158,8 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 						null,
 						global::Microsoft.Maui.Controls.BindingMode.OneWay,
 						null,
-						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanging((string)oldValue, (string)newValue),
-						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanged((string)oldValue, (string)newValue),
+						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanging((string? )oldValue, (string? )newValue),
+						(bindable, oldValue, newValue) => ((global::Test.Namespace.Class)bindable).OnTextChanged((string? )oldValue, (string? )newValue),
 						null,
 						null);
 

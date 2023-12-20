@@ -19,33 +19,32 @@ public abstract class BaseCodeGenerator<T> : IIncrementalGenerator
 
 	private protected abstract Result<T> TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token);
 
-	private GenerationOutput GroupGenerators(ImmutableArray<ResultAndType> values, CancellationToken token)
+	private GeneratorOutput GroupGenerators(ImmutableArray<ResultAndType> values, CancellationToken token)
 	{
-		var types = ImmutableArray.CreateBuilder<GeneratedType>();
-		var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+		var builder = GeneratorOutput.CreateBuilder();
 		var map = new Dictionary<INamedTypeSymbol, List<T>>(SymbolEqualityComparer.Default);
 
 		foreach (var (declaringType, result) in values)
 		{
 			if (!result.IsSuccessful(out var value, out var error))
 			{
-				diagnostics.Add(error);
+				builder.AddDiagnostic(error);
 				continue;
 			}
 
 			if (!map.TryGetValue(declaringType, out var properties))
 			{
 				map[declaringType] = properties = [];
-				types.Add(new(declaringType, properties));
+				builder.AddType(new(declaringType, properties));
 			}
 
 			properties.Add(value);
 		}
 
-		return new(diagnostics.ToImmutable(), types.ToImmutable());
+		return builder.Build();
 	}
 
-	private void GenerateOutput(SourceProductionContext context, GenerationOutput generationOutput)
+	private void GenerateOutput(SourceProductionContext context, GeneratorOutput generationOutput)
 	{
 		foreach (var diagnostic in generationOutput.Diagnostics)
 			context.ReportDiagnostic(diagnostic);

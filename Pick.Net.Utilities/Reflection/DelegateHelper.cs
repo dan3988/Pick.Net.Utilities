@@ -10,22 +10,6 @@ public static partial class DelegateHelper
 	private static readonly Dictionary<Type, DelegateInfo> DelegateInfos = [];
 
 	/// <summary>
-	/// Creates a delegate of type <typeparamref name="T"/> to represent <paramref name="method"/>
-	/// </summary>
-	/// <typeparam name="T">The type of delegate to create</typeparam>
-	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
-	public static T CreateDelegate<T>(MethodInfo method) where T : Delegate
-		=> (T)Delegate.CreateDelegate(typeof(T), method);
-
-	/// <summary>
-	/// Creates a delegate of type <typeparamref name="T"/> to represent <paramref name="method"/>, with the specified first argument
-	/// </summary>
-	/// <typeparam name="T">The type of delegate to create</typeparam>
-	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
-	public static T CreateDelegate<T>(object? firstArgument, MethodInfo method) where T : Delegate
-		=> (T)Delegate.CreateDelegate(typeof(T), firstArgument, method);
-
-	/// <summary>
 	/// Thread safe delegate concatenation of <paramref name="value"/> to the field <paramref name="eventHandler"/>.
 	/// </summary>
 	/// <remarks>

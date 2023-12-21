@@ -23,4 +23,21 @@ public static class ReflectionHelper
 	public const BindingFlags DeclaredNonPublic = NonPublic | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicInstance = NonPublicInstance | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicStatic = NonPublicStatic | BindingFlags.DeclaredOnly;
+
+	public static IEnumerable<Type> GetBaseTypes(this Type type, bool includeSelf)
+		=> GetBaseTypes(type, null, includeSelf);
+
+	public static IEnumerable<Type> GetBaseTypes(this Type type, Type? until = null, bool includeSelf = false)
+	{
+		ArgumentNullException.ThrowIfNull(type);
+
+		if (until != null && !type.IsAssignableTo(until))
+			throw new ArgumentException("End type is not assignable to input type.", nameof(until));
+
+		if (includeSelf)
+			yield return type;
+
+		while ((type = type.BaseType!) != until)
+			yield return type;
+	}
 }

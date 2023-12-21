@@ -12,6 +12,8 @@ internal static class Identifiers
 
 	public const string BindableObject = "Microsoft.Maui.Controls.BindableObject";
 
+	public static readonly SyntaxToken IPropertyMapper = Identifier("global::Microsoft.Maui.IPropertyMapper");
+	public static readonly SyntaxToken PropertyMapper = Identifier("global::Microsoft.Maui.PropertyMapper");
 	public static readonly IdentifierNameSyntax BindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
 	public static readonly IdentifierNameSyntax BindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
 

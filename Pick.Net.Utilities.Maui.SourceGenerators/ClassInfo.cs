@@ -14,6 +14,12 @@ internal sealed record ClassInfo(string Namespace, string TypeName, ImmutableArr
 		return new(ns, typeName, parentTypes);
 	}
 
+	public SyntaxToken Identifier()
+		=> SyntaxFactory.Identifier($"global::{Namespace}{(Namespace == "" ? "" : ".")}{TypeName}");
+
+	public IdentifierNameSyntax IdentifierName()
+		=> SyntaxFactory.IdentifierName(Identifier());
+
 	public string GetFileName(string? suffix = null)
 	{
 		var sb = new StringBuilder();

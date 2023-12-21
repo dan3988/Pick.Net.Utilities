@@ -3,6 +3,7 @@
 internal static class ModifierLists
 {
 	public static readonly SyntaxTokenList PrivateStaticPartial = new(Modifiers.Private, Modifiers.Static, Modifiers.Partial);
+	public static readonly SyntaxTokenList PrivateStaticReadOnly = new(Modifiers.Private, Modifiers.Static, Modifiers.ReadOnly);
 	public static readonly SyntaxTokenList PrivatePartial = new(Modifiers.Private, Modifiers.Partial);
 	public static readonly SyntaxTokenList PublicStaticPartial = new(Modifiers.Public, Modifiers.Static, Modifiers.Partial);
 	public static readonly SyntaxTokenList Public = new(Modifiers.Public);

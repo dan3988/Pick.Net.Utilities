@@ -32,6 +32,7 @@ public class AttachedPropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					static partial void OnTextChanged(global::Microsoft.Maui.Controls.Element bindable, string oldValue, string newValue);
 			
 					/// <summary>Bindable property for the attached property <c>Text</c>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached(
 						"Text",
 						typeof(string),
@@ -88,6 +89,7 @@ public class AttachedPropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					static partial void OnTextChanged(global::Microsoft.Maui.Controls.Element bindable, string oldValue, string newValue);
 			
 					/// <summary>Bindable property key for the attached property <c>Text</c>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					private static readonly global::Microsoft.Maui.Controls.BindablePropertyKey TextPropertyKey = global::Microsoft.Maui.Controls.BindableProperty.CreateAttachedReadOnly(
 						"Text",
 						typeof(string),
@@ -101,6 +103,7 @@ public class AttachedPropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 						null);
 			
 					/// <summary>Bindable property for the attached property <c>Text</c>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					protected static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = TextPropertyKey.BindableProperty;
 
 					protected static partial string GetText(global::Microsoft.Maui.Controls.Element element) 
@@ -153,6 +156,7 @@ public class AttachedPropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					protected static partial void OnTextChanged(global::Microsoft.Maui.Controls.Element e, string? aaaa, string? bbbb);
 
 					/// <summary>Bindable property for the attached property <c>Text</c>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.CreateAttached(
 						"Text",
 						typeof(string),
@@ -167,7 +171,7 @@ public class AttachedPropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 
 					public static partial string? GetText(global::Microsoft.Maui.Controls.Element element) 
 						=> (string? )element.GetValue(TextProperty);
-			
+
 					public static void SetText(global::Microsoft.Maui.Controls.Element element, string? value) 
 						=> element.SetValue(TextProperty, value);
 

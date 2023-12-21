@@ -34,6 +34,20 @@ internal static class SyntaxHelper
 	private static readonly SyntaxToken nameof = Identifier(EmptyTriviaList, SyntaxKind.NameOfKeyword, "nameof", "nameof", EmptyTriviaList);
 	private static readonly IdentifierNameSyntax nameofSyntax = IdentifierName(nameof);
 
+	public static readonly AttributeListSyntax GeneratedCodeAttributeList = CreateAttributeList();
+
+	private static AttributeListSyntax CreateAttributeList()
+	{
+		var attributeArgs = SeparatedList(
+		[
+			AttributeArgument(Literal(AssemblyInfo.FullName)),
+			AttributeArgument(Literal(AssemblyInfo.Version))
+		]);
+
+		var attribute = Attribute(Identifiers.GeneratedCodeAttribute, AttributeArgumentList(attributeArgs));
+		return AttributeList(SingletonSeparatedList(attribute));
+	}
+
 	public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue value)
 	{
 		key = pair.Key;

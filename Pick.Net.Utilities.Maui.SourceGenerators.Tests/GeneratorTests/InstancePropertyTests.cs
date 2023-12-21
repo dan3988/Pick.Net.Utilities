@@ -36,6 +36,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					partial void OnTextChanged(string oldValue, string newValue);
 
 					/// <summary>Bindable property for <see cref="Text"/>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 						"Text",
 						typeof(string),
@@ -88,6 +89,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					partial void OnTextChanged(string oldValue, string newValue);
 
 					/// <summary>Bindable property key for <see cref="Text"/>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					private static readonly global::Microsoft.Maui.Controls.BindablePropertyKey TextPropertyKey = global::Microsoft.Maui.Controls.BindableProperty.CreateReadOnly(
 						"Text",
 						typeof(string),
@@ -101,6 +103,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 						null);
 			
 					/// <summary>Bindable property for <see cref="Text"/>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					protected static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = TextPropertyKey.BindableProperty;
 
 				}
@@ -151,6 +154,7 @@ public class InstancePropertyTests : CodeGeneratorTests<BindablePropertyGenerato
 					protected virtual partial void OnTextChanged(string? aaaa, string? bbbb);
 
 					/// <summary>Bindable property for <see cref="Text"/>.</summary>
+					[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 					public static readonly global::Microsoft.Maui.Controls.BindableProperty TextProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 						"Text",
 						typeof(string),

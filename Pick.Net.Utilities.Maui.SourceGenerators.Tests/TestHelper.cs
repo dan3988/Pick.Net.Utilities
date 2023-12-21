@@ -5,8 +5,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 
-using Pick.Net.Utilities.Maui.SourceGenerators.Generators;
-
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;
 
 internal static class TestHelper
@@ -16,8 +14,10 @@ internal static class TestHelper
 		public static readonly Assembly System = typeof(object).Assembly;
 		public static readonly Assembly Maui = typeof(Microsoft.Maui.Controls.BindableObject).Assembly;
 		public static readonly Assembly Utilities = typeof(BooleanBox).Assembly;
-		public static readonly Assembly UtilitiesMaui = AssemblyInfo.Assembly;
-		public static readonly Assembly UtilitiesMauiSourceGenerators = typeof(BindablePropertyGenerator).Assembly;
+#pragma warning disable IDE0002
+		public static readonly Assembly UtilitiesMaui = global::Pick.Net.Utilities.Maui.AssemblyInfo.Assembly;
+		public static readonly Assembly UtilitiesMauiSourceGenerators = global::Pick.Net.Utilities.Maui.SourceGenerators.AssemblyInfo.Assembly;
+#pragma warning restore IDE0002
 		public static readonly Assembly This = typeof(TestHelper).Assembly;
 	}
 

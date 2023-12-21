@@ -32,6 +32,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 				partial void OnIntegerChanged(int oldValue, int newValue);
 			
 				/// <summary>Bindable property for <see cref="Integer"/>.</summary>
+				[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 				public static readonly global::Microsoft.Maui.Controls.BindableProperty IntegerProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 					"Integer",
 					typeof(int),
@@ -98,6 +99,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 						partial void OnValueChanged(object oldValue, object newValue);
 
 						/// <summary>Bindable property for <see cref="Value"/>.</summary>
+						[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 						public static readonly global::Microsoft.Maui.Controls.BindableProperty ValueProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 							"Value",
 							typeof(object),
@@ -130,6 +132,7 @@ public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
 							partial void OnValueChanged(object oldValue, object newValue);
 			
 							/// <summary>Bindable property for <see cref="Value"/>.</summary>
+							[global::System.CodeDom.Compiler.GeneratedCode("Pick.Net.Utilities.Maui.SourceGenerators, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", "1.0.0.0")]
 							public static readonly global::Microsoft.Maui.Controls.BindableProperty ValueProperty = global::Microsoft.Maui.Controls.BindableProperty.Create(
 								"Value",
 								typeof(object),

@@ -1,6 +1,6 @@
 ﻿namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 
-public abstract class BindablePropertySyntaxGenerator : IMemberGenerator
+public abstract class BindablePropertySyntaxGenerator
 {
 	private static void GenerateReadOnlyBindablePropertyDeclaration(ICollection<MemberDeclarationSyntax> members, SyntaxTokenList modifiers, IdentifierNameSyntax fieldName, IdentifierNameSyntax bindablePropertyKeyField, SyntaxTrivia comment)
 	{

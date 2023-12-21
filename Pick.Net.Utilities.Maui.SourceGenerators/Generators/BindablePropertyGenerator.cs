@@ -372,4 +372,14 @@ public class BindablePropertyGenerator : BaseCodeGenerator<BindablePropertySynta
 			_ => throw new InvalidOperationException("Unexpected syntax node: " + context.TargetSymbol.Kind)
 		};
 	}
+
+	private protected override TypeDeclarationSyntax AddMembers(TypeDeclarationSyntax declaration, ClassInfo classInfo, INamedTypeSymbol type, IReadOnlyList<BindablePropertySyntaxGenerator> values)
+	{
+		var members = new List<MemberDeclarationSyntax>();
+
+		foreach (var generator in values)
+			generator.GenerateMembers(members);
+
+		return declaration.AddMembers([.. members]);
+	}
 }

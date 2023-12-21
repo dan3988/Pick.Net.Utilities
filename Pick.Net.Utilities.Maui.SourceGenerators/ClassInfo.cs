@@ -5,10 +5,13 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators;
 internal sealed record ClassInfo(string Namespace, string TypeName, ImmutableArray<string> ParentTypes)
 {
 	public static ClassInfo Create(ITypeSymbol type)
+		=> Create(type, type.Name);
+
+	public static ClassInfo Create(ITypeSymbol type, string typeName)
 	{
 		var parentTypes = type.GetContainingTypeNames();
 		var ns = type.ContainingNamespace.GetFullName();
-		return new(ns, type.Name, parentTypes);
+		return new(ns, typeName, parentTypes);
 	}
 
 	public string GetFileName(string? suffix = null)

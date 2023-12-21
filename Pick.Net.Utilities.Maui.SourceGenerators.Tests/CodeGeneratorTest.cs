@@ -24,7 +24,7 @@ public abstract class CodeGeneratorTest : CodeActionTest<MSTestVerifier>
 		var instanceType = paramTypes[0];
 		var paramTypesArray = paramTypes.Skip(1).ToArray();
 		var method = instanceType.GetMethod(name, flags, paramTypesArray) ?? throw new MissingMethodException(instanceType.FullName, name);
-		return DelegateHelper.CreateDelegate<TDelegate>(method);
+		return method.CreateDelegate<TDelegate>();
 	}
 
 	public CSharpParseOptions Options { get; set; } = CSharpParseOptions.Default;

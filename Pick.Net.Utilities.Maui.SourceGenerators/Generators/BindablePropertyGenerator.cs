@@ -5,7 +5,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Generators;
 using static SyntaxFactory;
 
 [Generator]
-public class BindablePropertyGenerator : BaseCodeGenerator<BindablePropertySyntaxGenerator>
+public class BindablePropertyGenerator : BaseGroupedCodeGenerator<BindablePropertySyntaxGenerator>
 {
 	private static readonly IdentifierNameSyntax NameBindingMode = IdentifierName("global::Microsoft.Maui.Controls.BindingMode");
 	private static readonly IdentifierNameSyntax NameBindingModeOneWay = IdentifierName(nameof(BindingMode.OneWay));

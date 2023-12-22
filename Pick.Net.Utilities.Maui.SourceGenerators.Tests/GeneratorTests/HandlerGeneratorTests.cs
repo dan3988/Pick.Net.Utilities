@@ -10,19 +10,26 @@ public class HandlerGeneratorTests : CodeGeneratorTests<HandlerMapperGenerator>
 	{
 		const string code = """
 			using Pick.Net.Utilities.Maui;
+			using Microsoft.Maui;
 			using Microsoft.Maui.Controls;
 
 			namespace Test.Namespace;
 
-			public partial class TestClass : VisualElement
+			public interface ICustomView : IView
 			{
 				[HandlerProperty]
-				public string Text { get; set; }
-			
-				[HandlerProperty]
-				public int Value { get; set; }
+				bool IsChecked { get; set; }
 
-				public bool NotMapped { get; set; }
+				[HandlerProperty]
+				bool IsReadOnly { get; set; }
+
+				[HandlerProperty]
+				string? Title { get; set; }
+			}
+			
+			[HandlerMapper(typeof(ICustomView))]
+			public partial class CustomViewHandler
+			{
 			}
 			""";
 
@@ -30,24 +37,27 @@ public class HandlerGeneratorTests : CodeGeneratorTests<HandlerMapperGenerator>
 			#nullable enable
 			namespace Test.Namespace
 			{
-				partial class TestClassHandler
+				partial class CustomViewHandler
 				{
-					private static readonly global::Microsoft.Maui.IPropertyMapper<global::Test.Namespace.TestClass, global::Test.Namespace.TestClassHandler> GeneratedMapper = new global::Microsoft.Maui.PropertyMapper<global::Test.Namespace.TestClass, global::Test.Namespace.TestClassHandler>
+					private static readonly global::Microsoft.Maui.IPropertyMapper<global::Test.Namespace.ICustomView, global::Test.Namespace.CustomViewHandler> GeneratedMapper = new global::Microsoft.Maui.PropertyMapper<global::Test.Namespace.ICustomView, global::Test.Namespace.CustomViewHandler>
 					{
-						["Text"] = MapText,
-						["Value"] = MapValue
+						["IsChecked"] = MapIsChecked,
+						["IsReadOnly"] = MapIsReadOnly,
+						["Title"] = MapTitle
 					};
 
-					private static partial void MapText(global::Test.Namespace.TestClassHandler handler, global::Test.Namespace.TestClass view);
+					private static partial void MapIsChecked(global::Test.Namespace.CustomViewHandler handler, global::Test.Namespace.ICustomView view);
 
-					private static partial void MapValue(global::Test.Namespace.TestClassHandler handler, global::Test.Namespace.TestClass view);
+					private static partial void MapIsReadOnly(global::Test.Namespace.CustomViewHandler handler, global::Test.Namespace.ICustomView view);
+
+					private static partial void MapTitle(global::Test.Namespace.CustomViewHandler handler, global::Test.Namespace.ICustomView view);
 
 				}
 			}
 			""";
 
 		await CreateTest(code)
-			.ExpectOutput("Test.Namespace.TestClassHandler", output)
+			.ExpectOutput("Test.Namespace.CustomViewHandler", output)
 			.RunAsync();
 	}
 }

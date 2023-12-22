@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests;

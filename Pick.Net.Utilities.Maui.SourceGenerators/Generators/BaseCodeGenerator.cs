@@ -7,60 +7,25 @@ using static SyntaxFactory;
 public abstract class BaseCodeGenerator<T> : IIncrementalGenerator
 	where T : class
 {
-	private readonly record struct ResultAndType(INamedTypeSymbol Owner, Result<T> Result);
+	private protected abstract IncrementalValueProvider<GeneratorOutput<T>> Register(SyntaxValueProvider provider);
 
-	private protected abstract Type AttributeType { get; }
-
-	private ResultAndType TransformMemberInternal(GeneratorAttributeSyntaxContext context, CancellationToken token)
-	{
-		var result = TransformMember(context, token);
-		return new(context.TargetSymbol.ContainingType, result);
-	}
-
-	private protected abstract Result<T> TransformMember(GeneratorAttributeSyntaxContext context, CancellationToken token);
-
-	private protected abstract TypeDeclarationSyntax AddMembers(TypeDeclarationSyntax declaration, ClassInfo classInfo, INamedTypeSymbol type, IReadOnlyList<T> values);
+	private protected abstract TypeDeclarationSyntax AddMembers(TypeDeclarationSyntax declaration, ClassInfo classInfo, INamedTypeSymbol type, T value);
 
 	private protected virtual string GetTypeName(INamedTypeSymbol type)
 		=> type.Name;
-
-	private GeneratorOutput<T> GroupGenerators(ImmutableArray<ResultAndType> values, CancellationToken token)
-	{
-		var builder = GeneratorOutput.CreateBuilder<T>();
-		var map = new Dictionary<INamedTypeSymbol, List<T>>(SymbolEqualityComparer.Default);
-
-		foreach (var (declaringType, result) in values)
-		{
-			if (!result.IsSuccessful(out var value, out var error))
-			{
-				builder.AddDiagnostic(error);
-				continue;
-			}
-
-			if (!map.TryGetValue(declaringType, out var properties))
-			{
-				map[declaringType] = properties = [];
-				builder.AddType(new(declaringType, properties));
-			}
-
-			properties.Add(value);
-		}
-
-		return builder.Build();
-	}
 
 	private void GenerateOutput(SourceProductionContext context, GeneratorOutput<T> generationOutput)
 	{
 		foreach (var diagnostic in generationOutput.Diagnostics)
 			context.ReportDiagnostic(diagnostic);
 
-		foreach (var (type, values) in generationOutput.Types)
+		foreach (var (type, value) in generationOutput.Types)
 		{
 			var typeName = GetTypeName(type);
 			var classInfo = ClassInfo.Create(type, typeName);
 			var declaration = TypeDeclaration(SyntaxKind.ClassDeclaration, typeName).WithModifiers(ModifierLists.Partial);
 
-			declaration = AddMembers(declaration, classInfo, type, values);
+			declaration = AddMembers(declaration, classInfo, type, value);
 			declaration = classInfo.ParentTypes.Aggregate(declaration, (current, t) => TypeDeclaration(SyntaxKind.ClassDeclaration, t).WithModifiers(ModifierLists.Partial).AddMembers(current));
 
 			var nullableEnable = NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true);
@@ -78,8 +43,7 @@ public abstract class BaseCodeGenerator<T> : IIncrementalGenerator
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		var info = context.SyntaxProvider.ForAttributeWithMetadataType(AttributeType, TransformMemberInternal);
-		var collected = info.Collect().Select(GroupGenerators);
-		context.RegisterSourceOutput(collected, GenerateOutput);
+		var values = Register(context.SyntaxProvider);
+		context.RegisterSourceOutput(values, GenerateOutput);
 	}
 }

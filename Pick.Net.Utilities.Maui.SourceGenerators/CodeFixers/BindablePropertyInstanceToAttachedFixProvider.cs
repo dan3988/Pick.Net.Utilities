@@ -13,9 +13,9 @@ public sealed class BindablePropertyInstanceToAttachedFixProvider() : BaseCodeFi
 	private static SyntaxTokenList AlterModifiers(SyntaxTokenList modifiers)
 	{
 		if (!modifiers.Contains(SyntaxKind.StaticKeyword))
-			modifiers = modifiers.Add(Modifiers.Static);
+			modifiers = modifiers.Add(Keywords.Static);
 
-		return modifiers.Add(Modifiers.Partial);
+		return modifiers.Add(Keywords.Partial);
 	}
 
 	protected override bool Fix(DocumentEditor editor, PropertyDeclarationSyntax node, Diagnostic diagnostic, CancellationToken token)

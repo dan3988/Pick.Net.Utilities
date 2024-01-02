@@ -6,22 +6,22 @@ using static SyntaxFactory;
 
 internal static class SyntaxHelper
 {
-	public static readonly PredefinedTypeSyntax TypeVoid = PredefinedType(Token(SyntaxKind.VoidKeyword));
-	public static readonly PredefinedTypeSyntax TypeObject = PredefinedType(Token(SyntaxKind.ObjectKeyword));
-	public static readonly PredefinedTypeSyntax TypeString = PredefinedType(Token(SyntaxKind.StringKeyword));
-	public static readonly PredefinedTypeSyntax TypeBoolean = PredefinedType(Token(SyntaxKind.BoolKeyword));
-	public static readonly PredefinedTypeSyntax TypeChar = PredefinedType(Token(SyntaxKind.CharKeyword));
-	public static readonly PredefinedTypeSyntax TypeByte = PredefinedType(Token(SyntaxKind.ByteKeyword));
-	public static readonly PredefinedTypeSyntax TypeSByte = PredefinedType(Token(SyntaxKind.SByteKeyword));
-	public static readonly PredefinedTypeSyntax TypeInt16 = PredefinedType(Token(SyntaxKind.ShortKeyword));
-	public static readonly PredefinedTypeSyntax TypeUInt16 = PredefinedType(Token(SyntaxKind.UShortKeyword));
-	public static readonly PredefinedTypeSyntax TypeInt32 = PredefinedType(Token(SyntaxKind.IntKeyword));
-	public static readonly PredefinedTypeSyntax TypeUInt32 = PredefinedType(Token(SyntaxKind.UIntKeyword));
-	public static readonly PredefinedTypeSyntax TypeInt64 = PredefinedType(Token(SyntaxKind.LongKeyword));
-	public static readonly PredefinedTypeSyntax TypeUInt64 = PredefinedType(Token(SyntaxKind.ULongKeyword));
-	public static readonly PredefinedTypeSyntax TypeSingle = PredefinedType(Token(SyntaxKind.FloatKeyword));
-	public static readonly PredefinedTypeSyntax TypeDouble = PredefinedType(Token(SyntaxKind.DoubleKeyword));
-	public static readonly PredefinedTypeSyntax TypeDecimal = PredefinedType(Token(SyntaxKind.DecimalKeyword));
+	public static readonly PredefinedTypeSyntax TypeVoid = PredefinedType(Keywords.Void);
+	public static readonly PredefinedTypeSyntax TypeObject = PredefinedType(Keywords.Object);
+	public static readonly PredefinedTypeSyntax TypeString = PredefinedType(Keywords.String);
+	public static readonly PredefinedTypeSyntax TypeBoolean = PredefinedType(Keywords.Bool);
+	public static readonly PredefinedTypeSyntax TypeChar = PredefinedType(Keywords.Char);
+	public static readonly PredefinedTypeSyntax TypeByte = PredefinedType(Keywords.Byte);
+	public static readonly PredefinedTypeSyntax TypeSByte = PredefinedType(Keywords.SByte);
+	public static readonly PredefinedTypeSyntax TypeInt16 = PredefinedType(Keywords.Short);
+	public static readonly PredefinedTypeSyntax TypeUInt16 = PredefinedType(Keywords.UShort);
+	public static readonly PredefinedTypeSyntax TypeInt32 = PredefinedType(Keywords.Int);
+	public static readonly PredefinedTypeSyntax TypeUInt32 = PredefinedType(Keywords.UInt);
+	public static readonly PredefinedTypeSyntax TypeInt64 = PredefinedType(Keywords.Long);
+	public static readonly PredefinedTypeSyntax TypeUInt64 = PredefinedType(Keywords.ULong);
+	public static readonly PredefinedTypeSyntax TypeSingle = PredefinedType(Keywords.Float);
+	public static readonly PredefinedTypeSyntax TypeDouble = PredefinedType(Keywords.Double);
+	public static readonly PredefinedTypeSyntax TypeDecimal = PredefinedType(Keywords.Decimal);
 
 	public static readonly LiteralExpressionSyntax Null = LiteralExpression(SyntaxKind.NullLiteralExpression);
 	public static readonly LiteralExpressionSyntax Default = LiteralExpression(SyntaxKind.DefaultLiteralExpression);
@@ -30,6 +30,9 @@ internal static class SyntaxHelper
 	public static readonly SyntaxTriviaList EmptyTriviaList = TriviaList();
 
 	public static readonly SyntaxToken Semicolon = Token(SyntaxKind.SemicolonToken);
+
+	public static readonly SyntaxToken OpenBrace = Token(SyntaxKind.OpenBraceToken);
+	public static readonly SyntaxToken CloseBrace = Token(SyntaxKind.CloseBraceToken);
 
 	private static readonly SyntaxToken nameof = Identifier(EmptyTriviaList, SyntaxKind.NameOfKeyword, "nameof", "nameof", EmptyTriviaList);
 	private static readonly IdentifierNameSyntax nameofSyntax = IdentifierName(nameof);

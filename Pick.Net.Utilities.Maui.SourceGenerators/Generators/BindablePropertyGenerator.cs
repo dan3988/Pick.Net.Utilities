@@ -309,7 +309,7 @@ public class BindablePropertyGenerator : BaseGroupedCodeGenerator<BindableProper
 		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
 		if (setMethod == null)
 		{
-			var modifiers = symbol.DeclaredAccessibility.ToSyntaxList().Add(Modifiers.Static);
+			var modifiers = symbol.DeclaredAccessibility.ToSyntaxList().Add(Keywords.Static);
 			generatedSetterSignature = new("Set" + name, modifiers, symbol.Parameters[0].Name, "value");
 		}
 		else

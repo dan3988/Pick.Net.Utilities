@@ -56,8 +56,10 @@ public class HandlerGeneratorTests : CodeGeneratorTests<HandlerMapperGenerator>
 			}
 			""";
 
-		await CreateTest(code)
-			.ExpectOutput("Test.Namespace.CustomViewHandler", output)
-			.RunAsync();
+		var test = CreateTest(code);
+		test.ReferenceAssemblies = TestHelper.Net80Android;
+		test.ExpectOutput("Test.Namespace.CustomViewHandler", output);
+
+		await test.RunAsync();
 	}
 }

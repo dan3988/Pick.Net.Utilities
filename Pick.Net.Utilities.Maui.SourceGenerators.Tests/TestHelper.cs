@@ -23,6 +23,14 @@ internal static class TestHelper
 
 	public static readonly ReferenceAssemblies Net70 = new("net7.0", new PackageIdentity("Microsoft.NETCore.App.Ref", "7.0.0"), Path.Combine("ref", "net7.0"));
 	public static readonly ReferenceAssemblies Net80 = new("net8.0", new PackageIdentity("Microsoft.NETCore.App.Ref", "8.0.0"), Path.Combine("ref", "net8.0"));
+	//public static readonly ReferenceAssemblies Net80Android = new ReferenceAssemblies("net8.0-android", new PackageIdentity("Microsoft.Android.Ref.34", "34.0.43"), Path.Combine("ref", "net8.0")).WithAssemblies;
+	public static readonly ReferenceAssemblies Net80Android = Net80.AddPackages(
+	[
+		new PackageIdentity("Microsoft.Maui.Core", "8.0.3"),
+		new PackageIdentity("Microsoft.Android.Ref.34", "34.0.43")
+	]);
+
+	public static readonly ReferenceAssemblies Net80iOS = Net80.AddPackages([new PackageIdentity("Microsoft.iOS.Ref", "17.0.8478")]);
 
 	public static void SetUpReferences<TAnalyzer>(this AnalyzerTest<TAnalyzer> test, bool addAnalyzer = true)
 		where TAnalyzer : IVerifier, new()

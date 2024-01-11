@@ -15,7 +15,7 @@ internal sealed record MethodSignature(string MethodName, SyntaxTokenList Modifi
 	}
 
 	public MethodDeclarationSyntax BuildMethod(TypeSyntax returnType, IReadOnlyList<TypeSyntax> parameterTypes)
-		=> BuildMethod(returnType, parameterTypes, Modifiers.Add(SourceGenerators.Modifiers.Partial), null, null, SyntaxHelper.Semicolon);
+		=> BuildMethod(returnType, parameterTypes, Modifiers.Add(Keywords.Partial), null, null, SyntaxHelper.Semicolon);
 
 	public MethodDeclarationSyntax BuildMethod(TypeSyntax returnType, IReadOnlyList<TypeSyntax> parameterTypes, ArrowExpressionClauseSyntax expressionBody)
 		=> BuildMethod(returnType, parameterTypes, Modifiers, null, expressionBody, SyntaxHelper.Semicolon);

@@ -137,28 +137,28 @@ internal static class SymbolHelper
 	{
 		var list = symbol.DeclaredAccessibility.ToSyntaxList();
 		if (symbol.IsStatic)
-			list = list.Add(Modifiers.Static);
+			list = list.Add(Keywords.Static);
 
 		if (symbol.IsVirtual)
-			list = list.Add(Modifiers.Virtual);
+			list = list.Add(Keywords.Virtual);
 
 		if (symbol.IsAbstract)
-			list = list.Add(Modifiers.Abstract);
+			list = list.Add(Keywords.Abstract);
 
 		if (symbol.IsSealed)
-			list = list.Add(Modifiers.Sealed);
+			list = list.Add(Keywords.Sealed);
 
 		if (symbol.IsOverride)
-			list = list.Add(Modifiers.Override);
+			list = list.Add(Keywords.Override);
 
 		if (symbol.IsReadOnly)
-			list = list.Add(Modifiers.ReadOnly);
+			list = list.Add(Keywords.ReadOnly);
 
 		if (symbol.IsAsync)
-			list = list.Add(Modifiers.Async);
+			list = list.Add(Keywords.Async);
 
 		if (symbol.IsPartialDefinition)
-			list = list.Add(Modifiers.Partial);
+			list = list.Add(Keywords.Partial);
 
 		return list;
 	}

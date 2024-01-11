@@ -317,7 +317,7 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var setMethod = symbol.ContainingType.GetAttachedSetMethod(propertyType, attachedType, name);
 		if (setMethod == null)
 		{
-			var modifiers = symbol.DeclaredAccessibility.ToSyntaxList().Add(Modifiers.Static);
+			var modifiers = symbol.DeclaredAccessibility.ToSyntaxList().Add(Keywords.Static);
 			generatedSetterSignature = new("Set" + name, modifiers, symbol.Parameters[0].Name, "value");
 		}
 		else
@@ -346,10 +346,10 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 					continue;
 
 				var method = (IMethodSymbol)match;
-				if (method.Parameters is [IParameterSymbol x, IParameterSymbol y, IParameterSymbol z] 
-					&& attachedType.Equals(x.Type, false)
-					&& propertyType.Equals(y.Type, false)
-					&& propertyType.Equals(z.Type, false))
+				if (method.Parameters is [IParameterSymbol x, IParameterSymbol y, IParameterSymbol z]
+				    && attachedType.Equals(x.Type, false)
+				    && propertyType.Equals(y.Type, false)
+				    && propertyType.Equals(z.Type, false))
 					return new(method);
 			}
 

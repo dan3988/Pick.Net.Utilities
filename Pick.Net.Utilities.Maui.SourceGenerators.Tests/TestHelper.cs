@@ -30,7 +30,11 @@ internal static class TestHelper
 		new PackageIdentity("Microsoft.Android.Ref.34", "34.0.43")
 	]);
 
-	public static readonly ReferenceAssemblies Net80iOS = Net80.AddPackages([new PackageIdentity("Microsoft.iOS.Ref", "17.0.8478")]);
+	public static readonly ReferenceAssemblies Net80iOS = Net80.AddPackages(
+	[
+		new PackageIdentity("Microsoft.Maui.Core", "8.0.3"),
+		new PackageIdentity("Microsoft.iOS.Ref", "17.0.8478")
+	]);
 
 	public static void SetUpReferences<TAnalyzer>(this AnalyzerTest<TAnalyzer> test, bool addAnalyzer = true)
 		where TAnalyzer : IVerifier, new()

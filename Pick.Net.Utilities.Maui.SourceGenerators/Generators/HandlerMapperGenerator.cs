@@ -70,7 +70,6 @@ public sealed class HandlerMapperGenerator : BaseCodeGenerator<HandlerMapperGene
 	private Result<HandlerMapperGeneratorResult> TransformType(GeneratorAttributeSyntaxContext context, CancellationToken token)
 	{
 		var type = (INamedTypeSymbol)context.TargetSymbol;
-		var attribute = context.Attributes[0];
 		if (context.Attributes is not [{ ConstructorArguments: [{ Value: INamedTypeSymbol viewType }] }])
 			return default;
 

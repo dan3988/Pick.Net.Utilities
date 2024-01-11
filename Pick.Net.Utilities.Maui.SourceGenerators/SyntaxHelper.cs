@@ -60,6 +60,11 @@ internal static class SyntaxHelper
 	public static T AddFormatting<T>(this T syntax) where T : CSharpSyntaxNode
 	{
 		syntax = syntax.NormalizeWhitespace("\t");
+		return syntax.AddLineBreaks();
+	}
+
+	public static T AddLineBreaks<T>(this T syntax) where T : CSharpSyntaxNode
+	{
 		var visitor = new WhitespaceSyntaxReWriter();
 		return (T)syntax.Accept(visitor)!;
 	}

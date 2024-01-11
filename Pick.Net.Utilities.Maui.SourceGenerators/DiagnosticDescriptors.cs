@@ -67,6 +67,14 @@ internal static class DiagnosticDescriptors
 		DiagnosticSeverity.Hidden,
 		true);
 
+	public static readonly DiagnosticDescriptor HandlerAddPartialPlatformClass = new(
+		Prefix + "1004",
+		"Add a partial handler class definition for a platform",
+		"Add a partial handler class definition for {0}",
+		Category,
+		DiagnosticSeverity.Hidden,
+		true);
+
 	public static readonly DiagnosticDescriptor BindablePropertyDuplicateName = new(
 		Prefix + "0001",
 		"Duplicate [BindableProperty] property name",

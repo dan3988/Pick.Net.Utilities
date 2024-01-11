@@ -21,4 +21,7 @@ public abstract class CodeFixTests<TAnalyzer, TCodeFix>
 
 		return test;
 	}
+
+	protected static CSharpCodeFixTest<TAnalyzer, TCodeFix, MSTestVerifier> CreateTest(string code)
+		=> CreateTest(code, code);
 }

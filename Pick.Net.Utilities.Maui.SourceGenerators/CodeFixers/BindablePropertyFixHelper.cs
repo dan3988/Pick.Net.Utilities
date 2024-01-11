@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-using Microsoft.CodeAnalysis.Editing;
+﻿using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Simplification;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
@@ -9,8 +7,6 @@ using static SyntaxFactory;
 
 internal static class BindablePropertyFixHelper
 {
-	private static readonly SymbolDisplayFormat FullNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
-
 	public static TypeSyntax GetTypeIdentifier(this SemanticModel? model, SyntaxGenerator generator, string fullName)
 	{
 		if (model == null)
@@ -42,17 +38,17 @@ internal static class BindablePropertyFixHelper
 	{
 		index = -1;
 
-		if (model == null)
+		var attributeType = model?.Compilation.GetTypeByMetadataName("Pick.Net.Utilities.Maui.BindablePropertyAttribute");
+		if (attributeType == null)
 			return null;
 
 		foreach (var attributeList in attributes)
 		{
-			for (int i = 0; i < attributeList.Attributes.Count; i++)
+			for (var i = 0; i < attributeList.Attributes.Count; i++)
 			{
 				var attribute = attributeList.Attributes[i];
-				var type = model.GetTypeInfo(attribute, token);
-				var name = type.Type?.ToDisplayString(FullNameFormat);
-				if (name == "Pick.Net.Utilities.Maui.BindablePropertyAttribute")
+				var typeInfo = model.GetTypeInfo(attribute, token);
+				if (SymbolEqualityComparer.Default.Equals(attributeType, typeInfo.Type))
 				{
 					index = i;
 					return attributeList;

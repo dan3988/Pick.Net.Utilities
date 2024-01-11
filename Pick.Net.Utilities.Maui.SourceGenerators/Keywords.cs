@@ -21,6 +21,14 @@ internal static class Keywords
 	public static readonly SyntaxToken Double = Token(SyntaxKind.DoubleKeyword);
 	public static readonly SyntaxToken Decimal = Token(SyntaxKind.DecimalKeyword);
 
+	public static readonly SyntaxToken Global = Token(SyntaxKind.GlobalKeyword);
+
+	public static readonly SyntaxToken Class = Token(SyntaxKind.ClassKeyword);
+	public static readonly SyntaxToken Struct = Token(SyntaxKind.StructKeyword);
+	public static readonly SyntaxToken Enum = Token(SyntaxKind.EnumKeyword);
+	public static readonly SyntaxToken Record = Token(SyntaxKind.RecordKeyword);
+	public static readonly SyntaxToken Interface = Token(SyntaxKind.InterfaceKeyword);
+
 	public static readonly SyntaxToken Public = Token(SyntaxKind.PublicKeyword);
 	public static readonly SyntaxToken Internal = Token(SyntaxKind.InternalKeyword);
 	public static readonly SyntaxToken Protected = Token(SyntaxKind.ProtectedKeyword);

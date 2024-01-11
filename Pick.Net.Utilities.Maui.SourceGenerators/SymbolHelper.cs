@@ -6,6 +6,7 @@ using static SyntaxFactory;
 
 internal static class SymbolHelper
 {
+	private static readonly SymbolDisplayFormat FullyQualifiedNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted);
 	private static readonly SymbolDisplayFormat FullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 	private static readonly SymbolDisplayFormat FullNamespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
@@ -93,6 +94,9 @@ internal static class SymbolHelper
 
 		return type.SpecialType != SpecialType.System_DateTime && specialTypesMap.ContainsKey(type.SpecialType);
 	}
+
+	public static string GetFullyQualifiedName(this ITypeSymbol symbol)
+		=> symbol.ToDisplayString(FullyQualifiedNameFormat);
 
 	public static string GetFullTypeName(this ITypeSymbol symbol, bool incluceNullableAnnotation)
 		=> symbol.ToDisplayString(incluceNullableAnnotation ? FullTypeNameFormat : SymbolDisplayFormat.FullyQualifiedFormat);

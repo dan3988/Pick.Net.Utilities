@@ -32,15 +32,11 @@ public abstract class BaseCodeFixProvider : CodeFixProvider
 		{
 			var span = diagnostic.Location.SourceSpan;
 			var node = root.FindNode(span);
-			var action = CreateAction(document, root, node, diagnostic);
-			if (action != null)
-			{
-				context.RegisterCodeFix(action, diagnostic);
-			}
+			await RegisterActionsAsync(context, root, node, diagnostic);
 		}
 	}
 
-	protected abstract CodeAction? CreateAction(Document document, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic);
+	protected abstract Task RegisterActionsAsync(CodeFixContext context, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic);
 }
 
 public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : SyntaxNode
@@ -61,15 +57,22 @@ public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : Syn
 		Title = title;
 	}
 
-	protected sealed override CodeAction? CreateAction(Document document, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
+	protected sealed override Task RegisterActionsAsync(CodeFixContext context, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
 	{
-		return node is T t && CanFix(t) ? CodeAction.Create(Title, EditDocument, EquivelanceKey, Priority) : null;
-
-		async Task<Document> EditDocument(CancellationToken token)
+		if (node is T t && CanFix(t))
 		{
-			var editor = await DocumentEditor.CreateAsync(document, token);
-			return Fix(editor, t, diagnostic, token) ? editor.GetChangedDocument() : document;
+			var document = context.Document;
+			var action = CodeAction.Create(Title, EditDocument, EquivelanceKey, Priority);
+			context.RegisterCodeFix(action, diagnostic);
+
+			async Task<Document> EditDocument(CancellationToken token)
+			{
+				var editor = await DocumentEditor.CreateAsync(document, token);
+				return Fix(editor, t, diagnostic, token) ? editor.GetChangedDocument() : document;
+			}
 		}
+
+		return Task.CompletedTask;
 	}
 
 	protected virtual bool CanFix(T node) => true;

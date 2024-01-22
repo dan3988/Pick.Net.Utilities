@@ -105,4 +105,21 @@ public static class ReflectionHelper
 		while ((type = type.BaseType!) != until)
 			yield return type;
 	}
+
+	public static IEnumerable<TMember> WhereDefined<TMember>(this IEnumerable<TMember> members, Type attributeType, bool inherit = false) where TMember : MemberInfo
+		=> members.Where(v => v.IsDefined(attributeType, inherit));
+
+	public static IEnumerable<(TMember Member, TAttribute Attribute)> WithAttribute<TMember, TAttribute>(this IEnumerable<TMember> members, bool inherit = true)
+		where TMember : MemberInfo
+		where TAttribute : Attribute
+	{
+		return from member in members let attr = (TAttribute?)Attribute.GetCustomAttribute(member, typeof(TAttribute), inherit) where attr != null select (member, attr);
+	}
+
+	public static IEnumerable<(TMember Member, TAttribute[] Attributes)> WithAttributes<TMember, TAttribute>(this IEnumerable<TMember> members, bool inherit = true)
+		where TMember : MemberInfo
+		where TAttribute : Attribute
+	{
+		return from member in members let attr = (TAttribute[])Attribute.GetCustomAttributes(member, typeof(TAttribute), inherit) select (member, attr);
+	}
 }

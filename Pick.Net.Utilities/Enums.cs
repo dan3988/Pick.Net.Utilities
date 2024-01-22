@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace Pick.Net.Utilities;
 
-public static class Enums
+public static unsafe class Enums
 {
 	/// <summary>
 	/// Gets a cached <see cref="ImmutableArray{T}"/> containing all the constant values defined in <typeparamref name="T"/>.
@@ -60,6 +60,48 @@ public static class Enums
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static T GetMaxValue<T>() where T : unmanaged, Enum
 		=> Enums<T>.MaxValue;
+
+	public static T Add<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.Add(&x, &y, &result);
+		return result;
+	}
+
+	public static T Subtract<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.Subtract(&x, &y, &result);
+		return result;
+	}
+
+	public static T Multiply<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.Multiply(&x, &y, &result);
+		return result;
+	}
+
+	public static T Divide<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.Divide(&x, &y, &result);
+		return result;
+	}
+
+	public static T BitwiseAnd<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.BitwiseAnd(&x, &y, &result);
+		return result;
+	}
+
+	public static T BitwiseOr<T>(this T x, T y) where T : unmanaged, Enum
+	{
+		T result;
+		Enums<T>.Helper.BitwiseOr(&x, &y, &result);
+		return result;
+	}
 }
 
 /// <summary>

@@ -26,7 +26,11 @@ public class EnumsTests
 	{
 		Min = ~((long)uint.MaxValue),
 		IntMinValue = int.MinValue,
+		Negative2 = -2,
+		Negative1 = -1,
 		Zero = 0,
+		Positive1 = 1,
+		Positive2 = 2,
 		IntMaxValue = int.MaxValue,
 		Max = uint.MaxValue,
 	}
@@ -77,5 +81,16 @@ public class EnumsTests
 		Test(NegativeEnum.Negative2, NegativeEnum.Positive2);
 		Test(UIntEnum.Zero, UIntEnum.Max);
 		Test(LongEnum.Min, LongEnum.Max);
+	}
+
+	[TestMethod]
+	public void TestArithmetic()
+	{
+		Assert.AreEqual(ConsoleColor.Blue, ConsoleColor.DarkMagenta.Add(ConsoleColor.DarkRed));
+		Assert.AreEqual(LongEnum.Negative1, LongEnum.IntMaxValue.Add(LongEnum.IntMinValue));
+		Assert.AreEqual(LongEnum.IntMaxValue + 1, LongEnum.Max.Subtract(LongEnum.IntMaxValue));
+		Assert.AreEqual(LongEnum.Max - 1, LongEnum.IntMaxValue.Multiply(LongEnum.Positive2));
+		Assert.AreEqual(LongEnum.Negative1, LongEnum.IntMinValue.Divide(LongEnum.IntMaxValue));
+		Assert.AreEqual(LongEnum.IntMinValue - 1, LongEnum.Min.BitwiseOr(LongEnum.IntMaxValue));
 	}
 }

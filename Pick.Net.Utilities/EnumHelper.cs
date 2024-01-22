@@ -32,12 +32,12 @@ internal abstract unsafe class EnumHelper
 
 	public static EnumHelper ForTypeCode(TypeCode typeCode)
 	{
-		if (unchecked((uint)typeCode < (uint)TypeCodeLookup.Length))
-		{
-			var value = TypeCodeLookup[(int)typeCode];
-			if (value != null)
-				return value;
-		}
+		if (!unchecked((uint)typeCode < (uint)TypeCodeLookup.Length))
+			throw new ArgumentException("Invalid enum underlying type: " + typeCode, nameof(typeCode));
+
+		var value = TypeCodeLookup[(int)typeCode];
+		if (value != null)
+			return value;
 
 		throw new ArgumentException("Invalid enum underlying type: " + typeCode, nameof(typeCode));
 	}
@@ -47,10 +47,22 @@ internal abstract unsafe class EnumHelper
 	public abstract bool Equals(void* x, void* y);
 
 	public abstract int Compare(void* x, void* y);
+
+	public abstract void Add(void* x, void* y, void* result);
+
+	public abstract void Subtract(void* x, void* y, void* result);
+
+	public abstract void Multiply(void* x, void* y, void* result);
+
+	public abstract void Divide(void* x, void* y, void* result);
+
+	public abstract void BitwiseAnd(void* x, void* y, void* result);
+
+	public abstract void BitwiseOr(void* x, void* y, void* result);
 }
 
 internal sealed unsafe class EnumHelper<T> : EnumHelper
-	where T : unmanaged, IBitwiseOperators<T, T, T>, IEqualityOperators<T, T, bool>, IComparable<T>
+	where T : unmanaged, IBinaryInteger<T>
 {
 	public override bool HasFlag(void* value, void* flag)
 		=> (*(T*)value & *(T*)flag) == *(T*)flag;
@@ -60,4 +72,22 @@ internal sealed unsafe class EnumHelper<T> : EnumHelper
 
 	public override int Compare(void* x, void* y)
 		=> (*(T*)x).CompareTo(*(T*)y);
+
+	public override void Add(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x + *(T*)y;
+
+	public override void Subtract(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x - *(T*)y;
+
+	public override void Multiply(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x * *(T*)y;
+
+	public override void Divide(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x / *(T*)y;
+
+	public override void BitwiseAnd(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x & *(T*)y;
+
+	public override void BitwiseOr(void* x, void* y, void* result)
+		=> *(T*)result = *(T*)x | *(T*)y;
 }

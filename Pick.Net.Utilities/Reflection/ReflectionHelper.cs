@@ -1,4 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.Reflection;
+
+using Pick.Net.Utilities.Collections;
 
 namespace Pick.Net.Utilities.Reflection;
 
@@ -23,6 +28,66 @@ public static class ReflectionHelper
 	public const BindingFlags DeclaredNonPublic = NonPublic | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicInstance = NonPublicInstance | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicStatic = NonPublicStatic | BindingFlags.DeclaredOnly;
+
+	private static readonly ImmutableHashSet<Type> KnownEnumerableInterfaces = ImmutableHashSet.Create([
+		typeof(IEnumerable<>),
+		typeof(IReadOnlyCollection<>),
+		typeof(IReadOnlyList<>),
+		typeof(IReadOnlySet<>),
+		typeof(ICollection<>),
+		typeof(IList<>),
+		typeof(ISet<>),
+		typeof(IImmutableList<>),
+		typeof(IImmutableSet<>),
+		typeof(IImmutableQueue<>),
+		typeof(IImmutableStack<>),
+	]);
+
+	private static readonly ImmutableHashSet<Type> KnownEnumerableTypes = ImmutableHashSet.Create([
+		.. KnownEnumerableInterfaces,
+		typeof(ArraySegment<>),
+		typeof(List<>),
+		typeof(Stack<>),
+		typeof(Queue<>),
+		typeof(HashSet<>),
+		typeof(ReadOnlyCollection<>),
+		typeof(ReadOnlyObservableCollection<>),
+		typeof(ObservableCollection<>),
+		typeof(ObservableList<>),
+		typeof(ImmutableArray<>),
+		typeof(ImmutableHashSet<>),
+		typeof(ImmutableQueue<>),
+		typeof(ImmutableStack<>),
+		typeof(ImmutableSortedSet<>)
+	]);
+
+	private static readonly ConcurrentDictionary<Type, Type?> EnumerableTypeCache = [];
+
+	public static Type? TryGetCollectionType(this Type type)
+	{
+		if (type.IsArray)
+			return type.GetElementType()!;
+
+		if (type == typeof(string))
+			return typeof(char);
+
+		return EnumerableTypeCache.GetOrAdd(type, GetCollectionTypeImpl);
+	}
+
+	public static Type? GetCollectionType(this Type type)
+		=> TryGetCollectionType(type) ?? throw new ArgumentException($"Type '{type}' does not implement IEnumerable<T>.", nameof(type));
+
+	private static Type? GetCollectionTypeImpl(Type arg)
+	{
+		if (KnownEnumerableTypes.Contains(arg))
+			return arg.GetGenericArguments()[0];
+
+		foreach (var i in arg.GetInterfaces())
+			if (i.IsGenericType && KnownEnumerableInterfaces.Contains(i.GetGenericTypeDefinition()))
+				return i.GetGenericArguments()[0];
+
+		return null;
+	}
 
 	public static IEnumerable<Type> GetBaseTypes(this Type type, bool includeSelf)
 		=> GetBaseTypes(type, null, includeSelf);

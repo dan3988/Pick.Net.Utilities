@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace Pick.Net.Utilities.Reflection;
 
@@ -24,6 +25,13 @@ public static class ReflectionHelper
 	public const BindingFlags DeclaredNonPublicInstance = NonPublicInstance | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicStatic = NonPublicStatic | BindingFlags.DeclaredOnly;
 
+	private static readonly ConcurrentDictionary<Type, TypeMembers> Members = new()
+	{
+		[typeof(object)] = TypeMembers.Object,
+		[typeof(ValueType)] = TypeMembers.ValueType,
+		[typeof(Enum)] = TypeMembers.Enum
+	};
+
 	public static IEnumerable<Type> GetBaseTypes(this Type type, bool includeSelf)
 		=> GetBaseTypes(type, null, includeSelf);
 
@@ -39,5 +47,17 @@ public static class ReflectionHelper
 
 		while ((type = type.BaseType!) != until)
 			yield return type;
+	}
+
+	public static TypeMembers<T> GetMembers<T>()
+		=> (TypeMembers<T>)Members.GetOrAdd(typeof(T), CreateMembers);
+
+	public static TypeMembers GetMembers(Type type)
+		=> Members.GetOrAdd(type, CreateMembers);
+
+	private static TypeMembers CreateMembers(Type arg)
+	{
+		var type = typeof(TypeMembers<>).MakeGenericType(arg);
+		return (TypeMembers)Activator.CreateInstance(type, true)!;
 	}
 }

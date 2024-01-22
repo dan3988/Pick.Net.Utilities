@@ -19,9 +19,12 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <None Include=".\README.MD" Pack="true" PackagePath="\"/>
+    <None Include=".\README.MD" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Reflection\Members\Properties\Impl\" />
   </ItemGroup>
 </Project>

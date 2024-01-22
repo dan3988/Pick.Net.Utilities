@@ -37,6 +37,15 @@ public static class CollectionExtensions
 		value = entry.Value;
 	}
 
+	public static TValue? GetValueOrDefault<TValue>(this IReadOnlyStringDictionary<TValue> dictionary, ReadOnlySpan<char> key)
+		=> GetValueOrDefault(dictionary, key, default!);
+
+	public static TValue GetValueOrDefault<TValue>(this IReadOnlyStringDictionary<TValue> dictionary, ReadOnlySpan<char> key, TValue defaultValue)
+	{
+		ArgumentNullException.ThrowIfNull(dictionary);
+		return dictionary.TryGetValue(key, out var value) ? value : defaultValue;
+	}
+
 	public static StringDictionary<TIn> ToStringDictionary<TIn>(this IEnumerable<TIn> source, Func<TIn, string> keySelector, StringComparison comparison = StringComparison.Ordinal)
 	{
 		return new(source.Select(Selector), comparison);

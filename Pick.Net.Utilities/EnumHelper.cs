@@ -2,7 +2,7 @@
 
 namespace Pick.Net.Utilities;
 
-internal abstract class EnumHelper
+internal abstract unsafe class EnumHelper
 {
 	public static readonly EnumHelper<sbyte> SByte = new();
 	public static readonly EnumHelper<byte> Byte = new();
@@ -42,12 +42,22 @@ internal abstract class EnumHelper
 		throw new ArgumentException("Invalid enum underlying type: " + typeCode, nameof(typeCode));
 	}
 
-	public abstract unsafe bool HasFlag(void* value, void* flag);
+	public abstract bool HasFlag(void* value, void* flag);
+
+	public abstract bool Equals(void* x, void* y);
+
+	public abstract int Compare(void* x, void* y);
 }
 
-internal sealed class EnumHelper<T> : EnumHelper
-	where T : unmanaged, IBitwiseOperators<T, T, T>, IEqualityOperators<T, T, bool>
+internal sealed unsafe class EnumHelper<T> : EnumHelper
+	where T : unmanaged, IBitwiseOperators<T, T, T>, IEqualityOperators<T, T, bool>, IComparable<T>
 {
-	public override unsafe bool HasFlag(void* value, void* flag)
+	public override bool HasFlag(void* value, void* flag)
 		=> (*(T*)value & *(T*)flag) == *(T*)flag;
+
+	public override bool Equals(void* x, void* y)
+		=> *(T*)x == *(T*)y;
+
+	public override int Compare(void* x, void* y)
+		=> (*(T*)x).CompareTo(*(T*)y);
 }

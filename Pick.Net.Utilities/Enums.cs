@@ -47,6 +47,19 @@ public static class Enums
 	public static unsafe bool HasFlagsFast<T>(this T value, T flag) where T : unmanaged, Enum
 		=> Enums<T>.Helper.HasFlag(&value, &flag);
 
+	/// <summary>
+	/// Get the smallest value declared in the enum <typeparamref name="T"/>
+	/// </summary>
+	/// <typeparam name="T">The type of enum</typeparam>
+	public static T GetMinValue<T>() where T : unmanaged, Enum
+		=> Enums<T>.MinValue;
+
+	/// <summary>
+	/// Get the largest value declared in the enum <typeparamref name="T"/>
+	/// </summary>
+	/// <typeparam name="T">The type of enum</typeparam>
+	public static T GetMaxValue<T>() where T : unmanaged, Enum
+		=> Enums<T>.MaxValue;
 }
 
 /// <summary>
@@ -66,4 +79,25 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 	internal static readonly string[] Names = Enum.GetNames<T>();
 	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
 	internal static ReadOnlyCollection<string>? BoxedNames;
+
+	internal static readonly T MinValue;
+	internal static readonly T MaxValue;
+
+	static Enums()
+	{
+		var min = default(T);
+		var max = default(T);
+
+		foreach (var value in Values)
+		{
+			if (Helper.Compare(&value, &min) < 0)
+				min = value;
+
+			if (Helper.Compare(&value, &max) > 0)
+				max = value;
+		}
+
+		MinValue = min;
+		MaxValue = max;
+	}
 }

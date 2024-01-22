@@ -9,6 +9,7 @@
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
     <PackageTags>dotnet;Helpers;Utilities</PackageTags>
     <PackageReadmeFile>README.MD</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Various helper classes for C# development</Description>
     <Version Condition="'$(Version)' == ''">0.0.0</Version>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>

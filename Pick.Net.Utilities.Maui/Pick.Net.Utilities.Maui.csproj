@@ -8,6 +8,7 @@
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
     <PackageTags>dotnet;MAUI;Bindable Property;Helpers;Utilities</PackageTags>
     <PackageReadmeFile>README.MD</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Code generator for creating .NET MAUI BindableProperty declarations and various helper classes for developing MAUI applications</Description>
     <Version Condition="'$(Version)' == ''">0.0.0</Version>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>

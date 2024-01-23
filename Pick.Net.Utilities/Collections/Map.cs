@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Pick.Net.Utilities.Collections;
 
@@ -11,7 +10,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	where TKey : notnull
 	where TValue : class
 {
-	private const int lowBits = 0x7FFFFFFF;
+	private const int LowBits = 0x7FFFFFFF;
 
 	private readonly IEqualityComparer<TKey> _comparer;
 
@@ -25,14 +24,14 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	private int _version;
 	private Entry?[] _entries;
 
-	private KeyCollection? keys;
-	private ValueCollection? values;
+	private KeyCollection? _keys;
+	private ValueCollection? _values;
 
 	public int Count => _count;
 
-	public KeyCollection Keys => keys ??= new(this);
+	public KeyCollection Keys => _keys ??= new(this);
 
-	public ValueCollection Values => values ??= new(this);
+	public ValueCollection Values => _values ??= new(this);
 
 	public TValue? this[TKey key]
 	{
@@ -148,7 +147,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	private void ConstructorInsert(TKey key, TValue value)
 	{
-		var hash = lowBits & _comparer.GetHashCode(key);
+		var hash = LowBits & _comparer.GetHashCode(key);
 
 		ref var entry = ref _entries[hash % _entries.Length];
 
@@ -165,7 +164,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	private Entry? TryGetEntry(TKey key)
 	{
-		var hash = lowBits & _comparer.GetHashCode(key);
+		var hash = LowBits & _comparer.GetHashCode(key);
 
 		ref var entry = ref _entries[hash % _entries.Length];
 
@@ -182,7 +181,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	private bool Insert(TKey key, TValue value, DictionaryInsertBehaviour behaviour)
 	{
-		var hash = lowBits & _comparer.GetHashCode(key);
+		var hash = LowBits & _comparer.GetHashCode(key);
 		ref var entry = ref _entries[hash % _entries.Length];
 
 		while (entry != null)
@@ -285,9 +284,9 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		return Remove(key, false, ref value);
 	}
 
-	public bool Remove(TKey key, bool checkValue, [MaybeNullWhen(false)] ref TValue? value)
+	private bool Remove(TKey key, bool checkValue, [MaybeNullWhen(false)] ref TValue value)
 	{
-		var hash = lowBits & _comparer.GetHashCode(key);
+		var hash = LowBits & _comparer.GetHashCode(key);
 
 		ref var entry = ref _entries[hash % _entries.Length];
 

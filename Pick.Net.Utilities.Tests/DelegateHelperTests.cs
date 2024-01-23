@@ -21,7 +21,7 @@ public class DelegateHelperTests
 	}
 
 	[TestMethod]
-	public void TestGetRetrnType()
+	public void TestGetReturnType()
 	{
 		Assert.AreEqual(typeof(void), DelegateHelper.GetReturnType<Action>());
 		Assert.AreEqual(typeof(bool), DelegateHelper.GetReturnType<Func<bool>>());

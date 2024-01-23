@@ -94,7 +94,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	}
 
 	[TestMethod]
-	public async Task MethodMismatchedGetNullablility()
+	public async Task MethodMismatchedGetNullability()
 	{
 		const string code = """
 	using Pick.Net.Utilities.Maui;
@@ -118,7 +118,7 @@ public class BindableAttachedPropertyMethodAnalyzerTests : CodeAnalyzerTests<Bin
 	}
 
 	[TestMethod]
-	public async Task MethodMismatchedSetNullablility()
+	public async Task MethodMismatchedSetNullability()
 	{
 		const string code = """
 	using Pick.Net.Utilities.Maui;

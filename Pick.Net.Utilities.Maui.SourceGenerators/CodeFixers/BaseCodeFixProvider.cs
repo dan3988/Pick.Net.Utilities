@@ -8,9 +8,9 @@ public abstract class BaseCodeFixProvider : CodeFixProvider
 {
 	public sealed override ImmutableArray<string> FixableDiagnosticIds { get; }
 
-	protected BaseCodeFixProvider(DiagnosticDescriptor dignostic)
+	protected BaseCodeFixProvider(DiagnosticDescriptor diagnostic)
 	{
-		FixableDiagnosticIds = ImmutableArray.Create(dignostic.Id);
+		FixableDiagnosticIds = ImmutableArray.Create(diagnostic.Id);
 	}
 
 	protected BaseCodeFixProvider(DiagnosticDescriptor first, params DiagnosticDescriptor[] rest)
@@ -47,11 +47,11 @@ public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : Syn
 {
 	public string Title { get; }
 
-	public virtual string EquivelanceKey => GetType().FullName;
+	public virtual string EquivalenceKey => GetType().FullName;
 
 	public virtual CodeActionPriority Priority => CodeActionPriority.Default;
 
-	protected BaseCodeFixProvider(string title, DiagnosticDescriptor dignostic) : base(dignostic)
+	protected BaseCodeFixProvider(string title, DiagnosticDescriptor diagnostic) : base(diagnostic)
 	{
 		Title = title;
 	}
@@ -63,7 +63,7 @@ public abstract class BaseCodeFixProvider<T> : BaseCodeFixProvider where T : Syn
 
 	protected sealed override CodeAction? CreateAction(Document document, SyntaxNode root, SyntaxNode node, Diagnostic diagnostic)
 	{
-		return node is T t && CanFix(t) ? CodeAction.Create(Title, EditDocument, EquivelanceKey, Priority) : null;
+		return node is T t && CanFix(t) ? CodeAction.Create(Title, EditDocument, EquivalenceKey, Priority) : null;
 
 		async Task<Document> EditDocument(CancellationToken token)
 		{

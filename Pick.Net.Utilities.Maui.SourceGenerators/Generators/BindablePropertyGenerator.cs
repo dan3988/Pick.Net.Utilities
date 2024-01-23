@@ -64,7 +64,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 			return true;
 		}
-		else if (member.Kind == SymbolKind.Field)
+
+		if (member.Kind == SymbolKind.Field)
 		{
 			var field = (IFieldSymbol)member;
 			if (!ValidateFieldOrProperty(model, owner, field, field.Type, propertyType, out var requireConvert, out error))
@@ -83,7 +84,8 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 
 			return true;
 		}
-		else if (member.Kind == SymbolKind.Method)
+
+		if (member.Kind == SymbolKind.Method)
 		{
 			var method = (IMethodSymbol)member;
 			if (method.ReturnsVoid)
@@ -152,11 +154,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 				return true;
 			}
 		}
-		else
-		{
-			error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberNotFound.CreateDiagnostic(owner, name, parentType.Name);
-			return false;
-		}
+
+		error = DiagnosticDescriptors.BindablePropertyDefaultValueMemberNotFound.CreateDiagnostic(owner, name, parentType.Name);
+		return false;
 
 		static bool ValidateFieldOrProperty(SemanticModel model, ISymbol owner, ISymbol symbol, ITypeSymbol returnType, ITypeSymbol propertyType, out bool requireConvert, [MaybeNullWhen(true)] out Diagnostic error)
 		{
@@ -266,9 +266,9 @@ public class BindablePropertyGenerator : IIncrementalGenerator
 		var writeAccessibility = symbol.SetMethod?.DeclaredAccessibility ?? Accessibility.Private;
 
 		var changingSignature = GetChangeHandlerSignature(symbol.ContainingType, symbol.Type, $"On{symbol.Name}Changing");
-		var changedSignatre = GetChangeHandlerSignature(symbol.ContainingType, symbol.Type, $"On{symbol.Name}Changed");
+		var changedSignature = GetChangeHandlerSignature(symbol.ContainingType, symbol.Type, $"On{symbol.Name}Changed");
 
-		if (!ParseAttribute(model, symbol, attribute, symbol.Name, symbol.Type, symbol.Type, accessibility, writeAccessibility, changingSignature, changedSignatre, out var props, out var error))
+		if (!ParseAttribute(model, symbol, attribute, symbol.Name, symbol.Type, symbol.Type, accessibility, writeAccessibility, changingSignature, changedSignature, out var props, out var error))
 			return new(error);
 
 		var generator = new BindableInstancePropertySyntaxGenerator(in props);

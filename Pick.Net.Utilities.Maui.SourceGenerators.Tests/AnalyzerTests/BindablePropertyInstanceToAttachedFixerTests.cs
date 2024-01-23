@@ -4,7 +4,7 @@ using Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 
 [TestClass]
-public class BindablePropertyInstancetoAttachedFixerTests : CodeFixTests<BindableInstancePropertyAccessorAnalyzer, BindablePropertyInstanceToAttachedFixProvider>
+public class BindablePropertyInstanceToAttachedFixerTests : CodeFixTests<BindableInstancePropertyAccessorAnalyzer, BindablePropertyInstanceToAttachedFixProvider>
 {
 	[TestMethod]
 	public async Task TestSimpleProperty()

@@ -51,7 +51,7 @@ public class BindablePropertyAttributeAnalyzer : DiagnosticAnalyzer
 		if (dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultMode), out var value) && (value is not { Value: int intValue } || !Enum.IsDefined(typeof(BindingMode), intValue)))
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidDefaultMode, symbol, propName, value.Value);
 
-		if (!dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defalutValueProp) || defalutValueProp.IsNull)
+		if (!dictionary.TryGetValue(nameof(BindablePropertyAttribute.DefaultValue), out var defaultValueProp) || defaultValueProp.IsNull)
 		{
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyNoDefaultValue, symbol, propName);
 

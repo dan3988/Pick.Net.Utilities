@@ -3,7 +3,7 @@
 namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.GeneratorTests;
 
 [TestClass]
-public class ClassHeirachyTests : CodeGeneratorTests<BindablePropertyGenerator>
+public class ClassHierarchyTests : CodeGeneratorTests<BindablePropertyGenerator>
 {
 	[TestMethod]
 	public async Task TestRootLevelClass()

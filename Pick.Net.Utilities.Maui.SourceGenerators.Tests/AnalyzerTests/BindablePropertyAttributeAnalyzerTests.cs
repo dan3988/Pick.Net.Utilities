@@ -6,7 +6,7 @@ namespace Pick.Net.Utilities.Maui.SourceGenerators.Tests.AnalyzerTests;
 public class BindablePropertyAttributeAnalyzerTests : CodeAnalyzerTests<BindablePropertyAttributeAnalyzer>
 {
 	[TestMethod]
-	public async Task ReportUndefinedBindngMode()
+	public async Task ReportUndefinedBindingMode()
 	{
 		const string code = """
 	using Pick.Net.Utilities.Maui;

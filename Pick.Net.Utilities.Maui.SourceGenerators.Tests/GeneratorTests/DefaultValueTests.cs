@@ -507,7 +507,7 @@ public class DefaultValueTests : CodeGeneratorTests<BindablePropertyGenerator>
 	}
 
 	[TestMethod]
-	public async Task DefaultGeneratorImplititOperatorConversion()
+	public async Task DefaultGeneratorImplicitOperatorConversion()
 	{
 		const string code = """
 			using System;

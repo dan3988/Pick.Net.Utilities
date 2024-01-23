@@ -94,8 +94,8 @@ internal static class SymbolHelper
 		return type.SpecialType != SpecialType.System_DateTime && specialTypesMap.ContainsKey(type.SpecialType);
 	}
 
-	public static string GetFullTypeName(this ITypeSymbol symbol, bool incluceNullableAnnotation)
-		=> symbol.ToDisplayString(incluceNullableAnnotation ? FullTypeNameFormat : SymbolDisplayFormat.FullyQualifiedFormat);
+	public static string GetFullTypeName(this ITypeSymbol symbol, bool includeNullableAnnotation)
+		=> symbol.ToDisplayString(includeNullableAnnotation ? FullTypeNameFormat : SymbolDisplayFormat.FullyQualifiedFormat);
 
 	public static string GetFullName(this INamespaceSymbol symbol)
 		=> symbol.ToDisplayString(FullNamespaceFormat);
@@ -103,10 +103,10 @@ internal static class SymbolHelper
 	public static bool IsAutoProperty(this IPropertySymbol symbol)
 		=> symbol.ContainingType.GetMembers().Any(v => v is IFieldSymbol f && SymbolEqualityComparer.Default.Equals(symbol, f.AssociatedSymbol));
 
-	public static TypeSyntax ToIdentifier(this ITypeSymbol type, bool incluceNullableAnnotation = false)
-		=> ToIdentifier((INamedTypeSymbol)type, incluceNullableAnnotation);
+	public static TypeSyntax ToIdentifier(this ITypeSymbol type, bool includeNullableAnnotation = false)
+		=> ToIdentifier((INamedTypeSymbol)type, includeNullableAnnotation);
 
-	public static TypeSyntax ToIdentifier(this INamedTypeSymbol type, bool incluceNullableAnnotation = false)
+	public static TypeSyntax ToIdentifier(this INamedTypeSymbol type, bool includeNullableAnnotation = false)
 	{
 		static TypeSyntax ToIdentifierCore(ITypeSymbol type)
 		{
@@ -123,7 +123,7 @@ internal static class SymbolHelper
 		else
 		{
 			var identifier = ToIdentifierCore(type);
-			if (incluceNullableAnnotation && type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
+			if (includeNullableAnnotation && type is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
 				identifier = NullableType(identifier);
 
 			return identifier;

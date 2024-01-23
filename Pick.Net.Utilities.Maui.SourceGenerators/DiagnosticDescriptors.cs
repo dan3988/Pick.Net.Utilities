@@ -238,6 +238,15 @@ internal static class DiagnosticDescriptors
 		true,
 		$"A default value generator for an attached [BindableProperty] must be static and either parameterless or have a single parameter that is assignable to the attached type.");
 
+	public static readonly DiagnosticDescriptor BindablePropertyAttributeOnIndexer = new(
+		Prefix + "0020",
+		"[BindableProperty] cannot be used on indexer declarations",
+		"[BindableProperty] cannot be used on indexer declarations",
+		Category,
+		DiagnosticSeverity.Error,
+		true,
+		$"The [BindableProperty] attribute cannot be used on an indexer declaration.");
+
 	public static Location ToLocation(this SyntaxNode node)
 		=> Location.Create(node.SyntaxTree, node.Span);
 

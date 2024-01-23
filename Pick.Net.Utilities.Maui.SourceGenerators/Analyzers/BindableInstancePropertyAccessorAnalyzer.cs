@@ -9,7 +9,8 @@ public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 	[
 		DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed,
 		DiagnosticDescriptors.BindablePropertyInstanceToAttached,
-		DiagnosticDescriptors.BindablePropertyStaticProperty
+		DiagnosticDescriptors.BindablePropertyStaticProperty,
+		DiagnosticDescriptors.BindablePropertyAttributeOnIndexer
 	];
 
 	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(Diagnostics);
@@ -27,10 +28,19 @@ public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 		if (type == null)
 			return;
 
-		context.RegisterSyntaxNodeAction(c => AnalyzeSymbol(c, type), SyntaxKind.PropertyDeclaration);
+		context.RegisterSyntaxNodeAction(c => AnalyzeIndexer(c, type), SyntaxKind.IndexerDeclaration);
+		context.RegisterSyntaxNodeAction(c => AnalyzeProperty(c, type), SyntaxKind.PropertyDeclaration);
 	}
 
-	private static void AnalyzeSymbol(SyntaxNodeAnalysisContext context, INamedTypeSymbol attributeType)
+	private static void AnalyzeIndexer(SyntaxNodeAnalysisContext context, INamedTypeSymbol attributeType)
+	{
+		var symbol = context.SemanticModel.GetDeclaredSymbol((IndexerDeclarationSyntax)context.Node);
+		var attr = symbol?.GetAttributes().FirstOrDefault(v => SymbolEqualityComparer.Default.Equals(v.AttributeClass, attributeType));
+		if (attr != null)
+			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttributeOnIndexer, symbol!);
+	}
+
+	private static void AnalyzeProperty(SyntaxNodeAnalysisContext context, INamedTypeSymbol attributeType)
 	{
 		var node = (PropertyDeclarationSyntax)context.Node;
 		if (node.AccessorList == null)

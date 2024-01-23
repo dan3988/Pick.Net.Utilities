@@ -217,36 +217,8 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 		entry = new(key, hash, value);
 	Added:
-		PrintEntries("Added");
 		_version++;
 		return true;
-	}
-
-	private void PrintEntries(string type)
-	{
-		var sb = new StringBuilder().AppendLine(type);
-
-		for (var i = 0; i < _entries.Length; i++)
-		{
-			ref var entry = ref _entries[i];
-			sb.Append($"[{i}]: ");
-			if (entry == null)
-			{
-				sb.AppendLine("null");
-				continue;
-			}
-
-			sb.Append($"{entry.Key} {entry.HashCode}");
-			while (entry.Next != null)
-			{
-				entry = ref entry.Next;
-				sb.Append($" -> {entry.Key} {entry.HashCode}");
-			}
-
-			sb.AppendLine();
-		}
-
-		Debug.WriteLine(sb);
 	}
 
 	public IMapEntry<TKey, TValue>? GetEntry(TKey key)

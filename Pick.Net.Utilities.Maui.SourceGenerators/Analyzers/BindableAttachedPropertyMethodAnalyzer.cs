@@ -59,17 +59,11 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 
 		var node = (MethodDeclarationSyntax)context.Node;
 		var symbol = context.SemanticModel.GetDeclaredSymbol(node);
-		if (symbol == null)
-			return;
-
 		var attr = symbol?.GetAttributes().FirstOrDefault(v => SymbolEqualityComparer.Default.Equals(v.AttributeClass, attributeType));
 		if (attr == null)
 			return;
 
-		//prevent null warnings
-		symbol!.GetType();
-
-		if (!Identifiers.GetAttachedPropertyName(symbol.Name, out var propertyName))
+		if (!Identifiers.GetAttachedPropertyName(symbol!.Name, out var propertyName))
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInvalidAttachedMethodName, symbol, propertyName);
 
 		var validSignature = true;
@@ -106,7 +100,6 @@ public class BindableAttachedPropertyMethodAnalyzer : DiagnosticAnalyzer
 
 			if (!node.IsBindablePropertyUsed(propertyName, false) || (setterNode != null && !setterNode.IsBindablePropertyUsed(propertyName, symbol.DeclaredAccessibility != setterSymbol!.DeclaredAccessibility)))
 				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyAttachedPropertyNotUsed, symbol, propertyName);
-
 		}
 
 		if (setterSymbol != null && symbol.ReturnType.NullableAnnotation != setterSymbol.Parameters[1].Type.NullableAnnotation)

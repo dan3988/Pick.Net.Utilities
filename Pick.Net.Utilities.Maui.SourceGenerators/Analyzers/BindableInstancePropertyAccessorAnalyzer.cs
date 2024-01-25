@@ -51,17 +51,14 @@ public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 		if (attr == null)
 			return;
 
-		//prevent null warnings
-		symbol!.GetType();
-
-		context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached, symbol);
-		
-		if (symbol.IsStatic)
+		if (symbol!.IsStatic)
 		{
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyStaticProperty, symbol);
 			return;
 		}
 
+		context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstanceToAttached, symbol);
+		
 		if (symbol.IsAutoProperty())
 		{
 			context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed, symbol, symbol.Name);

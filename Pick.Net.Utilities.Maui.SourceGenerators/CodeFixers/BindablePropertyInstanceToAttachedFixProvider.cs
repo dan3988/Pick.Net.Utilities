@@ -23,7 +23,7 @@ public sealed class BindablePropertyInstanceToAttachedFixProvider() : BaseCodeFi
 		var propertyType = node.Type;
 		var propertyName = node.Identifier.Text;
 		var generator = editor.Generator;
-		var attachedType = BindablePropertyFixHelper.GetTypeIdentifier(editor.SemanticModel, generator, Identifiers.BindableObject);
+		var attachedType = BindablePropertyFixHelper.GetTypeIdentifier(editor.SemanticModel, generator, IdentifierNames.BindableObject);
 		var getMethod = ((MethodDeclarationSyntax)generator.MethodDeclaration("Get" + propertyName))
 			.WithSemicolonToken()
 			.WithBody(null)

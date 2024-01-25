@@ -12,11 +12,8 @@ internal static class Identifiers
 
 	public static readonly IdentifierNameSyntax GeneratedCodeAttribute = IdentifierName("global::System.CodeDom.Compiler.GeneratedCode");
 
-	public const string BindableObject = "Microsoft.Maui.Controls.BindableObject";
-
-	public static readonly IdentifierNameSyntax BindableProperty = IdentifierName("global::Microsoft.Maui.Controls.BindableProperty");
-	public static readonly IdentifierNameSyntax BindablePropertyKey = IdentifierName("global::Microsoft.Maui.Controls.BindablePropertyKey");
-
+	public static readonly IdentifierNameSyntax BindableProperty = IdentifierName("global::" + IdentifierNames.BindableProperty);
+	public static readonly IdentifierNameSyntax BindablePropertyKey = IdentifierName("global::" + IdentifierNames.BindablePropertyKey);
 	public static readonly IdentifierNameSyntax BindablePropertyKeyProperty = IdentifierName("BindableProperty");
 
 	public static string GetAttachedPropertyName(string name)

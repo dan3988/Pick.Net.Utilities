@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Numerics;
+using System.Reflection;
 
 namespace Pick.Net.Utilities.Tests;
 
@@ -92,5 +93,41 @@ public class EnumsTests
 		Assert.AreEqual(LongEnum.Max - 1, LongEnum.IntMaxValue.Multiply(LongEnum.Positive2));
 		Assert.AreEqual(LongEnum.Negative1, LongEnum.IntMinValue.Divide(LongEnum.IntMaxValue));
 		Assert.AreEqual(LongEnum.IntMinValue - 1, LongEnum.Min.BitwiseOr(LongEnum.IntMaxValue));
+	}
+
+	[TestMethod]
+	public void TestConversion()
+	{
+		static void TestEqual<TIn, TOut>(TIn input, TOut expected, Func<TIn, TOut> fn)
+			where TIn : unmanaged, Enum
+			where TOut : unmanaged, INumber<TOut>
+		{
+			Assert.AreEqual(expected, fn(input));
+		}
+
+		static void TestOverflows<TIn, TOut>(TIn input, Func<TIn, TOut> fn)
+			where TIn : unmanaged, Enum
+			where TOut : unmanaged, INumber<TOut>
+		{
+			Assert.ThrowsException<OverflowException>(() => fn(input));
+		}
+
+		TestEqual(LongEnum.Negative1, -1, Enums.ToInt64);
+		TestOverflows(LongEnum.Negative1, Enums.ToUInt64);
+		TestEqual(LongEnum.Negative1, -1, Enums.ToInt32);
+		TestOverflows(LongEnum.Negative1, Enums.ToUInt32);
+		TestEqual(LongEnum.Negative1, (short)-1, Enums.ToInt16);
+		TestOverflows(LongEnum.Negative1, Enums.ToUInt16);
+		TestEqual(LongEnum.Negative1, (sbyte)-1, Enums.ToSByte);
+		TestOverflows(LongEnum.Negative1, Enums.ToByte);
+
+		TestEqual(LongEnum.IntMaxValue, int.MaxValue, Enums.ToInt64);
+		TestEqual(LongEnum.IntMaxValue, (ulong)int.MaxValue, Enums.ToUInt64);
+		TestEqual(LongEnum.IntMaxValue, int.MaxValue, Enums.ToInt32);
+		TestEqual(LongEnum.IntMaxValue, (uint)int.MaxValue, Enums.ToUInt32);
+		TestOverflows(LongEnum.IntMaxValue, Enums.ToInt16);
+		TestOverflows(LongEnum.IntMaxValue, Enums.ToUInt16);
+		TestOverflows(LongEnum.IntMaxValue, Enums.ToSByte);
+		TestOverflows(LongEnum.IntMaxValue, Enums.ToByte);
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace Pick.Net.Utilities;
 
-public static unsafe class Enums
+public static unsafe partial class Enums
 {
 	/// <summary>
 	/// Gets a cached <see cref="ImmutableArray{T}"/> containing all the constant values defined in <typeparamref name="T"/>.
@@ -20,7 +20,7 @@ public static unsafe class Enums
 		=> Enums<T>.BoxedValues ??= new(Enums<T>.Values);
 
 	/// <summary>
-	/// Gets a cached <see cref="ImmutableArray{string}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
+	/// Gets a cached <see cref="ImmutableArray{T}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static ImmutableArray<string> GetNames<T>() where T : unmanaged, Enum
@@ -44,7 +44,7 @@ public static unsafe class Enums
 	/// The same as <see cref="Enum.HasFlag(Enum)"/> but does not box the values.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
-	public static unsafe bool HasFlagsFast<T>(this T value, T flag) where T : unmanaged, Enum
+	public static bool HasFlagsFast<T>(this T value, T flag) where T : unmanaged, Enum
 		=> Enums<T>.Helper.HasFlag(&value, &flag);
 
 	/// <summary>
@@ -60,6 +60,16 @@ public static unsafe class Enums
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static T GetMaxValue<T>() where T : unmanaged, Enum
 		=> Enums<T>.MaxValue;
+
+	public static bool CopyTo<T>(this T value, Span<byte> span) where T : unmanaged, Enum
+	{
+		var size = Enums<T>.Size;
+		if (size > span.Length)
+			return false;
+
+		new Span<byte>(&value, size).CopyTo(span);
+		return true;
+	}
 
 	public static T Add<T>(this T x, T y) where T : unmanaged, Enum
 	{

@@ -1,0 +1,59 @@
+﻿<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".Designer.cs" #>
+<#
+var integers = new (string, string)[]
+{
+	("sbyte", "SByte"),
+	("byte", "Byte"),
+	("short", "Int16"),
+	("ushort", "UInt16"),
+	("int", "Int32"),
+	("uint", "UInt32"),
+	("long", "Int64"),
+	("ulong", "UInt64")
+};
+
+var decimals = new (string, string)[]
+{
+	("float", "Single"),
+	("double", "Double"),
+	("decimal", "Decimal")
+};
+#>
+namespace Pick.Net.Utilities;
+
+unsafe partial class Enums
+{
+<# foreach (var (id, type) in integers) { #>
+	public static <#=id#> To<#=type#><T>(this T value) where T : unmanaged, Enum => Enums<T>.Helper.To<#=type#>(&value);
+	public static <#=id#> To<#=type#>Unchecked<T>(this T value) where T : unmanaged, Enum => Enums<T>.Helper.To<#=type#>Unchecked(&value);
+<# } #>
+<# foreach (var (id, type) in decimals) { #>
+	public static <#=id#> To<#=type#><T>(this T value) where T : unmanaged, Enum => Enums<T>.Helper.To<#=type#>(&value);
+<# } #>
+}
+
+unsafe partial class EnumHelper
+{
+<# foreach (var (id, type) in integers) { #>
+	public abstract <#=id#> To<#=type#>(void* value);
+	public abstract <#=id#> To<#=type#>Unchecked(void* value);
+<# } #>
+<# foreach (var (id, type) in decimals) { #>
+	public abstract <#=id#> To<#=type#>(void* value);
+<# } #>
+}
+
+unsafe partial class EnumHelper<T>
+{
+<# foreach (var (id, type) in integers) { #>
+	public override <#=id#> To<#=type#>(void* value) => <#=id#>.CreateChecked(*(T*)value);
+	public override <#=id#> To<#=type#>Unchecked(void* value) => <#=id#>.CreateTruncating(*(T*)value);
+<# } #>
+<# foreach (var (id, type) in decimals) { #>
+	public override <#=id#> To<#=type#>(void* value) => <#=id#>.CreateChecked(*(T*)value);
+<# } #>
+}

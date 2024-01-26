@@ -2,7 +2,7 @@
 
 namespace Pick.Net.Utilities;
 
-internal abstract unsafe class EnumHelper
+internal abstract unsafe partial class EnumHelper
 {
 	public static readonly EnumHelper<sbyte> SByte = new();
 	public static readonly EnumHelper<byte> Byte = new();
@@ -61,7 +61,7 @@ internal abstract unsafe class EnumHelper
 	public abstract void BitwiseOr(void* x, void* y, void* result);
 }
 
-internal sealed unsafe class EnumHelper<T> : EnumHelper
+internal sealed unsafe partial class EnumHelper<T> : EnumHelper
 	where T : unmanaged, IBinaryInteger<T>
 {
 	public override bool HasFlag(void* value, void* flag)

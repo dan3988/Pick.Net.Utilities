@@ -48,18 +48,25 @@ public static unsafe partial class Enums
 		=> Enums<T>.Helper.HasFlag(&value, &flag);
 
 	/// <summary>
+	/// Get the smallest and largest values declared in the enum <typeparamref name="T"/>
+	/// </summary>
+	/// <typeparam name="T">The type of enum</typeparam>
+	public static (T Min, T Max) GetMinAndMaxValues<T>() where T : unmanaged, Enum
+		=> Enums<T>.MinMax;
+
+	/// <summary>
 	/// Get the smallest value declared in the enum <typeparamref name="T"/>
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static T GetMinValue<T>() where T : unmanaged, Enum
-		=> Enums<T>.MinValue;
+		=> Enums<T>.MinMax.Min;
 
 	/// <summary>
 	/// Get the largest value declared in the enum <typeparamref name="T"/>
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static T GetMaxValue<T>() where T : unmanaged, Enum
-		=> Enums<T>.MaxValue;
+		=> Enums<T>.MinMax.Max;
 
 	public static bool CopyTo<T>(this T value, Span<byte> span) where T : unmanaged, Enum
 	{
@@ -132,10 +139,10 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
 	internal static ReadOnlyCollection<string>? BoxedNames;
 
-	internal static readonly T MinValue;
-	internal static readonly T MaxValue;
+	private static (T Min, T Max)? _minMax;
+	internal static (T Min, T Max) MinMax => _minMax ??= CalculateMinMax();
 
-	static Enums()
+	private static (T Min, T Max) CalculateMinMax()
 	{
 		var min = default(T);
 		var max = default(T);
@@ -149,7 +156,6 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 				max = value;
 		}
 
-		MinValue = min;
-		MaxValue = max;
+		return (min, max);
 	}
 }

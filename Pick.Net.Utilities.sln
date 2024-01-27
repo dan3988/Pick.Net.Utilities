@@ -14,7 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.github\workflows\build.yml = .github\workflows\build.yml
 		LICENSE.MD = LICENSE.MD
-		.github\workflows\pack.yml = .github\workflows\pack.yml
 		Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md = Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md
 		README.MD = README.MD
 		.github\workflows\release.yml = .github\workflows\release.yml

@@ -31,10 +31,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Build Pick.Net.Utilities
-      uses: ./.github/workflows/pack.yml
-      with:
-        project-name: Pick.Net.Utilities
+      run: |
+        dotnet build -c Release 'Pick.Net.Utilities'
+        dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities'
     - name: Build Pick.Net.Utilities.Maui
-      uses: ./.github/workflows/pack.yml
+      run: |
+        dotnet build -c Release 'Pick.Net.Utilities.Maui'
+        dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities.Maui'
+    - name: Upload
+      uses: actions/upload-artifact@v3.1.2
       with:
-        project-name: Pick.Net.Utilities.Maui
+        name: build
+        path: .build

@@ -1,0 +1,24 @@
+name: Build
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        type: string
+      build-dir:
+        required: false
+        type: string
+        default: .build
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Build
+      run: dotnet build -c Release "${{ inputs.project-name }}"
+    - name: Pack
+      run: dotnet pack -c Release --no-build -o ${{ inputs.build-dir }} ${{ matrix.package }}
+    - name: Upload
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ${{ inputs.project-name }}
+        path: ${{ inputs.build-dir }}

@@ -275,13 +275,13 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 	public bool Remove(TKey key)
 	{
 		var value = default(TValue);
-		return Remove(key, false, ref value);
+		return Remove(key, false, ref value!);
 	}
 
 	public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		value = default;
-		return Remove(key, false, ref value);
+		return Remove(key, false, ref value!);
 	}
 
 	private bool Remove(TKey key, bool checkValue, [MaybeNullWhen(false)] ref TValue value)

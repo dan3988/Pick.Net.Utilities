@@ -314,3 +314,16 @@ public partial class SampleView : View
 	// PNUM0018: DefaultValue generator 'CreateDefaultValue' is not a valid default value generator
 }
 ```
+
+## PNUM0020
+Indicates that the [BindableProperty] attribute has been used on an indexer.
+```C#
+using Pick.Net.Utilities.Maui;
+
+public partial class SampleView : View
+{
+	[BindableProperty]
+	public string this[int key] => key.ToString();
+	//PNUM0020: [BindableProperty] cannot be used on indexer declarations
+}
+```

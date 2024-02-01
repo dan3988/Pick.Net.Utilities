@@ -1,0 +1,84 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+static (int Count, string GenericDefinition, string GenericParams, string GenericName, string DocName) CreateType(params string[] parameters)
+{
+	var def = "Func<" + new string(',', parameters.Length - 1) + ">";
+	var joined = string.Join(", ", parameters);
+	return (parameters.Length, def, $"<{joined}>", $"Func<{joined}>", $"Func{{{joined}}}");
+}
+
+const int genericCount = 17;
+
+var types = new (int Count, string GenericDefinition, string GenericParams, string GenericName, string DocName)[genericCount];
+
+types[0] = CreateType("TResult");
+types[1] = CreateType("T", "TResult");
+
+for (var i = 2; i < genericCount; i++)
+{
+	var names = Enumerable.Range(1, i).Select(v => $"T{v}").Append("TResult").ToArray();
+	types[i] = CreateType(names);
+}
+#>
+using System.Reflection;
+
+namespace Pick.Net.Utilities.Reflection;
+
+partial class DelegateHelper
+{
+	private static readonly Type[] FuncTypes =
+	[
+<# foreach (var type in types) { #>
+		typeof(<#=type.GenericDefinition#>),
+<# } #>
+	];
+
+	public static Type CreateFuncType(Type returnType, params Type[] argumentTypes)
+	{
+		if (FuncTypes.Length < argumentTypes.Length)
+			throw new ArgumentException($"Func<> class with {argumentTypes.Length} parameters does not exist");
+
+		var count = argumentTypes.Length;
+		Array.Resize(ref argumentTypes, count + 1);
+		argumentTypes[count] = returnType;
+		return FuncTypes[argumentTypes.Length].MakeGenericType(argumentTypes);
+	}
+
+	#region CreateFunc Overloads
+
+<# foreach (var type in types) { #>
+	/// <summary>
+	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
+	/// </summary>
+	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="<#=type.DocName#>"/>
+	public static <#=type.GenericName#> CreateFunc<#=type.GenericParams#>(this MethodInfo method)
+		=> method.CreateDelegate<<#=type.GenericName#>>();
+
+<# } #>
+<# foreach (var type in types) { #>
+	/// <summary>
+	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
+	/// </summary>
+	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="<#=type.DocName#>"/>
+	public static <#=type.GenericName#> CreateFunc<#=type.GenericParams#>(this MethodInfo method, object? target)
+		=> method.CreateDelegate<<#=type.GenericName#>>(target);
+
+<# } #>
+	#endregion CreateFunc Overloads
+
+	#region CreateFuncType Overloads
+
+<# foreach (var type in types) { #>
+	public static Type CreateFuncType(<#=string.Join(", ", Enumerable.Range(1, type.Count - 1).Select(v => $"Type arg{v}").Append("Type result"))#>)
+		=> typeof(<#=type.GenericDefinition#>).MakeGenericType(<#=string.Join(", ", Enumerable.Range(1, type.Count - 1).Select(v => $"arg{v}").Append("result"))#>);
+
+<# } #>
+	#endregion CreateFuncType Overloads
+}

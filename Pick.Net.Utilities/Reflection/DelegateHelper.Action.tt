@@ -1,0 +1,84 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+static (int Count, string GenericDefinition, string GenericParams, string GenericName, string DocName) CreateType(params string[] parameters)
+{
+	if (parameters.Length == 0)
+		return (0, "Action", "", "Action", "Action");
+		
+	var def = "Action<" + new string(',', parameters.Length - 1) + ">";
+	var joined = string.Join(", ", parameters);
+	return (parameters.Length, def, $"<{joined}>", $"Action<{joined}>", $"Action{{{joined}}}");
+}
+
+const int genericCount = 17;
+
+var types = new (int Count, string GenericDefinition, string GenericParams, string GenericName, string DocName)[genericCount];
+
+types[0] = CreateType();
+types[1] = CreateType("T");
+
+for (var i = 2; i < genericCount; i++)
+{
+	var names = Enumerable.Range(1, i).Select(v => $"T{v}").ToArray();
+	types[i] = CreateType(names);
+}
+#>
+using System.Reflection;
+
+namespace Pick.Net.Utilities.Reflection;
+
+partial class DelegateHelper
+{
+	private static readonly Type[] ActionTypes =
+	[
+<# foreach (var type in types) { #>
+		typeof(<#=type.GenericDefinition#>),
+<# } #>
+	];
+
+	public static Type CreateAction(params Type[] argumentTypes)
+	{
+		if (ActionTypes.Length < argumentTypes.Length)
+			throw new ArgumentException($"Action<> class with {argumentTypes.Length} parameters does not exist");
+
+		return ActionTypes[argumentTypes.Length].MakeGenericType(argumentTypes);
+	}
+
+	#region CreateAction Overloads
+
+<# foreach (var type in types) { #>
+	/// <summary>
+	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
+	/// </summary>
+	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="<#=type.DocName#>"/>
+	public static <#=type.GenericName#> CreateAction<#=type.GenericParams#>(this MethodInfo method)
+		=> method.CreateDelegate<<#=type.GenericName#>>();
+
+<# } #>
+<# foreach (var type in types) { #>
+	/// <summary>
+	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
+	/// </summary>
+	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="<#=type.DocName#>"/>
+	public static <#=type.GenericName#> CreateAction<#=type.GenericParams#>(this MethodInfo method, object? target)
+		=> method.CreateDelegate<<#=type.GenericName#>>(target);
+
+<# } #>
+	#endregion CreateAction Overloads
+
+	#region CreateActionType Overloads
+
+<# foreach (var type in types.Skip(1)) { #>
+	public static Type CreateActionType(<#=string.Join(", ", Enumerable.Range(1, type.Count).Select(v => $"Type arg{v}"))#>)
+		=> typeof(<#=type.GenericDefinition#>).MakeGenericType(<#=string.Join(", ", Enumerable.Range(1, type.Count).Select(v => $"arg{v}"))#>);
+
+<# } #>
+	#endregion CreateActionType Overloads
+}

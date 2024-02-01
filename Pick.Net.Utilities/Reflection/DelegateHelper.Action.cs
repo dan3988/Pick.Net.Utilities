@@ -39,11 +39,12 @@ partial class DelegateHelper
 	/// Creates an <see cref="Action"/> delegate to represent <paramref name="method"/>
 	/// </summary>
 	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Action"/>
 	public static Action CreateAction(this MethodInfo method)
 		=> method.CreateDelegate<Action>();
 
 	/// <summary>
-	/// Creates an <see cref="Action{T1}"/> delegate to represent <paramref name="method"/>
+	/// Creates an <see cref="Action{T}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
 	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
 	/// <inheritdoc cref="Action{T}"/>
@@ -174,11 +175,12 @@ partial class DelegateHelper
 	/// Creates an <see cref="Action"/> delegate to represent <paramref name="method"/>
 	/// </summary>
 	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Action"/>
 	public static Action CreateAction(this MethodInfo method, object? target)
 		=> method.CreateDelegate<Action>(target);
 
 	/// <summary>
-	/// Creates an <see cref="Action{T1}"/> delegate to represent <paramref name="method"/>
+	/// Creates an <see cref="Action{T}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
 	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
 	/// <inheritdoc cref="Action{T}"/>
@@ -307,7 +309,7 @@ partial class DelegateHelper
 
 	#endregion CreateAction Overloads
 
-	#region CreateFuncType Overloads
+	#region CreateActionType Overloads
 
 	public static Type CreateActionType(Type arg1)
 		=> typeof(Action<>).MakeGenericType(arg1);

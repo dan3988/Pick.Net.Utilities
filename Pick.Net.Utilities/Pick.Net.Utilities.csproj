@@ -33,11 +33,29 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Enums.tt</DependentUpon>
     </Compile>
+    <Compile Update="Reflection\DelegateHelper.Action.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DelegateHelper.Action.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Reflection\DelegateHelper.Func.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DelegateHelper.Func.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="Enums.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Enums.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Reflection\DelegateHelper.Func.tt">
+      <LastGenOutput>DelegateHelper.Func.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Reflection\DelegateHelper.Action.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DelegateHelper.Action.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>

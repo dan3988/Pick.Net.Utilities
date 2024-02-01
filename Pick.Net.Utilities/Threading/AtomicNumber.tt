@@ -14,7 +14,7 @@
 ];
 #>
 #nullable enable
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pick.Net.Utilities.Threading;
 <# foreach (var type in types) { #>
@@ -31,7 +31,7 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 
 	public <#=type.Short#> Value
 	{
-		readonly get => _value;
+		readonly get => AtomicHelper.Read(in _value);
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
@@ -45,19 +45,19 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 		=> Interlocked.Decrement(ref _value);
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> AtomicHelper.Read(in _value).ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> AtomicHelper.Read(in _value).GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is Atomic<#=type.Full#> other && Equals(other);
 
 	public readonly bool Equals(Atomic<#=type.Full#> other)
-		=> _value == other._value;
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
 
 	public readonly bool Equals(<#=type.Short#> other)
-		=> _value == other;
+		=> AtomicHelper.Read(in _value) == other;
 
 	public static bool operator ==(Atomic<#=type.Full#> left, Atomic<#=type.Full#> right)
 		=> left.Equals(right);

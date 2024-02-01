@@ -14,7 +14,7 @@ public struct AtomicBool(bool initialValue) : IAtomicValue<AtomicBool, bool>
 
 	public bool Value
 	{
-		readonly get => _value != 0;
+		readonly get => AtomicHelper.Read(in _value) != 0;
 		set => Interlocked.Exchange(ref _value, Convert.ToUInt32(value));
 	}
 
@@ -25,19 +25,19 @@ public struct AtomicBool(bool initialValue) : IAtomicValue<AtomicBool, bool>
 	}
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> Value.ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> Value.GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is AtomicBool other && Equals(other);
 
 	public readonly bool Equals(AtomicBool other)
-		=> _value == other._value;
+		=> Value == other.Value;
 
 	public readonly bool Equals(bool other)
-		=> (_value != 0) == other;
+		=> Value == other;
 
 	public static bool operator ==(AtomicBool left, AtomicBool right)
 		=> left.Equals(right);

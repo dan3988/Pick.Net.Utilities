@@ -1,5 +1,5 @@
 ﻿#nullable enable
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pick.Net.Utilities.Threading;
 
@@ -15,7 +15,7 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 
 	public int Value
 	{
-		readonly get => _value;
+		readonly get => AtomicHelper.Read(in _value);
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
@@ -29,19 +29,19 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 		=> Interlocked.Decrement(ref _value);
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> AtomicHelper.Read(in _value).ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> AtomicHelper.Read(in _value).GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is AtomicInt32 other && Equals(other);
 
 	public readonly bool Equals(AtomicInt32 other)
-		=> _value == other._value;
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
 
 	public readonly bool Equals(int other)
-		=> _value == other;
+		=> AtomicHelper.Read(in _value) == other;
 
 	public static bool operator ==(AtomicInt32 left, AtomicInt32 right)
 		=> left.Equals(right);
@@ -74,7 +74,7 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 
 	public uint Value
 	{
-		readonly get => _value;
+		readonly get => AtomicHelper.Read(in _value);
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
@@ -88,19 +88,19 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 		=> Interlocked.Decrement(ref _value);
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> AtomicHelper.Read(in _value).ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> AtomicHelper.Read(in _value).GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is AtomicUInt32 other && Equals(other);
 
 	public readonly bool Equals(AtomicUInt32 other)
-		=> _value == other._value;
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
 
 	public readonly bool Equals(uint other)
-		=> _value == other;
+		=> AtomicHelper.Read(in _value) == other;
 
 	public static bool operator ==(AtomicUInt32 left, AtomicUInt32 right)
 		=> left.Equals(right);
@@ -133,7 +133,7 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 
 	public long Value
 	{
-		readonly get => _value;
+		readonly get => AtomicHelper.Read(in _value);
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
@@ -147,19 +147,19 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 		=> Interlocked.Decrement(ref _value);
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> AtomicHelper.Read(in _value).ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> AtomicHelper.Read(in _value).GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is AtomicInt64 other && Equals(other);
 
 	public readonly bool Equals(AtomicInt64 other)
-		=> _value == other._value;
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
 
 	public readonly bool Equals(long other)
-		=> _value == other;
+		=> AtomicHelper.Read(in _value) == other;
 
 	public static bool operator ==(AtomicInt64 left, AtomicInt64 right)
 		=> left.Equals(right);
@@ -192,7 +192,7 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 
 	public ulong Value
 	{
-		readonly get => _value;
+		readonly get => AtomicHelper.Read(in _value);
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
@@ -206,19 +206,19 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 		=> Interlocked.Decrement(ref _value);
 
 	public readonly override string ToString()
-		=> _value.ToString();
+		=> AtomicHelper.Read(in _value).ToString();
 
 	public readonly override int GetHashCode()
-		=> _value.GetHashCode();
+		=> AtomicHelper.Read(in _value).GetHashCode();
 
 	public readonly override bool Equals([NotNullWhen(true)] object? obj)
 		=> obj is AtomicUInt64 other && Equals(other);
 
 	public readonly bool Equals(AtomicUInt64 other)
-		=> _value == other._value;
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
 
 	public readonly bool Equals(ulong other)
-		=> _value == other;
+		=> AtomicHelper.Read(in _value) == other;
 
 	public static bool operator ==(AtomicUInt64 left, AtomicUInt64 right)
 		=> left.Equals(right);

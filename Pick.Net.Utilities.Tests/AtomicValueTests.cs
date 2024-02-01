@@ -24,8 +24,8 @@ public class AtomicValueTests
 		var value = new AtomicBool();
 
 		Assert.IsFalse(value.Value);
-		Assert.IsFalse(value.Set(false));
-		Assert.IsTrue(value.Set(true));
+		Assert.IsFalse(value.TrySet(false));
+		Assert.IsTrue(value.TrySet(true));
 		Assert.IsTrue(value.Value);
 		TestEquality(true, value);
 		TestEquality(false, value);
@@ -33,8 +33,8 @@ public class AtomicValueTests
 
 		value = new AtomicBool(true);
 		Assert.IsTrue(value.Value);
-		Assert.IsFalse(value.Set(true));
-		Assert.IsTrue(value.Set(false));
+		Assert.IsFalse(value.TrySet(true));
+		Assert.IsTrue(value.TrySet(false));
 		Assert.IsFalse(value.Value);
 		TestEquality(true, value);
 		TestEquality(false, value);
@@ -47,13 +47,20 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.IsFalse(value.Set(1));
-		Assert.IsTrue(value.Set(0));
+		Assert.AreEqual(1, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
 		TestEquality(200, value);
 		TestEquality(5, value);
+
+		Assert.AreEqual(200, value.Set(1000));
+		Assert.AreEqual(1000, value.Value);
+		Assert.AreEqual(1000, value.Set(1000));
+		Assert.AreEqual(1000, value.Set(1005, 1000));
+		Assert.AreEqual(1005, value.Value);
+		Assert.AreEqual(1005, value.Set(5000, 1000));
+		Assert.AreEqual(1005, value.Value);
 	}
 
 	[TestMethod]
@@ -63,13 +70,20 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0u, value.Value);
 		Assert.AreEqual(1u, value.Increment());
-		Assert.IsFalse(value.Set(1));
-		Assert.IsTrue(value.Set(0));
+		Assert.AreEqual(1u, value.Set(0));
 		Assert.AreEqual(uint.MaxValue, value.Decrement());
 		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
 		TestEquality(200u, value);
 		TestEquality(5u, value);
+
+		Assert.AreEqual(200u, value.Set(1000));
+		Assert.AreEqual(1000u, value.Value);
+		Assert.AreEqual(1000u, value.Set(1000));
+		Assert.AreEqual(1000u, value.Set(1005, 1000));
+		Assert.AreEqual(1005u, value.Value);
+		Assert.AreEqual(1005u, value.Set(5000, 1000));
+		Assert.AreEqual(1005u, value.Value);
 	}
 
 	[TestMethod]
@@ -79,13 +93,20 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.IsFalse(value.Set(1));
-		Assert.IsTrue(value.Set(0));
+		Assert.AreEqual(1, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
 		TestEquality(200L, value);
 		TestEquality(5L, value);
+
+		Assert.AreEqual(200, value.Set(1000));
+		Assert.AreEqual(1000, value.Value);
+		Assert.AreEqual(1000, value.Set(1000));
+		Assert.AreEqual(1000, value.Set(1005, 1000));
+		Assert.AreEqual(1005, value.Value);
+		Assert.AreEqual(1005, value.Set(5000, 1000));
+		Assert.AreEqual(1005, value.Value);
 	}
 
 	[TestMethod]
@@ -95,12 +116,19 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0u, value.Value);
 		Assert.AreEqual(1u, value.Increment());
-		Assert.IsFalse(value.Set(1));
-		Assert.IsTrue(value.Set(0));
+		Assert.AreEqual(1u, value.Set(0));
 		Assert.AreEqual(ulong.MaxValue, value.Decrement());
 		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
 		TestEquality(200UL, value);
 		TestEquality(5UL, value);
+
+		Assert.AreEqual(200u, value.Set(1000));
+		Assert.AreEqual(1000u, value.Value);
+		Assert.AreEqual(1000u, value.Set(1000));
+		Assert.AreEqual(1000u, value.Set(1005, 1000));
+		Assert.AreEqual(1005u, value.Value);
+		Assert.AreEqual(1005u, value.Set(5000, 1000));
+		Assert.AreEqual(1005u, value.Value);
 	}
 }

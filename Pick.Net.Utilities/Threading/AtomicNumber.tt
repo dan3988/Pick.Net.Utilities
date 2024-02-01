@@ -37,8 +37,11 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
-	public bool Set(<#=type.Short#> value)
-		=> Interlocked.Exchange(ref _value, value) != value;
+	public <#=type.Short#> Set(<#=type.Short#> value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public <#=type.Short#> Set(<#=type.Short#> value, <#=type.Short#> comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 	public <#=type.Short#> Increment()
 		=> Interlocked.Increment(ref _value);

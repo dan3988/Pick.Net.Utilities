@@ -21,8 +21,11 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
-	public bool Set(int value)
-		=> Interlocked.Exchange(ref _value, value) != value;
+	public int Set(int value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public int Set(int value, int comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 	public int Increment()
 		=> Interlocked.Increment(ref _value);
@@ -84,8 +87,11 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
-	public bool Set(uint value)
-		=> Interlocked.Exchange(ref _value, value) != value;
+	public uint Set(uint value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public uint Set(uint value, uint comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 	public uint Increment()
 		=> Interlocked.Increment(ref _value);
@@ -147,8 +153,11 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
-	public bool Set(long value)
-		=> Interlocked.Exchange(ref _value, value) != value;
+	public long Set(long value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public long Set(long value, long comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 	public long Increment()
 		=> Interlocked.Increment(ref _value);
@@ -210,8 +219,11 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
-	public bool Set(ulong value)
-		=> Interlocked.Exchange(ref _value, value) != value;
+	public ulong Set(ulong value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public ulong Set(ulong value, ulong comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 	public ulong Increment()
 		=> Interlocked.Increment(ref _value);

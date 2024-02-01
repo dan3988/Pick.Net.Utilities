@@ -20,11 +20,22 @@ public struct AtomicBool(bool initialValue) : IAtomicValue<AtomicBool, bool>
 		set => Interlocked.Exchange(ref _value, Convert.ToUInt32(value));
 	}
 
-	public bool Set(bool value)
+	/// <summary>
+	/// Set the value and return whether the value has changed
+	/// </summary>
+	/// <param name="value">The new value</param>
+	/// <returns><c>true</c> if the value has changed, otherwise <c>false</c>.</returns>
+	public bool TrySet(bool value)
 	{
 		var (x, y) = value ? (1u, 0u) : (0u, 1u);
 		return Interlocked.CompareExchange(ref _value, x, y) == y;
 	}
+
+	public bool Set(bool value)
+		=> Interlocked.Exchange(ref _value, Convert.ToUInt32(value)) != 0;
+
+	public bool Set(bool value, bool comparand)
+		=> Interlocked.CompareExchange(ref _value, Convert.ToUInt32(value), Convert.ToUInt32(comparand)) != 0;
 
 	public readonly override string ToString()
 		=> Value.ToString();

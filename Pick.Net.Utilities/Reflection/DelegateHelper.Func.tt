@@ -55,7 +55,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="<#=type.DocName#>"/>
 	public static <#=type.GenericName#> CreateFunc<#=type.GenericParams#>(this MethodInfo method)
 		=> method.CreateDelegate<<#=type.GenericName#>>();
@@ -65,10 +65,10 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="<#=type.DocName#>"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="<#=type.DocName#>"/>
-	public static <#=type.GenericName#> CreateFunc<#=type.GenericParams#>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<<#=type.GenericName#>>(target);
+	public static <#=type.GenericName#> CreateFunc<#=type.GenericParams#>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<<#=type.GenericName#>>(firstArgument);
 
 <# } #>
 	#endregion CreateFunc Overloads

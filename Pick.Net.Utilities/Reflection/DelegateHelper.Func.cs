@@ -41,7 +41,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{TResult}"/>
 	public static Func<TResult> CreateFunc<TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<TResult>>();
@@ -49,7 +49,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T, TResult}"/>
 	public static Func<T, TResult> CreateFunc<T, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T, TResult>>();
@@ -57,7 +57,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, TResult}"/>
 	public static Func<T1, T2, TResult> CreateFunc<T1, T2, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, TResult>>();
@@ -65,7 +65,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, TResult}"/>
 	public static Func<T1, T2, T3, TResult> CreateFunc<T1, T2, T3, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, TResult>>();
@@ -73,7 +73,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, TResult}"/>
 	public static Func<T1, T2, T3, T4, TResult> CreateFunc<T1, T2, T3, T4, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, TResult>>();
@@ -81,7 +81,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, TResult> CreateFunc<T1, T2, T3, T4, T5, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, TResult>>();
@@ -89,7 +89,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, TResult>>();
@@ -97,7 +97,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, TResult>>();
@@ -105,7 +105,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>>();
@@ -113,7 +113,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>>();
@@ -121,7 +121,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>>();
@@ -129,7 +129,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>>();
@@ -137,7 +137,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>>();
@@ -145,7 +145,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>>();
@@ -153,7 +153,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>>();
@@ -161,7 +161,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>>();
@@ -169,7 +169,7 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}()"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult}"/>
 	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(this MethodInfo method)
 		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>>();
@@ -177,138 +177,138 @@ partial class DelegateHelper
 	/// <summary>
 	/// Creates an <see cref="Func{TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{TResult}"/>
-	public static Func<TResult> CreateFunc<TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<TResult>>(target);
+	public static Func<TResult> CreateFunc<TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T, TResult}"/>
-	public static Func<T, TResult> CreateFunc<T, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T, TResult>>(target);
+	public static Func<T, TResult> CreateFunc<T, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, TResult}"/>
-	public static Func<T1, T2, TResult> CreateFunc<T1, T2, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, TResult>>(target);
+	public static Func<T1, T2, TResult> CreateFunc<T1, T2, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, TResult}"/>
-	public static Func<T1, T2, T3, TResult> CreateFunc<T1, T2, T3, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, TResult>>(target);
+	public static Func<T1, T2, T3, TResult> CreateFunc<T1, T2, T3, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, TResult}"/>
-	public static Func<T1, T2, T3, T4, TResult> CreateFunc<T1, T2, T3, T4, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, TResult>>(target);
+	public static Func<T1, T2, T3, T4, TResult> CreateFunc<T1, T2, T3, T4, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, TResult> CreateFunc<T1, T2, T3, T4, T5, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, TResult> CreateFunc<T1, T2, T3, T4, T5, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>>(firstArgument);
 
 	/// <summary>
 	/// Creates an <see cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult}"/> delegate to represent <paramref name="method"/>
 	/// </summary>
-	/// <inheritdoc cref="MethodInfo.CreateDelegate{T}(object?)"/>
+	/// <inheritdoc cref="Delegate.CreateDelegate(Type, object?, MethodInfo)"/>
 	/// <inheritdoc cref="Func{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult}"/>
-	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(this MethodInfo method, object? target)
-		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>>(target);
+	public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult> CreateFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(this MethodInfo method, object? firstArgument)
+		=> method.CreateDelegate<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>>(firstArgument);
 
 	#endregion CreateFunc Overloads
 

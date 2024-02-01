@@ -1,0 +1,80 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".Designer.cs" #>
+<#
+(string Short, string Full)[] types = 
+[
+	("int", "Int32"),
+	("uint", "UInt32"),
+	("long", "Int64"),
+	("ulong", "UInt64")
+];
+#>
+#nullable enable
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Pick.Net.Utilities.Threading;
+<# foreach (var type in types) { #>
+
+/// <summary>
+/// Thread safe <see cref="<#=type.Short#>"/> value
+/// </summary>
+public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumber<Atomic<#=type.Full#>, <#=type.Short#>>
+{
+	static Atomic<#=type.Full#> IAtomicValue<Atomic<#=type.Full#>, <#=type.Short#>>.Create(<#=type.Short#> value)
+		=> new(value);
+
+	private <#=type.Short#> _value = value;
+
+	public <#=type.Short#> Value
+	{
+		readonly get => _value;
+		set => Interlocked.Exchange(ref _value, value);
+	}
+
+	public bool Set(<#=type.Short#> value)
+		=> Interlocked.Exchange(ref _value, value) != value;
+
+	public <#=type.Short#> Increment()
+		=> Interlocked.Increment(ref _value);
+
+	public <#=type.Short#> Decrement()
+		=> Interlocked.Decrement(ref _value);
+
+	public readonly override string ToString()
+		=> _value.ToString();
+
+	public readonly override int GetHashCode()
+		=> _value.GetHashCode();
+
+	public readonly override bool Equals([NotNullWhen(true)] object? obj)
+		=> obj is Atomic<#=type.Full#> other && Equals(other);
+
+	public readonly bool Equals(Atomic<#=type.Full#> other)
+		=> _value == other._value;
+
+	public readonly bool Equals(<#=type.Short#> other)
+		=> _value == other;
+
+	public static bool operator ==(Atomic<#=type.Full#> left, Atomic<#=type.Full#> right)
+		=> left.Equals(right);
+
+	public static bool operator !=(Atomic<#=type.Full#> left, Atomic<#=type.Full#> right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(Atomic<#=type.Full#> left, <#=type.Short#> right)
+		=> left.Equals(right);
+
+	public static bool operator !=(Atomic<#=type.Full#> left, <#=type.Short#> right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(<#=type.Short#> left, Atomic<#=type.Full#> right)
+		=> right.Equals(left);
+
+	public static bool operator !=(<#=type.Short#> left, Atomic<#=type.Full#> right)
+		=> !right.Equals(left);
+}
+<# } #>

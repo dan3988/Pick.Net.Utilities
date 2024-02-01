@@ -43,6 +43,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DelegateHelper.Func.tt</DependentUpon>
     </Compile>
+    <Compile Update="Threading\AtomicNumber.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AtomicNumber.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="Enums.tt">
@@ -56,6 +61,10 @@
     <None Update="Reflection\DelegateHelper.Action.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DelegateHelper.Action.cs</LastGenOutput>
+    </None>
+    <None Update="Threading\AtomicNumber.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AtomicNumber.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 </Project>

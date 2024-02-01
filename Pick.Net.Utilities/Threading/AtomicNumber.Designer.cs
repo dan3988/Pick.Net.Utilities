@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pick.Net.Utilities.Threading;
@@ -6,6 +7,7 @@ namespace Pick.Net.Utilities.Threading;
 /// <summary>
 /// Thread safe <see cref="int"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 {
 	static AtomicInt32 IAtomicValue<AtomicInt32, int>.Create(int value)
@@ -65,6 +67,7 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 /// <summary>
 /// Thread safe <see cref="uint"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uint>
 {
 	static AtomicUInt32 IAtomicValue<AtomicUInt32, uint>.Create(uint value)
@@ -124,6 +127,7 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 /// <summary>
 /// Thread safe <see cref="long"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 {
 	static AtomicInt64 IAtomicValue<AtomicInt64, long>.Create(long value)
@@ -183,6 +187,7 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 /// <summary>
 /// Thread safe <see cref="ulong"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ulong>
 {
 	static AtomicUInt64 IAtomicValue<AtomicUInt64, ulong>.Create(ulong value)

@@ -1,10 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pick.Net.Utilities.Threading;
 
 /// <summary>
 /// Thread safe <see cref="bool"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public struct AtomicBool(bool initialValue) : IAtomicValue<AtomicBool, bool>
 {
 	static AtomicBool IAtomicValue<AtomicBool, bool>.Create(bool value)

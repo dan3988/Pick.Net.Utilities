@@ -14,6 +14,7 @@
 ];
 #>
 #nullable enable
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pick.Net.Utilities.Threading;
@@ -22,6 +23,7 @@ namespace Pick.Net.Utilities.Threading;
 /// <summary>
 /// Thread safe <see cref="<#=type.Short#>"/> value
 /// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
 public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumber<Atomic<#=type.Full#>, <#=type.Short#>>
 {
 	static Atomic<#=type.Full#> IAtomicValue<Atomic<#=type.Full#>, <#=type.Short#>>.Create(<#=type.Short#> value)

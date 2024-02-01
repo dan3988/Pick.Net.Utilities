@@ -4,6 +4,8 @@ namespace Pick.Net.Utilities.Threading;
 
 internal static class AtomicHelper
 {
+	public const string DebuggerDisplay = "{GetType().Name,nq}({Value})";
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static int Read(in int value)
 		=> Interlocked.CompareExchange(ref Unsafe.AsRef(in value), 0, 0);

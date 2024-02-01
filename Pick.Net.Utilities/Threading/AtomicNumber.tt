@@ -46,6 +46,9 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 	public <#=type.Short#> Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	public <#=type.Short#> Add(<#=type.Short#> amount)
+		=> Interlocked.Add(ref _value, amount);
+
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();
 

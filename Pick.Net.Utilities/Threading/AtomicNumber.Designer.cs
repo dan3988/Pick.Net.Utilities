@@ -30,6 +30,9 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 	public int Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	public int Add(int amount)
+		=> Interlocked.Add(ref _value, amount);
+
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();
 
@@ -89,6 +92,9 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 
 	public uint Decrement()
 		=> Interlocked.Decrement(ref _value);
+
+	public uint Add(uint amount)
+		=> Interlocked.Add(ref _value, amount);
 
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();
@@ -150,6 +156,9 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 	public long Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	public long Add(long amount)
+		=> Interlocked.Add(ref _value, amount);
+
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();
 
@@ -209,6 +218,9 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 
 	public ulong Decrement()
 		=> Interlocked.Decrement(ref _value);
+
+	public ulong Add(ulong amount)
+		=> Interlocked.Add(ref _value, amount);
 
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();

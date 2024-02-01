@@ -16,6 +16,12 @@ public interface IAtomicNumber<T> : IAtomicValue<T>
 	/// </summary>
 	/// <returns>The decremented value</returns>
 	T Decrement();
+
+	/// <summary>
+	/// Adds a specified amount to the value
+	/// </summary>
+	/// <returns>The new value</returns>
+	T Add(T amount);
 }
 
 public interface IAtomicNumber<TSelf, TValue> : IAtomicValue<TSelf, TValue>, IAtomicNumber<TValue>

@@ -50,6 +50,7 @@ public class AtomicValueTests
 		Assert.IsFalse(value.Set(1));
 		Assert.IsTrue(value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
+		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
 		TestEquality(200, value);
 		TestEquality(5, value);
@@ -65,6 +66,7 @@ public class AtomicValueTests
 		Assert.IsFalse(value.Set(1));
 		Assert.IsTrue(value.Set(0));
 		Assert.AreEqual(uint.MaxValue, value.Decrement());
+		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
 		TestEquality(200u, value);
 		TestEquality(5u, value);
@@ -80,6 +82,7 @@ public class AtomicValueTests
 		Assert.IsFalse(value.Set(1));
 		Assert.IsTrue(value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
+		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
 		TestEquality(200L, value);
 		TestEquality(5L, value);
@@ -95,6 +98,7 @@ public class AtomicValueTests
 		Assert.IsFalse(value.Set(1));
 		Assert.IsTrue(value.Set(0));
 		Assert.AreEqual(ulong.MaxValue, value.Decrement());
+		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
 		TestEquality(200UL, value);
 		TestEquality(5UL, value);

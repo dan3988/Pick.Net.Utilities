@@ -28,6 +28,28 @@ public static class ReflectionHelper
 	public const BindingFlags DeclaredNonPublic = NonPublic | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicInstance = NonPublicInstance | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicStatic = NonPublicStatic | BindingFlags.DeclaredOnly;
+	
+	private static readonly Type[] TypeCodeTypes =
+	[
+		/* TypeCode.Empty		*/ null,
+		/* TypeCode.Object		*/ typeof(object),
+		/* TypeCode.DBNull		*/ typeof(DBNull),
+		/* TypeCode.Boolean		*/ typeof(bool),
+		/* TypeCode.Char		*/ typeof(char),
+		/* TypeCode.SByte		*/ typeof(sbyte),
+		/* TypeCode.Byte		*/ typeof(byte),
+		/* TypeCode.Int16		*/ typeof(short),
+		/* TypeCode.UInt16		*/ typeof(ushort),
+		/* TypeCode.Int32		*/ typeof(int),
+		/* TypeCode.UInt32		*/ typeof(uint),
+		/* TypeCode.Int64		*/ typeof(long),
+		/* TypeCode.UInt64		*/ typeof(ulong),
+		/* TypeCode.Single		*/ typeof(float),
+		/* TypeCode.Double		*/ typeof(double),
+		/* TypeCode.Decimal		*/ typeof(decimal),
+		/* TypeCode.DateTime	*/ typeof(DateTime),
+		/* TypeCode.String		*/ typeof(string),
+	];
 
 	private static readonly ImmutableHashSet<Type> KnownEnumerableInterfaces = ImmutableHashSet.Create([
 		typeof(IEnumerable<>),
@@ -88,6 +110,9 @@ public static class ReflectionHelper
 
 		return null;
 	}
+
+	public static Type ToType(this TypeCode typeCode)
+		=> (uint)typeCode <= (uint)TypeCode.String ? TypeCodeTypes[(int)typeCode] : throw new ArgumentException($"TypeCode '{typeCode}' is not defined.", nameof(typeCode));
 
 	public static IEnumerable<Type> GetBaseTypes(this Type type, bool includeSelf)
 		=> GetBaseTypes(type, null, includeSelf);

@@ -131,4 +131,50 @@ public class AtomicValueTests
 		Assert.AreEqual(1005u, value.Set(5000, 1000));
 		Assert.AreEqual(1005u, value.Value);
 	}
+
+	[TestMethod]
+	public void TestAtomicSingle()
+	{
+		var value = new AtomicSingle();
+
+		Assert.AreEqual(0, value.Value);
+		Assert.AreEqual(1, value.Increment());
+		Assert.AreEqual(1, value.Set(0));
+		Assert.AreEqual(-1, value.Decrement());
+		Assert.AreEqual(249.5f, value.Add(250.5f));
+		Assert.AreEqual(33.3333f, value.Value = 33.3333f);
+		TestEquality(33.3333f, value);
+		TestEquality(5f, value);
+
+		Assert.AreEqual(33.3333f, value.Set(1000));
+		Assert.AreEqual(1000, value.Value);
+		Assert.AreEqual(1000, value.Set(1000));
+		Assert.AreEqual(1000, value.Set(1005, 1000));
+		Assert.AreEqual(1005, value.Value);
+		Assert.AreEqual(1005, value.Set(5000, 1000));
+		Assert.AreEqual(1005, value.Value);
+	}
+
+	[TestMethod]
+	public void TestAtomicDouble()
+	{
+		var value = new AtomicDouble();
+
+		Assert.AreEqual(0, value.Value);
+		Assert.AreEqual(1, value.Increment());
+		Assert.AreEqual(1, value.Set(0));
+		Assert.AreEqual(-1, value.Decrement());
+		Assert.AreEqual(249.5, value.Add(250.5));
+		Assert.AreEqual(33.3333, value.Value = 33.3333);
+		TestEquality(33.3333, value);
+		TestEquality(5D, value);
+
+		Assert.AreEqual(33.3333, value.Set(1000));
+		Assert.AreEqual(1000, value.Value);
+		Assert.AreEqual(1000, value.Set(1000));
+		Assert.AreEqual(1000, value.Set(1005, 1000));
+		Assert.AreEqual(1005, value.Value);
+		Assert.AreEqual(1005, value.Set(5000, 1000));
+		Assert.AreEqual(1005, value.Value);
+	}
 }

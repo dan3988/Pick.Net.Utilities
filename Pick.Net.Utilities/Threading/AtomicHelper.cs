@@ -21,4 +21,12 @@ internal static class AtomicHelper
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ulong Read(in ulong value)
 		=> Interlocked.CompareExchange(ref Unsafe.AsRef(in value), 0, 0);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float Read(in float value)
+		=> Interlocked.CompareExchange(ref Unsafe.AsRef(in value), 0, 0);
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static double Read(in double value)
+		=> Interlocked.CompareExchange(ref Unsafe.AsRef(in value), 0, 0);
 }

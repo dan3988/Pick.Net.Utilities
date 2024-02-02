@@ -267,3 +267,157 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 	public static bool operator !=(ulong left, AtomicUInt64 right)
 		=> !right.Equals(left);
 }
+
+/// <summary>
+/// Thread safe <see cref="float"/> value
+/// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
+public partial struct AtomicSingle(float value) : IAtomicNumber<AtomicSingle, float>
+{
+	static AtomicSingle IAtomicValue<AtomicSingle, float>.Create(float value)
+		=> new(value);
+
+	private float _value = value;
+
+	public float Value
+	{
+		readonly get => AtomicHelper.Read(in _value);
+		set => Interlocked.Exchange(ref _value, value);
+	}
+
+	public float Set(float value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public float Set(float value, float comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
+
+	public float Increment()
+		=> Add(1);
+
+	public float Decrement()
+		=> Add(-1);
+
+	public float Add(float amount)
+	{
+		float currentValue, newValue, newCurrentValue = _value;
+		do
+		{
+			currentValue = newCurrentValue;
+			newValue = currentValue + amount;
+			newCurrentValue = Interlocked.CompareExchange(ref _value, newValue, currentValue);
+		}
+		while (!newCurrentValue.Equals(currentValue));
+
+		return newValue;
+	}
+
+	public readonly override string ToString()
+		=> AtomicHelper.Read(in _value).ToString();
+
+	public readonly override int GetHashCode()
+		=> AtomicHelper.Read(in _value).GetHashCode();
+
+	public readonly override bool Equals([NotNullWhen(true)] object? obj)
+		=> obj is AtomicSingle other && Equals(other);
+
+	public readonly bool Equals(AtomicSingle other)
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
+
+	public readonly bool Equals(float other)
+		=> AtomicHelper.Read(in _value) == other;
+
+	public static bool operator ==(AtomicSingle left, AtomicSingle right)
+		=> left.Equals(right);
+
+	public static bool operator !=(AtomicSingle left, AtomicSingle right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(AtomicSingle left, float right)
+		=> left.Equals(right);
+
+	public static bool operator !=(AtomicSingle left, float right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(float left, AtomicSingle right)
+		=> right.Equals(left);
+
+	public static bool operator !=(float left, AtomicSingle right)
+		=> !right.Equals(left);
+}
+
+/// <summary>
+/// Thread safe <see cref="double"/> value
+/// </summary>
+[DebuggerDisplay(AtomicHelper.DebuggerDisplay)]
+public partial struct AtomicDouble(double value) : IAtomicNumber<AtomicDouble, double>
+{
+	static AtomicDouble IAtomicValue<AtomicDouble, double>.Create(double value)
+		=> new(value);
+
+	private double _value = value;
+
+	public double Value
+	{
+		readonly get => AtomicHelper.Read(in _value);
+		set => Interlocked.Exchange(ref _value, value);
+	}
+
+	public double Set(double value)
+		=> Interlocked.Exchange(ref _value, value);
+
+	public double Set(double value, double comparand)
+		=> Interlocked.CompareExchange(ref _value, value, comparand);
+
+	public double Increment()
+		=> Add(1);
+
+	public double Decrement()
+		=> Add(-1);
+
+	public double Add(double amount)
+	{
+		double currentValue, newValue, newCurrentValue = _value;
+		do
+		{
+			currentValue = newCurrentValue;
+			newValue = currentValue + amount;
+			newCurrentValue = Interlocked.CompareExchange(ref _value, newValue, currentValue);
+		}
+		while (!newCurrentValue.Equals(currentValue));
+
+		return newValue;
+	}
+
+	public readonly override string ToString()
+		=> AtomicHelper.Read(in _value).ToString();
+
+	public readonly override int GetHashCode()
+		=> AtomicHelper.Read(in _value).GetHashCode();
+
+	public readonly override bool Equals([NotNullWhen(true)] object? obj)
+		=> obj is AtomicDouble other && Equals(other);
+
+	public readonly bool Equals(AtomicDouble other)
+		=> AtomicHelper.Read(in _value) == AtomicHelper.Read(in other._value);
+
+	public readonly bool Equals(double other)
+		=> AtomicHelper.Read(in _value) == other;
+
+	public static bool operator ==(AtomicDouble left, AtomicDouble right)
+		=> left.Equals(right);
+
+	public static bool operator !=(AtomicDouble left, AtomicDouble right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(AtomicDouble left, double right)
+		=> left.Equals(right);
+
+	public static bool operator !=(AtomicDouble left, double right)
+		=> !left.Equals(right);
+
+	public static bool operator ==(double left, AtomicDouble right)
+		=> right.Equals(left);
+
+	public static bool operator !=(double left, AtomicDouble right)
+		=> !right.Equals(left);
+}

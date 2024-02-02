@@ -5,12 +5,14 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".Designer.cs" #>
 <#
-(string Short, string Full)[] types = 
+(bool IsInteger, string Short, string Full)[] types = 
 [
-	("int", "Int32"),
-	("uint", "UInt32"),
-	("long", "Int64"),
-	("ulong", "UInt64")
+	(true, "int", "Int32"),
+	(true, "uint", "UInt32"),
+	(true, "long", "Int64"),
+	(true, "ulong", "UInt64"),
+	(false, "float", "Single"),
+	(false, "double", "Double")
 ];
 #>
 #nullable enable
@@ -43,6 +45,7 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 	public <#=type.Short#> Set(<#=type.Short#> value, <#=type.Short#> comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+<# if (type.IsInteger) { #>
 	public <#=type.Short#> Increment()
 		=> Interlocked.Increment(ref _value);
 
@@ -51,6 +54,27 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 
 	public <#=type.Short#> Add(<#=type.Short#> amount)
 		=> Interlocked.Add(ref _value, amount);
+<# } else { #>
+	public <#=type.Short#> Increment()
+		=> Add(1);
+
+	public <#=type.Short#> Decrement()
+		=> Add(-1);
+
+	public <#=type.Short#> Add(<#=type.Short#> amount)
+	{
+		<#=type.Short#> currentValue, newValue, newCurrentValue = _value;
+		do
+		{
+			currentValue = newCurrentValue;
+			newValue = currentValue + amount;
+			newCurrentValue = Interlocked.CompareExchange(ref _value, newValue, currentValue);
+		}
+		while (!newCurrentValue.Equals(currentValue));
+
+		return newValue;
+	}
+<# } #>
 
 	public readonly override string ToString()
 		=> AtomicHelper.Read(in _value).ToString();

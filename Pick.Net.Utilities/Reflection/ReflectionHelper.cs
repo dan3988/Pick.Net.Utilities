@@ -102,6 +102,9 @@ public static class ReflectionHelper
 
 	private static readonly ConcurrentDictionary<Type, Type?> EnumerableTypeCache = [];
 
+	/// <summary>
+	/// Gets the type parameter of <see cref="IEnumerable{T}"/> if <paramref name="type"/> implements it, otherwise null.
+	/// </summary>
 	public static Type? TryGetCollectionType(this Type type)
 	{
 		if (type.IsArray)
@@ -113,7 +116,10 @@ public static class ReflectionHelper
 		return EnumerableTypeCache.GetOrAdd(type, GetCollectionTypeImpl);
 	}
 
-	public static Type? GetCollectionType(this Type type)
+	/// <summary>
+	/// Gets the type parameter of <see cref="IEnumerable{T}"/> if <paramref name="type"/> implements it, otherwise a <see cref="ArgumentException"/> is thrown.
+	/// </summary>
+	public static Type GetCollectionType(this Type type)
 		=> TryGetCollectionType(type) ?? throw new ArgumentException($"Type '{type}' does not implement IEnumerable<T>.", nameof(type));
 
 	private static Type? GetCollectionTypeImpl(Type arg)
@@ -138,9 +144,18 @@ public static class ReflectionHelper
 	public static Type ToType(this TypeCode typeCode)
 		=> (uint)typeCode <= (uint)TypeCode.String ? TypeCodeTypes[(int)typeCode] : throw new ArgumentException($"TypeCode '{typeCode}' is not defined.", nameof(typeCode));
 
+	/// <inheritdoc cref="GetBaseTypes(Type, Type?, bool)"/>
 	public static IEnumerable<Type> GetBaseTypes(this Type type, bool includeSelf)
 		=> GetBaseTypes(type, null, includeSelf);
 
+	/// <summary>
+	/// Get a sequence of the base types of <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type"></param>
+	/// <param name="until">The type to stop the sequence on, or null to include all base types including <c>typeof(<see cref="object"/>)</c>.</param>
+	/// <param name="includeSelf">If <c>true</c>, <paramref name="type"/> will be the first item in the sequence.</param>
+	/// <exception cref="ArgumentNullException">If <paramref name="type"/> is null.</exception>
+	/// <exception cref="ArgumentException">If <paramref name="until"/> is not null and not a type assignable to <paramref name="type"/>.</exception>
 	public static IEnumerable<Type> GetBaseTypes(this Type type, Type? until = null, bool includeSelf = false)
 	{
 		ArgumentNullException.ThrowIfNull(type);
@@ -155,9 +170,25 @@ public static class ReflectionHelper
 			yield return type;
 	}
 
+	/// <summary>
+	/// Filters a sequence of <typeparamref name="TMember"/> instances to ones that have an attribute of type <paramref name="attributeType"/> defined.
+	/// </summary>
+	/// <typeparam name="TMember">The member type of the sequence.</typeparam>
+	/// <param name="members">The sequence to filter.</param>
+	/// <param name="attributeType">The type of attribute to check.</param>
+	/// <param name="inherit">Whether to check for inherited attributes on each member.</param>
+	/// <returns></returns>
 	public static IEnumerable<TMember> WhereDefined<TMember>(this IEnumerable<TMember> members, Type attributeType, bool inherit = false) where TMember : MemberInfo
 		=> members.Where(v => v.IsDefined(attributeType, inherit));
 
+	/// <summary>
+	/// Filters a sequence of <typeparamref name="TMember"/> instances to ones that have a single attribute of type <typeparamref name="TAttribute"/> declared and projects those members to a tuple containing the member and the attribute.
+	/// </summary>
+	/// <typeparam name="TMember">The member type of the sequence.</typeparam>
+	/// <typeparam name="TAttribute">The type of attribute to look for.</typeparam>
+	/// <param name="members">The sequence to filter.</param>
+	/// <param name="inherit">Whether to check for inherited attributes on each member.</param>
+	/// <returns>An <see cref="IEnumerable{T}"/> instance containing the projected results.</returns>
 	public static IEnumerable<(TMember Member, TAttribute Attribute)> WithAttribute<TMember, TAttribute>(this IEnumerable<TMember> members, bool inherit = true)
 		where TMember : MemberInfo
 		where TAttribute : Attribute
@@ -165,6 +196,14 @@ public static class ReflectionHelper
 		return from member in members let attr = (TAttribute?)Attribute.GetCustomAttribute(member, typeof(TAttribute), inherit) where attr != null select (member, attr);
 	}
 
+	/// <summary>
+	/// Filters a sequence of <typeparamref name="TMember"/> instances to ones that have at least one attribute of type <typeparamref name="TAttribute"/> declared and projects those members to a tuple containing the member and the attributes.
+	/// </summary>
+	/// <typeparam name="TMember">The member type of the sequence.</typeparam>
+	/// <typeparam name="TAttribute">The type of attribute to look for.</typeparam>
+	/// <param name="members">The sequence to filter.</param>
+	/// <param name="inherit">Whether to check for inherited attributes on each member.</param>
+	/// <returns>An <see cref="IEnumerable{T}"/> instance containing the projected results.</returns>
 	public static IEnumerable<(TMember Member, TAttribute[] Attributes)> WithAttributes<TMember, TAttribute>(this IEnumerable<TMember> members, bool inherit = true)
 		where TMember : MemberInfo
 		where TAttribute : Attribute

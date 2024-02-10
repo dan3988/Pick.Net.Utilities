@@ -16,8 +16,8 @@ public static unsafe partial class Enums
 	/// Gets a cached <see cref="ReadOnlyCollection{T}"/> containing all the constant values defined in <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
-	public static ReadOnlyCollection<T> GetValueList<T>() where T : unmanaged, Enum
-		=> Enums<T>.BoxedValues ??= new(Enums<T>.Values);
+	public static ImmutableList<T> GetValueList<T>() where T : unmanaged, Enum
+		=> Enums<T>.BoxedValues;
 
 	/// <summary>
 	/// Gets a cached <see cref="ImmutableArray{T}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
@@ -30,8 +30,8 @@ public static unsafe partial class Enums
 	/// Gets a cached <see cref="ReadOnlyCollection{string}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
-	public static ReadOnlyCollection<string> GetNameList<T>() where T : unmanaged, Enum
-		=> Enums<T>.BoxedNames ??= new(Enums<T>.Names);
+	public static ImmutableList<string> GetNameList<T>() where T : unmanaged, Enum
+		=> Enums<T>.BoxedNames;
 
 	/// <summary>
 	/// Gets the underlying TypeCode of <typeparamref name="T"/>.
@@ -124,6 +124,7 @@ public static unsafe partial class Enums
 /// <summary>
 /// Stores values relating to the enum <typeparamref name="T"/>.
 /// </summary>
+// ReSharper disable StaticMemberInGenericType
 internal static unsafe class Enums<T> where T : unmanaged, Enum
 {
 	internal static readonly Type UnderlyingType = typeof(T).GetEnumUnderlyingType();
@@ -133,11 +134,13 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 
 	internal static readonly T[] Values = Enum.GetValues<T>();
 	internal static readonly ImmutableArray<T> ReadOnlyValues = ImmutableArray.Create(Values);
-	internal static ReadOnlyCollection<T>? BoxedValues;
+	private static ImmutableList<T>? _boxedValues;
+	internal static ImmutableList<T> BoxedValues => _boxedValues ??= [.. Values];
 
 	internal static readonly string[] Names = Enum.GetNames<T>();
 	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
-	internal static ReadOnlyCollection<string>? BoxedNames;
+	private static ImmutableList<string>? _boxedNames;
+	internal static ImmutableList<string> BoxedNames => _boxedNames ??= [.. Names];
 
 	private static (T Min, T Max)? _minMax;
 	internal static (T Min, T Max) MinMax => _minMax ??= CalculateMinMax();

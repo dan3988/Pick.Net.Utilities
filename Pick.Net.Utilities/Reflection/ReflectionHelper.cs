@@ -76,11 +76,28 @@ public static class ReflectionHelper
 		typeof(ReadOnlyObservableCollection<>),
 		typeof(ObservableCollection<>),
 		typeof(ObservableList<>),
+		typeof(ConcurrentBag<>),
+		typeof(ConcurrentStack<>),
+		typeof(ConcurrentQueue<>),
+		typeof(BlockingCollection<>),
 		typeof(ImmutableArray<>),
 		typeof(ImmutableHashSet<>),
 		typeof(ImmutableQueue<>),
 		typeof(ImmutableStack<>),
 		typeof(ImmutableSortedSet<>)
+	]);
+
+	private static readonly ImmutableHashSet<Type> KnownDictionaryTypes = ImmutableHashSet.Create([
+		typeof(IReadOnlyDictionary<,>),
+		typeof(IDictionary<,>),
+		typeof(IImmutableDictionary<,>),
+		typeof(Dictionary<,>),
+		typeof(ReadOnlyDictionary<,>),
+		typeof(ImmutableDictionary<,>),
+		typeof(ImmutableSortedDictionary<,>),
+		typeof(ConcurrentDictionary<,>),
+		typeof(SortedDictionary<,>),
+		typeof(SortedList<,>)
 	]);
 
 	private static readonly ConcurrentDictionary<Type, Type?> EnumerableTypeCache = [];
@@ -101,8 +118,15 @@ public static class ReflectionHelper
 
 	private static Type? GetCollectionTypeImpl(Type arg)
 	{
-		if (KnownEnumerableTypes.Contains(arg))
-			return arg.GetGenericArguments()[0];
+		if (arg.IsGenericType)
+		{
+			var generic = arg.GetGenericTypeDefinition();
+			if (KnownEnumerableTypes.Contains(generic))
+				return arg.GetGenericArguments()[0];
+
+			if (KnownDictionaryTypes.Contains(generic))
+				return typeof(KeyValuePair<,>).MakeGenericType(arg.GetGenericArguments());
+		}
 
 		foreach (var i in arg.GetInterfaces())
 			if (i.IsGenericType && KnownEnumerableInterfaces.Contains(i.GetGenericTypeDefinition()))

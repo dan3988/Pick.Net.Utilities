@@ -10,15 +10,14 @@ public interface IAtomicValue<T>
 	/// Set the value and return the old value
 	/// </summary>
 	/// <param name="value">The new value</param>
-	/// <returns><c>true</c> if the value has changed, otherwise <c>false</c>.</returns>
+	/// <returns>The original value.</returns>
 	T Set(T value);
 
 	/// <summary>
 	/// Set the value if its current value is equal to <paramref name="comparand"/>, and return the old value
 	/// </summary>
-	/// <param name="value">The new value</param>
 	/// <param name="comparand">The value to compare with the current value</param>
-	/// <returns><c>true</c> if the value has changed, otherwise <c>false</c>.</returns>
+	/// <inheritdoc cref="Set(T)"/>
 	T Set(T value, T comparand);
 }
 

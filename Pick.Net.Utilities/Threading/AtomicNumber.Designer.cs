@@ -421,3 +421,31 @@ public partial struct AtomicDouble(double value) : IAtomicNumber<AtomicDouble, d
 	public static bool operator !=(double left, AtomicDouble right)
 		=> !right.Equals(left);
 }
+
+partial class AtomicValueExtensions
+{
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicInt32 reference, int value, int comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicUInt32 reference, uint value, uint comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicInt64 reference, long value, long comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicUInt64 reference, ulong value, ulong comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicSingle reference, float value, float comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref AtomicDouble reference, double value, double comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+}

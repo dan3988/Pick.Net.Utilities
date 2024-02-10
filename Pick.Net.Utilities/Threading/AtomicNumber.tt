@@ -110,3 +110,13 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 		=> !right.Equals(left);
 }
 <# } #>
+
+partial class AtomicValueExtensions
+{
+<# foreach (var type in types) { #>
+	/// <inheritdoc cref="TrySet{TSelf, TValue}(ref TSelf, TValue, TValue)"/>
+	public static bool TrySet(this ref Atomic<#=type.Full#> reference, <#=type.Short#> value, <#=type.Short#> comparand)
+		=> reference.Set(value, comparand) == comparand;
+
+<# } #>
+}

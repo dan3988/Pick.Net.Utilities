@@ -47,7 +47,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.AreEqual(1, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
@@ -70,7 +72,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0u, value.Value);
 		Assert.AreEqual(1u, value.Increment());
-		Assert.AreEqual(1u, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500u, value.Set(0));
 		Assert.AreEqual(uint.MaxValue, value.Decrement());
 		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
@@ -93,7 +97,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.AreEqual(1, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(499, value.Add(500));
 		Assert.AreEqual(200, value.Value = 200);
@@ -116,7 +122,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0u, value.Value);
 		Assert.AreEqual(1u, value.Increment());
-		Assert.AreEqual(1u, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500u, value.Set(0));
 		Assert.AreEqual(ulong.MaxValue, value.Decrement());
 		Assert.AreEqual(499u, value.Add(500));
 		Assert.AreEqual(200u, value.Value = 200);
@@ -139,7 +147,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.AreEqual(1, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500u, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(249.5f, value.Add(250.5f));
 		Assert.AreEqual(33.3333f, value.Value = 33.3333f);
@@ -162,7 +172,9 @@ public class AtomicValueTests
 
 		Assert.AreEqual(0, value.Value);
 		Assert.AreEqual(1, value.Increment());
-		Assert.AreEqual(1, value.Set(0));
+		Assert.IsTrue(value.TrySet(500, 1));
+		Assert.IsFalse(value.TrySet(0, 501));
+		Assert.AreEqual(500u, value.Set(0));
 		Assert.AreEqual(-1, value.Decrement());
 		Assert.AreEqual(249.5, value.Add(250.5));
 		Assert.AreEqual(33.3333, value.Value = 33.3333);

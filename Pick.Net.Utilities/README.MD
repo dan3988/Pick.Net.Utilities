@@ -69,15 +69,15 @@ var value3 = map[keys[^4..]];
 Generic version of `Delegate.CreateDelegate`, `Delegate.Combine` and `Delegate.Remove`
 ```csharp
 // instead of
-var handler = (Predicate<string>)Delegate.CreateDelegate(typeof(Predicate<string>), method);
+var handler = (Predicate<string>)method.CreateDelegate(typeof(Predicate<string>));
 // use
-var handler = DelegateHelper.CreateDelegate<Predicate<string>>(method);
+var handler = method.CreateDelegate<Predicate<string>>(method);
 ```
 
 Shortcuts for `System.Action` and `System.Func`
 ```csharp
-Action<object> handler = DelegateHelper.CreateAction<object>(method);
-Func<int, string, bool> handler = DelegateHelper.CreateFunc<int, string, bool>(method);
+Action<object> handler = method.CreateAction<object>();
+Func<int, string, bool> handler = method.CreateFunc<int, string, bool>();
 ```
 
 Get delegate parameter and return types
@@ -87,3 +87,40 @@ ImmutableArray<Type> types = DelegateHelper.GetParameterTypes<Action<string, int
 Type types = DelegateHelper.GetReturnType<Func<string>>();
 // typeof(string)
 ```
+
+### Atomic Values
+Value type wrappers for `int`, `uint`, `long`, `ulong`, `float` and `double` that use the `System.Threading.Interlocked` class to perform atomic operations. e.g.
+```csharp
+private int value;
+
+void DoSomething()
+{
+	var next = Interlocked.Increment(ref value);
+	var old = Interlocked.Exchange(ref value, 5);
+	if (Interlocked.CompareExchange(ref value, 0, 5) == 5)
+	{
+		...
+	}
+}
+```
+Can be simplified to
+```csharp
+private AtomicInt32 value;
+
+void DoSomething()
+{
+	var next = value.Increment();
+	var old = value.Set(5);
+	if (value.TrySet(0, 5))
+	{
+		...
+	}
+}
+```
+
+- [AtomicInt32](Threading/AtomicNumber.Designer.cs#L11)
+- [AtomicUInt32](Threading/AtomicNumber.Designer.cs#L77)
+- [AtomicInt64](Threading/AtomicNumber.Designer.cs#L143)
+- [AtomicUInt64](Threading/AtomicNumber.Designer.cs#L209)
+- [AtomicSingle](Threading/AtomicNumber.Designer.cs#L275)
+- [AtomicDouble](Threading/AtomicNumber.Designer.cs#L352)

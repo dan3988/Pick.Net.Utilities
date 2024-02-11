@@ -66,15 +66,7 @@ var value3 = map[keys[^4..]];
 ```
 
 ### DelegateHelper
-Generic version of `Delegate.CreateDelegate`, `Delegate.Combine` and `Delegate.Remove`
-```csharp
-// instead of
-var handler = (Predicate<string>)method.CreateDelegate(typeof(Predicate<string>));
-// use
-var handler = method.CreateDelegate<Predicate<string>>(method);
-```
-
-Shortcuts for `System.Action` and `System.Func`
+Shortcuts for MethodInfo.CreateDelegate for `System.Action` and `System.Func` delegates.
 ```csharp
 Action<object> handler = method.CreateAction<object>();
 Func<int, string, bool> handler = method.CreateFunc<int, string, bool>();

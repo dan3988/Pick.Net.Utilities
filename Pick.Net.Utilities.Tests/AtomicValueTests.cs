@@ -19,6 +19,25 @@ public class AtomicValueTests
 	}
 
 	[TestMethod]
+	public void TestAtomicRef()
+	{
+		const string valueA = "Value A";
+		const string valueB = "Value B";
+
+		var valueBCopy = string.Create(valueB.Length, valueB, (span, str) => str.CopyTo(span));
+		var value = new AtomicRef<object?>();
+
+		Assert.IsNull(value.Value);
+		Assert.IsNull(value.Set(valueA, valueB));
+		Assert.IsNull(value.Set(valueA));
+		Assert.AreSame(valueA, value.Set(valueB, valueA));
+		Assert.AreSame(valueB, value.Set(valueB, valueA));
+		Assert.AreEqual(value, new(valueB));
+		Assert.AreNotEqual(value, default);
+		Assert.AreNotEqual(value, new(valueBCopy));
+	}
+
+	[TestMethod]
 	public void TestAtomicBool()
 	{
 		var value = new AtomicBool();

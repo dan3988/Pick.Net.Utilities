@@ -4,6 +4,8 @@ namespace Pick.Net.Utilities.Threading;
 
 public interface IAtomicValue<T>
 {
+	//ref T UnsafeValue { get; }
+
 	T Value { get; set; }
 
 	/// <summary>

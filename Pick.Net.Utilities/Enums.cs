@@ -135,12 +135,12 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 	internal static readonly T[] Values = Enum.GetValues<T>();
 	internal static readonly ImmutableArray<T> ReadOnlyValues = ImmutableArray.Create(Values);
 	private static ImmutableList<T>? _boxedValues;
-	internal static ImmutableList<T> BoxedValues => _boxedValues ??= [.. Values];
+	internal static ImmutableList<T> BoxedValues => _boxedValues ??= ImmutableList.CreateRange(Values);
 
 	internal static readonly string[] Names = Enum.GetNames<T>();
 	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
 	private static ImmutableList<string>? _boxedNames;
-	internal static ImmutableList<string> BoxedNames => _boxedNames ??= [.. Names];
+	internal static ImmutableList<string> BoxedNames => _boxedNames ??= ImmutableList.CreateRange(Names);
 
 	private static (T Min, T Max)? _minMax;
 	internal static (T Min, T Max) MinMax => _minMax ??= CalculateMinMax();

@@ -17,9 +17,11 @@ public struct AtomicRef<T>(T value) : IAtomicValue<T>, IEquatable<AtomicRef<T>>,
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public T Set(T value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public T Set(T value, T comparand)
 		=> Interlocked.CompareExchange(ref _value!, value, comparand);
 

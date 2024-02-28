@@ -31,9 +31,11 @@ public struct AtomicBool(bool initialValue) : IAtomicValue<AtomicBool, bool>
 		return Interlocked.CompareExchange(ref _value, x, y) == y;
 	}
 
+	/// <inheritdoc/>
 	public bool Set(bool value)
 		=> Interlocked.Exchange(ref _value, Convert.ToUInt32(value)) != 0;
 
+	/// <inheritdoc/>
 	public bool Set(bool value, bool comparand)
 		=> Interlocked.CompareExchange(ref _value, Convert.ToUInt32(value), Convert.ToUInt32(comparand)) != 0;
 

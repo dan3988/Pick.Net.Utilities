@@ -39,28 +39,36 @@ public partial struct Atomic<#=type.Full#>(<#=type.Short#> value) : IAtomicNumbe
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Set(<#=type.Short#> value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Set(<#=type.Short#> value, <#=type.Short#> comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
 <# if (type.IsInteger) { #>
+	/// <inheritdoc/>
 	public <#=type.Short#> Increment()
 		=> Interlocked.Increment(ref _value);
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Add(<#=type.Short#> amount)
 		=> Interlocked.Add(ref _value, amount);
 <# } else { #>
+	/// <inheritdoc/>
 	public <#=type.Short#> Increment()
 		=> Add(1);
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Decrement()
 		=> Add(-1);
 
+	/// <inheritdoc/>
 	public <#=type.Short#> Add(<#=type.Short#> amount)
 	{
 		<#=type.Short#> currentValue, newValue, newCurrentValue = _value;

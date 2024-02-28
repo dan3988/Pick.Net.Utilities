@@ -21,18 +21,23 @@ public partial struct AtomicInt32(int value) : IAtomicNumber<AtomicInt32, int>
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public int Set(int value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public int Set(int value, int comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public int Increment()
 		=> Interlocked.Increment(ref _value);
 
+	/// <inheritdoc/>
 	public int Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	/// <inheritdoc/>
 	public int Add(int amount)
 		=> Interlocked.Add(ref _value, amount);
 
@@ -87,18 +92,23 @@ public partial struct AtomicUInt32(uint value) : IAtomicNumber<AtomicUInt32, uin
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public uint Set(uint value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public uint Set(uint value, uint comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public uint Increment()
 		=> Interlocked.Increment(ref _value);
 
+	/// <inheritdoc/>
 	public uint Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	/// <inheritdoc/>
 	public uint Add(uint amount)
 		=> Interlocked.Add(ref _value, amount);
 
@@ -153,18 +163,23 @@ public partial struct AtomicInt64(long value) : IAtomicNumber<AtomicInt64, long>
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public long Set(long value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public long Set(long value, long comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public long Increment()
 		=> Interlocked.Increment(ref _value);
 
+	/// <inheritdoc/>
 	public long Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	/// <inheritdoc/>
 	public long Add(long amount)
 		=> Interlocked.Add(ref _value, amount);
 
@@ -219,18 +234,23 @@ public partial struct AtomicUInt64(ulong value) : IAtomicNumber<AtomicUInt64, ul
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public ulong Set(ulong value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public ulong Set(ulong value, ulong comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public ulong Increment()
 		=> Interlocked.Increment(ref _value);
 
+	/// <inheritdoc/>
 	public ulong Decrement()
 		=> Interlocked.Decrement(ref _value);
 
+	/// <inheritdoc/>
 	public ulong Add(ulong amount)
 		=> Interlocked.Add(ref _value, amount);
 
@@ -285,18 +305,23 @@ public partial struct AtomicSingle(float value) : IAtomicNumber<AtomicSingle, fl
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public float Set(float value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public float Set(float value, float comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public float Increment()
 		=> Add(1);
 
+	/// <inheritdoc/>
 	public float Decrement()
 		=> Add(-1);
 
+	/// <inheritdoc/>
 	public float Add(float amount)
 	{
 		float currentValue, newValue, newCurrentValue = _value;
@@ -362,18 +387,23 @@ public partial struct AtomicDouble(double value) : IAtomicNumber<AtomicDouble, d
 		set => Interlocked.Exchange(ref _value, value);
 	}
 
+	/// <inheritdoc/>
 	public double Set(double value)
 		=> Interlocked.Exchange(ref _value, value);
 
+	/// <inheritdoc/>
 	public double Set(double value, double comparand)
 		=> Interlocked.CompareExchange(ref _value, value, comparand);
 
+	/// <inheritdoc/>
 	public double Increment()
 		=> Add(1);
 
+	/// <inheritdoc/>
 	public double Decrement()
 		=> Add(-1);
 
+	/// <inheritdoc/>
 	public double Add(double amount)
 	{
 		double currentValue, newValue, newCurrentValue = _value;

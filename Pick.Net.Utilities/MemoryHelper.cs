@@ -128,7 +128,7 @@ public static unsafe class MemoryHelper
 	/// Converts <paramref name="byteCount"/> bytes from <paramref name="ptr"/> to a little endian base 16 string.
 	/// </summary>
 	/// <param name="ptr">A pointer to the first byte to convert</param>
-	/// <param name="ptr">The amaount of bytes to read from <paramref name="ptr"/></param>
+	/// <param name="byteCount">The number of bytes to read from <paramref name="ptr"/></param>
 	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
 	public static string ToHexString(void* ptr, int byteCount, bool upperCase = false)
 		=> new ToHexStringState((nint)ptr, byteCount, upperCase).Create();
@@ -174,7 +174,7 @@ public static unsafe class MemoryHelper
 	/// Converts <paramref name="byteCount"/> bytes from <paramref name="ptr"/> to a little endian base 2 string.
 	/// </summary>
 	/// <param name="ptr">A pointer to the first byte to convert</param>
-	/// <param name="ptr">The amaount of bytes to read from <paramref name="ptr"/></param>
+	/// <param name="sizeInBytes">The number of bytes to read from <paramref name="ptr"/></param>
 	public static string ToBinaryString(void* ptr, int sizeInBytes)
 		=> new ToBinaryStringState((nint)ptr, sizeInBytes).Create();
 }

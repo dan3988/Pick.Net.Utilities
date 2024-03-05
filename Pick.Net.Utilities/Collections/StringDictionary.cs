@@ -9,7 +9,7 @@ namespace Pick.Net.Utilities.Collections;
 [DebuggerDisplay(CollectionHelper.DebuggerDisplay)]
 public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>, IDictionary
 {
-	private const int lowBits = 0x7FFFFFFF;
+	private const int LowBits = 0x7FFFFFFF;
 
 	private readonly StringComparison _comparison;
 	/// <summary>
@@ -134,7 +134,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		var size = values switch
 		{
 			StringDictionary<T> str => str._entries.Length,
-			IEnumerable<KeyValuePair<string, T>> v when v.TryGetNonEnumeratedCount(out int count) => HashHelpers.GetPrime(count),
+			{ } v when v.TryGetNonEnumeratedCount(out int count) => HashHelpers.GetPrime(count),
 			_ => HashHelpers.MinPrime
 		};
 
@@ -148,7 +148,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			ref var entry = ref Unsafe.NullRef<Entry>();
 
-			var hash = lowBits & key.GetHashCode(comparison);
+			var hash = LowBits & key.GetHashCode(comparison);
 			var bucket = hash % _entries.Length;
 			var i = ~_buckets[bucket];
 			while (i >= 0)
@@ -205,7 +205,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	{
 		if (_size > 0)
 		{
-			var hash = lowBits & string.GetHashCode(key, _comparison);
+			var hash = LowBits & string.GetHashCode(key, _comparison);
 			var i = ~_buckets[hash % _entries.Length];
 
 			while (i >= 0)
@@ -228,7 +228,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 		ref var entry = ref Unsafe.NullRef<Entry>();
 
-		var hash = lowBits & key.GetHashCode(_comparison);
+		var hash = LowBits & key.GetHashCode(_comparison);
 		var bucket = 0;
 		if (_size > 0)
 		{
@@ -364,7 +364,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 	{
 		if (_size > 0)
 		{
-			var hash = lowBits & string.GetHashCode(key, _comparison);
+			var hash = LowBits & string.GetHashCode(key, _comparison);
 			var bucket = hash % _entries.Length;
 			var i = ~_buckets[bucket];
 			var last = 0;
@@ -516,7 +516,6 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	public struct Enumerator(StringDictionary<T> owner) : IDictionaryEnumerator<string, T>
 	{
-		private readonly StringDictionary<T> _owner = owner;
 		private int _version = owner._version;
 		private int _index;
 		private KeyValuePair<string, T> _current;
@@ -526,7 +525,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		private readonly void CheckVersion()
 		{
 			ObjectDisposedException.ThrowIf(_version < 0, typeof(Enumerator));
-			if (_version != _owner._version)
+			if (_version != owner._version)
 				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
 		}
 
@@ -539,9 +538,9 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			CheckVersion();
 
-			while (unchecked((uint)_index < (uint)_owner._size))
+			while (unchecked((uint)_index < (uint)owner._size))
 			{
-				ref var entry = ref _owner._entries[_index++];
+				ref var entry = ref owner._entries[_index++];
 				if (entry.HashCode > 0)
 				{
 					_current = entry.Pair;
@@ -563,7 +562,6 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 
 	private abstract class BaseEnumerator<TItem>(StringDictionary<T> owner) : IEnumerator<TItem>
 	{
-		private readonly StringDictionary<T> _owner = owner;
 		private int _version = owner._version;
 		private int _index;
 		private TItem? _current;
@@ -575,7 +573,7 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		private void CheckVersion()
 		{
 			ObjectDisposedException.ThrowIf(_version < 0, this);
-			if (_version != _owner._version)
+			if (_version != owner._version)
 				throw CollectionHelper.EnumeratorInvalidatedException();
 		}
 
@@ -588,9 +586,9 @@ public class StringDictionary<T> : IStringDictionary<T>, IDictionary<string, T>,
 		{
 			CheckVersion();
 
-			while ((uint)_index < (uint)_owner._size)
+			while ((uint)_index < (uint)owner._size)
 			{
-				ref var entry = ref _owner._entries[_index++];
+				ref var entry = ref owner._entries[_index++];
 				if (entry.HashCode > 0)
 				{
 					_current = GetValue(in entry);

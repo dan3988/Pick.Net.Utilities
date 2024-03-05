@@ -9,7 +9,7 @@ public static class Conversion
 	private static readonly Type EmptyType = typeof(object).Module.GetType("System.Empty")!;
 
 	private static readonly Type?[] TypeCodeTypes =
-	{
+	[
 		/* TypeCode.Empty       */ EmptyType,
 		/* TypeCode.Object      */ typeof(object),
 		/* TypeCode.DBNull      */ typeof(DBNull),
@@ -28,8 +28,8 @@ public static class Conversion
 		/* TypeCode.Decimal     */ typeof(decimal),
 		/* TypeCode.DateTime    */ typeof(DateTime),
 		/* gap                  */ null,
-		/* TypeCode.String      */ typeof(string),
-	};
+		/* TypeCode.String      */ typeof(string)
+	];
 
 	private static readonly Dictionary<Type, TypeCode> TypeCodeMap = new()
 	{

@@ -1,9 +1,7 @@
 namespace System.Diagnostics.CodeAnalysis;
 
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
-public sealed class MaybeNullWhenAttribute : Attribute
+public sealed class MaybeNullWhenAttribute(bool returnValue) : Attribute
 {
-	public MaybeNullWhenAttribute(bool returnValue) => ReturnValue = returnValue;
-
-	public bool ReturnValue { get; }
+	public bool ReturnValue { get; } = returnValue;
 }

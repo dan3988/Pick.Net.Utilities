@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-using Microsoft.CodeAnalysis.Editing;
+﻿using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Simplification;
 
 namespace Pick.Net.Utilities.Maui.SourceGenerators.CodeFixers;

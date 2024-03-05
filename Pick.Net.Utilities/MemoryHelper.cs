@@ -43,8 +43,8 @@ public static unsafe class MemoryHelper
 
 	private readonly struct ToBinaryStringState(nint pointer, int byteCount)
 	{
-		private const string chars = "01";
-		private static readonly uint[] bitflags = [0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000];
+		private const string Chars = "01";
+		private static readonly uint[] Bitflags = [0b00000001, 0b00000010, 0b00000100, 0b00001000, 0b00010000, 0b00100000, 0b01000000, 0b10000000];
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void CheckFlag(char* chars, uint* flags, uint currentByte, ref char* output, int index)
@@ -58,8 +58,8 @@ public static unsafe class MemoryHelper
 		{
 			var ptr = (byte*)state.Pointer;
 
-			fixed (uint* flags = bitflags)
-			fixed (char* ch = chars)
+			fixed (uint* flags = Bitflags)
+			fixed (char* ch = Chars)
 			fixed (char* strPtr = span)
 			{
 				var unfixedPtr = strPtr;

@@ -5,9 +5,9 @@ namespace Pick.Net.Utilities.Collections;
 
 public class ObservableList<T> : ObservableCollection<T>
 {
-	private ReadOnlyObservableCollection<T>? readOnly;
+	private ReadOnlyObservableCollection<T>? _readOnly;
 
-	public ReadOnlyObservableCollection<T> ReadOnly => readOnly ??= new(this);
+	public ReadOnlyObservableCollection<T> ReadOnly => _readOnly ??= new(this);
 
 	public ObservableList()
 	{

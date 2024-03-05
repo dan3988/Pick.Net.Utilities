@@ -17,8 +17,8 @@ internal abstract record PrimitiveTypeInfo
 	public static readonly PrimitiveTypeInfo Decimal	= new SimpleTypeInfo<decimal>(TypeCode.Decimal, SyntaxHelper.TypeDecimal, SyntaxKind.DecimalKeyword, SyntaxKind.NumericLiteralExpression, DecimalLiteral);
 	public static readonly PrimitiveTypeInfo String		= new SimpleTypeInfo<string>(TypeCode.String, SyntaxHelper.TypeString, SyntaxKind.StringKeyword, SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal);
 
-	private static readonly PrimitiveTypeInfo?[] typeCodeLookup =
-	{
+	private static readonly PrimitiveTypeInfo?[] TypeCodeLookup =
+	[
 		/* TypeCode.Empty = 0		*/ null,
 		/* TypeCode.Object = 1		*/ null,
 		/* TypeCode.DBNull = 2		*/ null,
@@ -37,8 +37,8 @@ internal abstract record PrimitiveTypeInfo
 		/* TypeCode.Decimal = 15	*/ Decimal,
 		/* TypeCode.DateTime = 16	*/ null,
 		/* gap						*/ null,
-		/* TypeCode.String = 18		*/ String,
-	};
+		/* TypeCode.String = 18		*/ String
+	];
 
 	private static SyntaxToken DoubleLiteral(double value)
 		=> SyntaxFactory.Literal($"{value}D", value);
@@ -48,10 +48,10 @@ internal abstract record PrimitiveTypeInfo
 
 	public static PrimitiveTypeInfo ForTypeCode(TypeCode type)
 	{
-		if (unchecked((uint)type >= (uint)typeCodeLookup.Length))
+		if (unchecked((uint)type >= (uint)TypeCodeLookup.Length))
 			throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid TypeCode");
 
-		return typeCodeLookup[(int)type] ?? throw new ArgumentException(type + " is not a primitive type.", nameof(type));
+		return TypeCodeLookup[(int)type] ?? throw new ArgumentException(type + " is not a primitive type.", nameof(type));
 	}
 
 	public TypeCode TypeCode { get; }

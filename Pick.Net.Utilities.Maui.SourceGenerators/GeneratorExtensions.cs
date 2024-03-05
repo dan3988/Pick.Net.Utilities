@@ -34,7 +34,7 @@ internal static class GeneratorExtensions
 			{
 				var key = keySelector.Invoke(value);
 				if (!dict.TryGetValue(key, out var group))
-					dict[key] = group = new();
+					dict[key] = group = [];
 
 				var val = valueSelector.Invoke(value);
 				group.Add(val);

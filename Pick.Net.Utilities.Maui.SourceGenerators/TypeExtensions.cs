@@ -2,7 +2,7 @@
 
 internal static class TypeExtensions
 {
-	private static readonly Dictionary<Type, TypeCode> typeCodeMapping = new()
+	private static readonly Dictionary<Type, TypeCode> TypeCodeMapping = new()
 	{
 		{ typeof(object), TypeCode.Object },
 		{ typeof(DBNull), TypeCode.DBNull },
@@ -24,5 +24,5 @@ internal static class TypeExtensions
 	};
 
 	public static bool TryGetTypeCode(this Type type, out TypeCode typeCode)
-		=> typeCodeMapping.TryGetValue(type, out typeCode);
+		=> TypeCodeMapping.TryGetValue(type, out typeCode);
 }

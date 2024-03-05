@@ -67,7 +67,7 @@ public class BindableInstancePropertyAccessorAnalyzer : DiagnosticAnalyzer
 
 		foreach (var accessor in node.AccessorList.Accessors)
 		{
-			if (!accessor.IsBindablePropertyUsed(symbol!.Name))
+			if (!accessor.IsBindablePropertyUsed(symbol.Name))
 			{
 				context.ReportDiagnostic(DiagnosticDescriptors.BindablePropertyInstancePropertyNotUsed, symbol, symbol.Name);
 				break;

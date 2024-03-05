@@ -14,7 +14,7 @@ internal abstract unsafe partial class EnumHelper
 	public static readonly EnumHelper<long> Int64 = new();
 
 	private static readonly EnumHelper?[] TypeCodeLookup =
-	{
+	[
 		/* TypeCode.Empty = 0		*/ null,
 		/* TypeCode.Object = 1		*/ null,
 		/* TypeCode.DBNull = 2		*/ null,
@@ -28,7 +28,7 @@ internal abstract unsafe partial class EnumHelper
 		/* TypeCode.UInt32 = 10		*/ UInt32,
 		/* TypeCode.Int64 = 9		*/ Int64,
 		/* TypeCode.UInt64 = 10		*/ UInt64
-	};
+	];
 
 	public static EnumHelper ForTypeCode(TypeCode typeCode)
 	{

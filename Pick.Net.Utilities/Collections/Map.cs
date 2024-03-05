@@ -398,7 +398,6 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	public struct Enumerator(Map<TKey, TValue> owner) : IEnumerator<IMapEntry<TKey, TValue>>
 	{
-		private readonly Map<TKey, TValue> _owner = owner;
 		private int _version = owner._version;
 		private int _index;
 		private Entry? _current;
@@ -410,7 +409,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		private readonly void CheckVersion()
 		{
 			ObjectDisposedException.ThrowIf(_version < 0, typeof(Enumerator));
-			if (_version != _owner._version)
+			if (_version != owner._version)
 				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
 		}
 
@@ -424,7 +423,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 			CheckVersion();
 
 			var index = _index;
-			var entries = _owner._entries;
+			var entries = owner._entries;
 			if (entries.Length <= index)
 				return false;
 
@@ -456,7 +455,6 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 
 	private abstract class BaseEnumerator<TItem>(Map<TKey, TValue> owner) : IEnumerator<TItem>
 	{
-		private readonly Map<TKey, TValue> _owner = owner;
 		private int _version = owner._version;
 		private int _index;
 		private Entry? _current;
@@ -470,7 +468,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 		private void CheckVersion()
 		{
 			ObjectDisposedException.ThrowIf(_version < 0, typeof(Enumerator));
-			if (_version != _owner._version)
+			if (_version != owner._version)
 				throw new InvalidOperationException("Collection was modified; enumeration operation may not execute");
 		}
 
@@ -484,7 +482,7 @@ public sealed class Map<TKey, TValue> : IMap, IMap<TKey, TValue>, ICollection, I
 			CheckVersion();
 
 			var index = _index;
-			var entries = _owner._entries;
+			var entries = owner._entries;
 			if (entries.Length <= index)
 				return false;
 

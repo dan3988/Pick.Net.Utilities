@@ -9,18 +9,14 @@ internal static class SymbolHelper
 	private static readonly SymbolDisplayFormat FullTypeNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 	private static readonly SymbolDisplayFormat FullNamespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
-	private readonly record struct SpecialTypeInfo(TypeCode TypeCode, SyntaxToken? PredefinedType)
+	private readonly record struct SpecialTypeInfo(TypeCode TypeCode, SyntaxToken? PredefinedType = null)
 	{
-		public SpecialTypeInfo(TypeCode typeCode) : this(typeCode, new SyntaxToken?())
-		{
-		}
-
 		public SpecialTypeInfo(TypeCode typeCode, SyntaxKind predefinedTypeKind) : this(typeCode, Token(predefinedTypeKind))
 		{
 		}
 	}
 
-	private static readonly Dictionary<SpecialType, SpecialTypeInfo> specialTypesMap = new()
+	private static readonly Dictionary<SpecialType, SpecialTypeInfo> SpecialTypesMap = new()
 	{
 		[SpecialType.System_Object]			= new(TypeCode.Object, SyntaxKind.ObjectKeyword),
 		[SpecialType.System_Boolean]		= new(TypeCode.Boolean, SyntaxKind.BoolKeyword),
@@ -52,7 +48,7 @@ internal static class SymbolHelper
 
 	public static bool TryGetTypeCode(this SpecialType type, out TypeCode typeCode)
 	{
-		if (specialTypesMap.TryGetValue(type, out var info))
+		if (SpecialTypesMap.TryGetValue(type, out var info))
 		{
 			typeCode = info.TypeCode;
 			return true;
@@ -91,7 +87,7 @@ internal static class SymbolHelper
 			type = type.EnumUnderlyingType;
 		}
 
-		return type.SpecialType != SpecialType.System_DateTime && specialTypesMap.ContainsKey(type.SpecialType);
+		return type.SpecialType != SpecialType.System_DateTime && SpecialTypesMap.ContainsKey(type.SpecialType);
 	}
 
 	public static string GetFullTypeName(this ITypeSymbol symbol, bool includeNullableAnnotation)
@@ -110,7 +106,7 @@ internal static class SymbolHelper
 	{
 		static TypeSyntax ToIdentifierCore(ITypeSymbol type)
 		{
-			return specialTypesMap.TryGetValue(type.SpecialType, out var info) && info.PredefinedType.HasValue
+			return SpecialTypesMap.TryGetValue(type.SpecialType, out var info) && info.PredefinedType.HasValue
 				? PredefinedType((SyntaxToken)info.PredefinedType)
 				: IdentifierName(GetFullTypeName(type, false));
 		}

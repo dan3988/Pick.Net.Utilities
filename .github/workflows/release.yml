@@ -39,20 +39,24 @@ jobs:
     #     git branch --remote --contains | grep origin/main
     - name: Get Version
       run: |
-        $VERSION_FULL = $env:GITHUB_REF -replace 'refs/tags/v', ''
-        $VERSION = $VERSION_FULL -replace '-preview.*', ''
-        Write-Output "VERSION_FULL: $VERSION_FULL"
-        Write-Output "VERSION: $VERSION"
+        VERSION_FULL=$env:GITHUB_REF -replace 'refs/tags/v', ''
+        VERSION_PREFIX=${VERSION_FULL%-*}
+        if [ "$VERSION_FULL" -ne "$VERSION_PREFIX" ]
+        then
+          VERSION_SUFFIX=${VERSION_FULL#*-}
+        fi
+        Write-Output "VERSION: $VERSION_FULL"
         echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
-        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+        echo "VERSION_PREFIX=$VERSION_PREFIX" >> $env:GITHUB_ENV
+        echo "VERSION_SUFFIX=$VERSION_SUFFIX" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" /p:Version=${{ env.VERSION }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet build -c Release "${{ matrix.package }}" -p:VersionPrefix="${{ env.$VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
     - name: Pack
-      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} /p:Version=${{ env.VERSION_FULL }} /p:BuildNumber=${{ github.run_number }}
+      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} -p:PackageVersion=${{ env.VERSION_FULL }}
     - name: Upload
       uses: actions/upload-artifact@v3.1.2
       with:

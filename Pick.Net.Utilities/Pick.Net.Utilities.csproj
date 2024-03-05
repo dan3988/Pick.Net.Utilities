@@ -4,6 +4,7 @@
     <LangVersion>12.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>1701;1702;1591</NoWarn>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pick-Net/Utilities</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Pick-Net/Utilities</PackageProjectUrl>
@@ -11,9 +12,6 @@
     <PackageReadmeFile>README.MD</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Various helper classes for C# development</Description>
-    <Version Condition="'$(Version)' == ''">0.0.0</Version>
-    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
-    <AssemblyVersion>$(Version).$(BuildNumber)</AssemblyVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

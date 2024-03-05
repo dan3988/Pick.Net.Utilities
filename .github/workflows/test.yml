@@ -15,8 +15,8 @@ jobs:
         dotnet-version: 8.0.x
     - name: Build
       run: |
-        dotnet build -c Release "Pick.Net.Utilities.Tests"
-        dotnet build -c Release "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
+        dotnet build "Pick.Net.Utilities.Tests" -c Release
+        dotnet build "Pick.Net.Utilities.Maui.SourceGenerators.Tests" -c Release
     - name: Run Tests
       run: dotnet test -c Release --no-build
   # build:

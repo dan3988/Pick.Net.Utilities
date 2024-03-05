@@ -27,7 +27,7 @@ public static unsafe partial class Enums
 		=> Enums<T>.ReadOnlyNames;
 
 	/// <summary>
-	/// Gets a cached <see cref="ReadOnlyCollection{string}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
+	/// Gets a cached <see cref="ReadOnlyCollection{T}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static ImmutableList<string> GetNameList<T>() where T : unmanaged, Enum

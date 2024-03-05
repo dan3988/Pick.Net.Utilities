@@ -109,7 +109,7 @@ public static unsafe class MemoryHelper
 	/// Converts <paramref name="value"/> to a little endian base 16 string representation of its raw data.
 	/// </summary>
 	/// <param name="value">The value to convert</param>
-	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
+	/// <param name="upperCase">Whether to return an upper case hex string</param>
 	public static string ToHexString<T>(T value, bool upperCase = false)
 		where T : unmanaged
 	{
@@ -129,7 +129,7 @@ public static unsafe class MemoryHelper
 	/// </summary>
 	/// <param name="ptr">A pointer to the first byte to convert</param>
 	/// <param name="byteCount">The number of bytes to read from <paramref name="ptr"/></param>
-	/// <inheritdoc cref="ToHexString{T}(T[], bool)"/>
+	/// <param name="upperCase">Whether to return an upper case hex string</param>
 	public static string ToHexString(void* ptr, int byteCount, bool upperCase = false)
 		=> new ToHexStringState((nint)ptr, byteCount, upperCase).Create();
 
@@ -162,7 +162,7 @@ public static unsafe class MemoryHelper
 		return ToBinaryString(&value, sizeof(T));
 	}
 
-	/// <inheritdoc cref="ToBinaryString{T}(T))"/>
+	/// <inheritdoc cref="ToBinaryString{T}(T)"/>
 	public static string ToBinaryString<T>(in T value)
 		where T : unmanaged
 	{
@@ -174,7 +174,7 @@ public static unsafe class MemoryHelper
 	/// Converts <paramref name="byteCount"/> bytes from <paramref name="ptr"/> to a little endian base 2 string.
 	/// </summary>
 	/// <param name="ptr">A pointer to the first byte to convert</param>
-	/// <param name="sizeInBytes">The number of bytes to read from <paramref name="ptr"/></param>
-	public static string ToBinaryString(void* ptr, int sizeInBytes)
-		=> new ToBinaryStringState((nint)ptr, sizeInBytes).Create();
+	/// <param name="byteCount">The number of bytes to read from <paramref name="ptr"/></param>
+	public static string ToBinaryString(void* ptr, int byteCount)
+		=> new ToBinaryStringState((nint)ptr, byteCount).Create();
 }

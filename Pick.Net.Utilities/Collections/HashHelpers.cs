@@ -1,7 +1,7 @@
 ﻿namespace Pick.Net.Utilities.Collections;
 
 /// <summary>
-/// Copy of the internal class <see cref="System.Collections.HashHelpers"/> <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs">System.Collections.HashHelpers</a>.
+/// Copy of the internal class <a href="https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Collections/HashHelpers.cs,de3ba4873d4ad06a">System.Collections.HashHelpers</a>.
 /// </summary>
 public static class HashHelpers
 {

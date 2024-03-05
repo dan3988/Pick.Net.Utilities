@@ -39,12 +39,12 @@ jobs:
     #     git branch --remote --contains | grep origin/main
     - name: Get Version
       run: |
-        VERSION_FULL=$env:GITHUB_REF -replace 'refs/tags/v', ''
-        VERSION_PREFIX=${VERSION_FULL%-*}
-        if [ "$VERSION_FULL" -ne "$VERSION_PREFIX" ]
-        then
-          VERSION_SUFFIX=${VERSION_FULL#*-}
-        fi
+        $VERSION_FULL=$env:GITHUB_REF -replace 'refs/tags/v', ''
+        $VERSION_SPLIT=$VERSION_FULL.Split('-', 2)
+        $VERSION_PREFIX=$VERSION_SPLIT[0]
+        if ($VERSION_SPLIT.Length -eq 2) {
+          $VERSION_SUFFIX=$VERSION_SPLIT[1]
+        }
         Write-Output "VERSION: $VERSION_FULL"
         echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
         echo "VERSION_PREFIX=$VERSION_PREFIX" >> $env:GITHUB_ENV

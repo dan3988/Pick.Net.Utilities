@@ -19,27 +19,27 @@ jobs:
         dotnet build -c Release "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
     - name: Run Tests
       run: dotnet test -c Release --no-build
-  build:
-    runs-on: windows-latest
-    timeout-minutes: 15
-    needs: test
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-    - name: Build Pick.Net.Utilities
-      run: |
-        dotnet build -c Release 'Pick.Net.Utilities'
-        dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities'
-    - name: Build Pick.Net.Utilities.Maui
-      run: |
-        dotnet build -c Release 'Pick.Net.Utilities.Maui'
-        dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities.Maui'
-    - name: Upload
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: build
-        path: .build
+  # build:
+  #   runs-on: windows-latest
+  #   timeout-minutes: 15
+  #   needs: test
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v3
+  #     with:
+  #       dotnet-version: 8.0.x
+  #   - name: Build Pick.Net.Utilities
+  #     run: |
+  #       dotnet build -c Release 'Pick.Net.Utilities'
+  #       dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities'
+  #   - name: Build Pick.Net.Utilities.Maui
+  #     run: |
+  #       dotnet build -c Release 'Pick.Net.Utilities.Maui'
+  #       dotnet pack -c Release --no-build -o .build 'Pick.Net.Utilities.Maui'
+  #   - name: Upload
+  #     uses: actions/upload-artifact@v3.1.2
+  #     with:
+  #       name: build
+  #       path: .build

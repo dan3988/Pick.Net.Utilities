@@ -54,7 +54,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" -p:VersionPrefix="${{ env.$VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+      run: dotnet build -c Release "${{ matrix.package }}" -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
     - name: Pack
       run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} -p:PackageVersion=${{ env.VERSION_FULL }}
     - name: Upload

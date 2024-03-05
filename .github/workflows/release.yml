@@ -48,10 +48,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
-    - name: Build
-      run: |
-        dotnet build "Pick.Net.Utilities" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
-        dotnet build "Pick.Net.Utilities.Maui" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+    - name: Build Pick.Net.Utilities
+      run: dotnet build "Pick.Net.Utilities" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+    - name: Build Pick.Net.Utilities.Maui
+      run: dotnet build "Pick.Net.Utilities.Maui" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
     - name: Pack
       run: |
         dotnet pack "Pick.Net.Utilities" -c Release --no-build -o .build -p:PackageVersion=${{ env.VERSION_FULL }}

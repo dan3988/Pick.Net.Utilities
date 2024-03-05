@@ -12,11 +12,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0463050-2DAE-4C08-8D32-DEDE9767DB5B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		.github\workflows\build.yml = .github\workflows\build.yml
 		LICENSE.MD = LICENSE.MD
 		Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md = Pick.Net.Utilities.Maui.SourceGenerators.Diagnostics.md
 		README.MD = README.MD
 		.github\workflows\release.yml = .github\workflows\release.yml
+		.github\workflows\test.yml = .github\workflows\test.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pick.Net.Utilities", "Pick.Net.Utilities\Pick.Net.Utilities.csproj", "{A0686F75-CCCA-4845-8088-2FCDCE4B5D1E}"

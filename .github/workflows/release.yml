@@ -62,5 +62,5 @@ jobs:
       with:
         name: ${{ matrix.package }}
         path: .build
-    - name: Push
-      run: dotnet nuget push .build/${{ matrix.package }}.${{ env.VERSION_FULL }}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"
+    # - name: Push
+    #   run: dotnet nuget push .build/${{ matrix.package }}.${{ env.VERSION_FULL }}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"

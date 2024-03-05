@@ -65,5 +65,7 @@ jobs:
       with:
         name: build
         path: .build
-    - name: Push
-      run: dotnet nuget push .build/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"
+    - name: Push Pick.Net.Utilities
+      run: |
+        dotnet nuget push ".build/Pick.Net.Utilities.${{ env.VERSION_FULL }}.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"
+        dotnet nuget push ".build/Pick.Net.Utilities.Maui.${{ env.VERSION_FULL }}.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"

@@ -8,10 +8,6 @@ jobs:
   test:
     runs-on: windows-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        package: [ 'Pick.Net.Utilities.Tests', 'Pick.Net.Utilities.Maui.SourceGenerators.Tests' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -20,16 +16,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}"
+      run: |
+        dotnet build -c Release "Pick.Net.Utilities.Tests"
+        dotnet build -c Release "Pick.Net.Utilities.Maui.SourceGenerators.Tests"
     - name: Run Tests
-      run: dotnet test -c Release --no-build  "${{ matrix.package }}"
+      run: dotnet test -c Release --no-build
   build:
     runs-on: windows-latest
     timeout-minutes: 15
     needs: test
-    strategy:
-      matrix:
-        package: [ 'Pick.Net.Utilities', 'Pick.Net.Utilities.Maui' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -54,13 +49,17 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Build
-      run: dotnet build -c Release "${{ matrix.package }}" -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+      run: |
+        dotnet build "Pick.Net.Utilities" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+        dotnet build "Pick.Net.Utilities.Maui" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
     - name: Pack
-      run: dotnet pack -c Release --no-build -o .build ${{ matrix.package }} -p:PackageVersion=${{ env.VERSION_FULL }}
+      run: |
+        dotnet pack "Pick.Net.Utilities" -c Release --no-build -o .build -p:PackageVersion=${{ env.VERSION_FULL }}
+        dotnet pack "Pick.Net.Utilities.Maui" -c Release --no-build -o .build -p:PackageVersion=${{ env.VERSION_FULL }}
     - name: Upload
       uses: actions/upload-artifact@v3.1.2
       with:
-        name: ${{ matrix.package }}
+        name: build
         path: .build
     # - name: Push
     #   run: dotnet nuget push .build/${{ matrix.package }}.${{ env.VERSION_FULL }}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key "${{ secrets.NUGET_TOKEN }}"

@@ -40,18 +40,20 @@ jobs:
         if ($VERSION_SPLIT.Length -eq 2) {
           $VERSION_SUFFIX=$VERSION_SPLIT[1]
         }
-        Write-Output "VERSION: $VERSION_FULL"
+        $HEAD_COUNT=git rev-list HEAD --count
+        Write-Output "VERSION: $VERSION_FULL ($HEAD_COUNT)"
         echo "VERSION_FULL=$VERSION_FULL" >> $env:GITHUB_ENV
         echo "VERSION_PREFIX=$VERSION_PREFIX" >> $env:GITHUB_ENV
         echo "VERSION_SUFFIX=$VERSION_SUFFIX" >> $env:GITHUB_ENV
+        echo "VERSION_FILE=$VERSION_PREFIX.$HEAD_COUNT" >> $env:GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Build Pick.Net.Utilities
-      run: dotnet build "Pick.Net.Utilities" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+      run: dotnet build "Pick.Net.Utilities" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}" -p:FileVersion="${{ env.VERSION_FILE }}"
     - name: Build Pick.Net.Utilities.Maui
-      run: dotnet build "Pick.Net.Utilities.Maui" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}"
+      run: dotnet build "Pick.Net.Utilities.Maui" -c Release -p:VersionPrefix="${{ env.VERSION_PREFIX }}" -p:VersionSuffix="${{ env.VERSION_SUFFIX }}" -p:FileVersion="${{ env.VERSION_FILE }}"
     - name: Pack
       run: |
         dotnet pack "Pick.Net.Utilities" -c Release --no-build -o .build -p:PackageVersion=${{ env.VERSION_FULL }}

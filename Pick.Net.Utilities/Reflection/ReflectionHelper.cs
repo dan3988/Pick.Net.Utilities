@@ -29,7 +29,7 @@ public static class ReflectionHelper
 	public const BindingFlags DeclaredNonPublicInstance = NonPublicInstance | BindingFlags.DeclaredOnly;
 	public const BindingFlags DeclaredNonPublicStatic = NonPublicStatic | BindingFlags.DeclaredOnly;
 	
-	private static readonly Type[] TypeCodeTypes =
+	private static readonly Type?[] TypeCodeTypes =
 	[
 		/* TypeCode.Empty		*/ null,
 		/* TypeCode.Object		*/ typeof(object),
@@ -141,7 +141,7 @@ public static class ReflectionHelper
 		return null;
 	}
 
-	public static Type ToType(this TypeCode typeCode)
+	public static Type? ToType(this TypeCode typeCode)
 		=> (uint)typeCode <= (uint)TypeCode.String ? TypeCodeTypes[(int)typeCode] : throw new ArgumentException($"TypeCode '{typeCode}' is not defined.", nameof(typeCode));
 
 	/// <inheritdoc cref="GetBaseTypes(Type, Type?, bool)"/>

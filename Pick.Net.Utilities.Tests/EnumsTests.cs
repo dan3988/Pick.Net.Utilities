@@ -72,7 +72,7 @@ public class EnumsTests
 
 		DoTest<NegativeEnum>(TypeCode.Int32);
 		DoTest<UIntEnum>(TypeCode.UInt32);
-		DoTest<LongEnum>(TypeCode.UInt64);
+		DoTest<LongEnum>(TypeCode.Int64);
 	}
 
 	[TestMethod]

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Reflection;
 
 namespace Pick.Net.Utilities.Tests;
@@ -41,8 +42,11 @@ public class EnumsTests
 	{
 		var values = Enum.GetValues<ConsoleColor>();
 		var list = Enums.GetValues<ConsoleColor>();
+		var boxed = Enums.GetValueList<ConsoleColor>();
 
-		CollectionAssert.AreEqual(values, list);
+		CollectionAssert.AreEqual(values, list);		
+		CollectionAssert.AreEqual(list, boxed);
+		Assert.AreSame(boxed, Enums.GetValueList(typeof(ConsoleColor)));
 	}
 
 	[TestMethod]
@@ -50,8 +54,25 @@ public class EnumsTests
 	{
 		var values = Enum.GetNames<ConsoleColor>();
 		var list = Enums.GetNames<ConsoleColor>();
+		var boxed = Enums.GetNameList<ConsoleColor>();
 
 		CollectionAssert.AreEqual(values, list);
+		CollectionAssert.AreEqual(list, boxed);
+		Assert.AreSame(boxed, Enums.GetNameList(typeof(ConsoleColor)));
+	}
+
+	[TestMethod]
+	public void TestTypeCode()
+	{
+		static void DoTest<T>(TypeCode expected) where T : unmanaged, Enum
+		{
+			Assert.AreEqual(expected, Enums.GetTypeCode<T>(), $"Enums.GetTypeCode<T>() returned incorrect value for type {typeof(T)}.");
+			Assert.AreEqual(expected, Enums.GetTypeCode(typeof(T)), $"Enums.GetTypeCode(Type) returned incorrect value for type {typeof(T)}.");
+		}
+
+		DoTest<NegativeEnum>(TypeCode.Int32);
+		DoTest<UIntEnum>(TypeCode.UInt32);
+		DoTest<LongEnum>(TypeCode.UInt64);
 	}
 
 	[TestMethod]

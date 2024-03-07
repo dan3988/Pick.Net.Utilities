@@ -1,10 +1,28 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
 namespace Pick.Net.Utilities;
 
 public static unsafe partial class Enums
 {
+	private static readonly ConcurrentDictionary<Type, IEnumsCache> ReflectedCache = [];
+
+	private static IEnumsCache GetCache(Type type)
+	{
+		if (!type.IsEnum)
+			throw new ArgumentException($"Type '{type}' is not an enum.", nameof(type));
+
+		return ReflectedCache.GetOrAdd(type, LoadCache);
+	}
+
+	private static IEnumsCache LoadCache(Type type)
+	{
+		var enumsType = typeof(Enums<>).MakeGenericType(type);
+		return (IEnumsCache)Activator.CreateInstance(enumsType, true)!;
+	}
+
 	/// <summary>
 	/// Gets a cached <see cref="ImmutableArray{T}"/> containing all the constant values defined in <typeparamref name="T"/>.
 	/// </summary>
@@ -18,6 +36,13 @@ public static unsafe partial class Enums
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static ImmutableList<T> GetValueList<T>() where T : unmanaged, Enum
 		=> Enums<T>.BoxedValues;
+
+	/// <summary>
+	/// Gets a cached <see cref="ReadOnlyCollection{T}"/> containing all the constant values defined in <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type">The type of enum</param>
+	public static IList GetValueList(Type type)
+		=> GetCache(type).BoxedValues;
 
 	/// <summary>
 	/// Gets a cached <see cref="ImmutableArray{T}"/> containing the names of the constant values defined in <typeparamref name="T"/>.
@@ -34,11 +59,25 @@ public static unsafe partial class Enums
 		=> Enums<T>.BoxedNames;
 
 	/// <summary>
+	/// Gets a cached <see cref="ReadOnlyCollection{T}"/> containing the names of the constant values defined in <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type">The type of enum</param>
+	public static ImmutableList<string> GetNameList(Type type)
+		=> GetCache(type).BoxedNames;
+
+	/// <summary>
 	/// Gets the underlying TypeCode of <typeparamref name="T"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of enum</typeparam>
 	public static TypeCode GetTypeCode<T>() where T : unmanaged, Enum
 		=> Enums<T>.TypeCode;
+
+	/// <summary>
+	/// Gets the underlying TypeCode of <paramref name="type"/>.
+	/// </summary>
+	/// <param name="type">The type of enum</param>
+	public static TypeCode GetTypeCode(Type type)
+		=> GetCache(type).TypeCode;
 
 	/// <summary>
 	/// The same as <see cref="Enum.HasFlag(Enum)"/> but does not box the values.
@@ -119,13 +158,28 @@ public static unsafe partial class Enums
 		Enums<T>.Helper.BitwiseOr(&x, &y, &result);
 		return result;
 	}
+	
+	internal interface IEnumsCache
+	{
+		TypeCode TypeCode { get; }
+
+		int Size { get; }
+
+		EnumHelper Helper { get; }
+
+		IList BoxedValues { get; }
+
+		ImmutableList<string> BoxedNames { get; }
+	}
 }
+
 
 /// <summary>
 /// Stores values relating to the enum <typeparamref name="T"/>.
 /// </summary>
 // ReSharper disable StaticMemberInGenericType
-internal static unsafe class Enums<T> where T : unmanaged, Enum
+internal sealed unsafe class Enums<T> : Enums.IEnumsCache
+	where T : unmanaged, Enum
 {
 	internal static readonly Type UnderlyingType = typeof(T).GetEnumUnderlyingType();
 	internal static readonly TypeCode TypeCode = Conversion.GetTypeCodeFast(UnderlyingType);
@@ -170,5 +224,19 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 		}
 
 		return (min, max);
+	}
+
+	TypeCode Enums.IEnumsCache.TypeCode => TypeCode;
+
+	int Enums.IEnumsCache.Size => Size;
+
+	EnumHelper Enums.IEnumsCache.Helper => Helper;
+
+	IList Enums.IEnumsCache.BoxedValues => BoxedValues;
+
+	ImmutableList<string> Enums.IEnumsCache.BoxedNames => BoxedNames;
+
+	private Enums()
+	{
 	}
 }

@@ -133,12 +133,22 @@ internal static unsafe class Enums<T> where T : unmanaged, Enum
 	internal static readonly EnumHelper Helper = EnumHelper.ForTypeCode(TypeCode);
 
 	internal static readonly T[] Values = Enum.GetValues<T>();
-	internal static readonly ImmutableArray<T> ReadOnlyValues = ImmutableArray.Create(Values);
+	internal static readonly ImmutableArray<T> ReadOnlyValues
+#if NET8_0
+		= System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(Values);
+#else
+		= ImmutableArray.Create(Values);
+#endif
 	private static ImmutableList<T>? _boxedValues;
 	internal static ImmutableList<T> BoxedValues => _boxedValues ??= ImmutableList.CreateRange(Values);
 
 	internal static readonly string[] Names = Enum.GetNames<T>();
-	internal static readonly ImmutableArray<string> ReadOnlyNames = ImmutableArray.Create(Names);
+	internal static readonly ImmutableArray<string> ReadOnlyNames
+#if NET8_0
+		= System.Runtime.InteropServices.ImmutableCollectionsMarshal.AsImmutableArray(Names);
+#else
+		= ImmutableArray.Create(Names);
+#endif
 	private static ImmutableList<string>? _boxedNames;
 	internal static ImmutableList<string> BoxedNames => _boxedNames ??= ImmutableList.CreateRange(Names);
 
